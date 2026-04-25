@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it using the metadata from this file."
+title: "EZNX-ATLAS-A"
+type: software
+version: "2.3.3"
+date-released: 2026-04-25
+license: MIT
+repository-code: "https://github.com/ezynsegnane/ezyx-atlas-a_github_code"
+authors:
+  - family-names: "SEGNANE"
+    given-names: "Ezyn"
+    orcid: "https://orcid.org/0009-0005-0538-4335"
+    affiliation: "Department of Mathematics and Computer Science, University of Nouakchott, Mauritania"
+    email: "ezyn.segnane@univ-nkc.mr"
+abstract: >
+  Training, statistical analysis, reproducibility, index-construction, and
+  figure-generation pipeline for the EZNX-ATLAS-A paper: a seed-matched
+  ablation study measuring the incremental contribution of clinical metadata
+  (age, sex, height, weight, BMI) to 12-lead ECG superclass classification
+  on PTB-XL 1.0.3. All 30 runs (10 seeds × 3 variants) were executed on
+  CPU only (Intel Core i5, PyTorch 2.3.1+cpu) without GPU or CUDA.
+keywords:
+  - electrocardiography
+  - PTB-XL
+  - multimodal deep learning
+  - clinical metadata
+  - reproducibility
+  - ablation study
+  - Wilcoxon test
+  - Benjamini-Hochberg
+  - scientific software
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "SEGNANE"
+      given-names: "Ezyn"
+      orcid: "https://orcid.org/0009-0005-0538-4335"
+  title: >
+    EZNX-ATLAS-A: Measuring the Incremental Contribution of Clinical Metadata
+    to 12-Lead ECG Superclass Classification on PTB-XL
+  journal: "Mathematics"
+  publisher: "MDPI"
+  year: 2026
+  notes: "Submitted; cite using this entry until a DOI is assigned."

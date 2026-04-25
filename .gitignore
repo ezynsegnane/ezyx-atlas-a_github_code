@@ -1,0 +1,69 @@
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+.venv/
+venv/
+env/
+
+# ── Model checkpoints and large binary weights (not tracked) ────────────────
+*.pt
+*.pth
+*.ckpt
+
+# ── Training run outputs (30 checkpoints + logs, too large for GitHub) ───────
+runs_test/
+runs/
+runs_output/
+runs_quick/
+
+# ── PTB-XL dataset and derived data files (download separately from PhysioNet)
+data/
+ptb-xl/
+index_complete.parquet
+*.parquet
+
+# ── Intermediate / legacy analysis (superseded by results/) ─────────────────
+submission_artifacts_en/
+legacy/
+mdpi_mathematics_submission_package/
+
+# ── Manuscript (added to GitHub after journal acceptance) ───────────────────
+paper/
+
+# ── Internal methodology tools (not needed for public reproduction) ──────────
+atlas_a_v5_optimized.py
+quick_pos_weights.py
+verify_pos_weights.py
+pos_weights_methodology.txt
+pos_weights_table.tex
+PACKAGE_MANIFEST.md
+
+# ── LaTeX auxiliary files ────────────────────────────────────────────────────
+*.aux
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.tmp
+# NOTE: *.bbl is NOT ignored (committed to allow compilation without bibtex)
+# NOTE: *.log is NOT ignored in paper/ (kept for traceability)
+
+# ── Archives ─────────────────────────────────────────────────────────────────
+*.rar
+*.zip
+*.7z
+*.bak
+
+# ── OS / editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+~$*.docx
+*.backup_before_*.docx
+*.REPAIRED.docx

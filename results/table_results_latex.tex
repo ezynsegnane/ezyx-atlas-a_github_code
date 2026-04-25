@@ -1,0 +1,14 @@
+\begin{table}[htbp]
+\centering
+\caption{Performances sur le jeu de test (fold 10) avec validation multi-graines. Les résultats sont présentés sous forme moyenne $\pm$ écart-type sur 10 graines aléatoires. $^*p < 0.05$; $^{**}p < 0.01$ after BH-FDR correction (paired Wilcoxon signed-rank vs ECG seul).}
+\label{tab:results_multiseed}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Méthode} & \textbf{Macro AUC} & \textbf{Macro F1} & \textbf{n} \\
+\midrule
+ECG seul & $0.9274 \pm 0.0008$ & $0.7420 \pm 0.0052$ & 10 \\
+ECG + demo & $0.9277 \pm 0.0008$ & $0.7449 \pm 0.0033$ & 10 \\
+ECG + complet & $0.9289 \pm 0.0009$$^{*}$ & $0.7459 \pm 0.0039$ & 10 \\
+\bottomrule
+\end{tabular}
+\end{table}

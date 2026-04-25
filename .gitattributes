@@ -1,0 +1,17 @@
+# PDFs and figures are committed directly (each < 2 MB — no LFS needed).
+# *.pt and *.parquet are excluded by .gitignore, so LFS rules are moot,
+# but kept here for documentation purposes.
+*.pt      filter=lfs diff=lfs merge=lfs -text
+*.parquet filter=lfs diff=lfs merge=lfs -text
+
+# Text files — enforce LF line endings for cross-platform consistency
+*.svg  text
+*.sh   text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf
+*.tex  text eol=lf
+*.bib  text eol=lf
+*.yml  text eol=lf
+*.txt  text eol=lf
+*.csv  text eol=lf
+*.json text eol=lf
