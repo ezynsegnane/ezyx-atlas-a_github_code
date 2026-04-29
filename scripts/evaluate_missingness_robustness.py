@@ -40,13 +40,8 @@ DEFAULT_DATA_ROOT = Path(
     )
 )
 DEFAULT_INDEX_PATH = PROJECT_ROOT / "data" / "index_complete.parquet"
-DEFAULT_STATS_JSON = (
-    PROJECT_ROOT
-    / "submission_artifacts_en"
-    / "analysis_final_10000"
-    / "statistical_analysis_full.json"
-)
-DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "submission_artifacts_en" / "missingness_eval"
+DEFAULT_STATS_JSON = PROJECT_ROOT / "results" / "statistical_analysis_full.json"
+DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "results" / "missingness_eval"
 DEFAULT_FIGURE_DIR = (
     PROJECT_ROOT
     / "mdpi_mathematics_submission_package"

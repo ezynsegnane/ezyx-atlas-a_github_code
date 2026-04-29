@@ -27,24 +27,9 @@ import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RUNS_DIR = PROJECT_ROOT / "runs_test"
-DEFAULT_STATS_JSON = (
-    PROJECT_ROOT
-    / "submission_artifacts_en"
-    / "analysis_recomputed_10000"
-    / "statistical_analysis_full.json"
-)
-DEFAULT_MISSINGNESS_CSV = (
-    PROJECT_ROOT
-    / "submission_artifacts_en"
-    / "missingness_eval"
-    / "missingness_eval_demo_anthro_rows.csv"
-)
-DEFAULT_MISSINGNESS_JSON = (
-    PROJECT_ROOT
-    / "submission_artifacts_en"
-    / "missingness_eval"
-    / "missingness_eval_demo_anthro_summary.json"
-)
+DEFAULT_STATS_JSON = PROJECT_ROOT / "results" / "statistical_analysis_full.json"
+DEFAULT_MISSINGNESS_CSV = PROJECT_ROOT / "results" / "missingness_eval_demo_anthro_rows.csv"
+DEFAULT_MISSINGNESS_JSON = PROJECT_ROOT / "results" / "missingness_eval_demo_anthro_summary.json"
 DEFAULT_FIGURE_DIR = (
     PROJECT_ROOT
     / "mdpi_mathematics_submission_package"

@@ -19,6 +19,7 @@ It provides:
 
 - The full **model architecture** source code (`eznx_model_v5.py`, `eznx_loader_v2.py`)
 - The **training and evaluation pipeline** (`atlas_a_v5_multiseed.py`, `run_multiseed_experiments.py`, `analyze_multiseed_results.py`)
+- The **extended-analysis scripts** (`new_train_models/`) for the sensitivity sweeps and subclass analyses reported in the paper (H5 extended metrics, H7 GLU-width sweep, H8 LVH/HYP subclass AUC, M3 AUC-margin ablation, M4 training-curve figure)
 - All **30 archived seed-level result JSON files** (`results/seed_json/`) — no GPU or checkpoint needed to verify the statistics
 - The **paper figures** (Figures 1–6) in `figures/`
 - The **LaTeX manuscript** source and compiled PDFs in `paper/`
@@ -126,6 +127,13 @@ eznx-atlas-a/
 │   ├── render_manuscript_result_figures.py  # Figures 2, 3, 5, 6 generation
 │   ├── render_article_artifacts.py          # Table/artifact export
 │   └── build_index.py                       # PTB-XL index construction helper
+│
+├── new_train_models/                # Extended-analysis scripts (sensitivity sweeps & subclass analyses)
+│   ├── atlas_a_v5_extended.py       # Extended training entry point (H5/H7/H8/M3/M4)
+│   ├── run_extended_experiments.py  # Orchestrator for the 5 extended configurations
+│   ├── eznx_model_v5_extended.py    # Extended model variant
+│   ├── eznx_loader_v2.py            # Data loader (copy used by extended scripts)
+│   └── generate_fig2_m4.py         # Figure 2 training-curve generation (M4)
 │
 ├── results/                         # All numerical artifacts from the paper
 │   ├── statistical_analysis_full.json       # Master paired-statistics export
