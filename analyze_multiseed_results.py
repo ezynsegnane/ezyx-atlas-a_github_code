@@ -88,7 +88,32 @@ def load_all_results(runs_dir: Path) -> Dict[str, Dict[int, Dict]]:
                             f"folder={seed}, json={metadata.get('seed')}"
                         )
                     results[variant][seed] = data
-    
+
+        # Fallback: flat JSON layout used by the archived release (results/seed_json/).
+        # File naming convention: results_{variant}_seed{seed}.json directly inside
+        # runs_dir (no subdirectory wrapper).
+        if not results[variant]:
+            for json_file in sorted(runs_dir.glob(f"results_{variant}_seed*.json")):
+                try:
+                    seed = int(json_file.stem.split("_seed")[-1])
+                except Exception:
+                    continue
+                with open(json_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if "test" in data and "macro_auc" in data["test"]:
+                    metadata = data.get("metadata", {})
+                    if metadata.get("variant") not in (None, variant):
+                        warnings.warn(
+                            f"Variant mismatch in {json_file}: "
+                            f"expected={variant}, json={metadata.get('variant')}"
+                        )
+                    if metadata.get("seed") not in (None, seed):
+                        warnings.warn(
+                            f"Seed mismatch in {json_file}: "
+                            f"expected={seed}, json={metadata.get('seed')}"
+                        )
+                    results[variant][seed] = data
+
     return dict(results)
 
 

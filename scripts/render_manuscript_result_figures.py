@@ -1,9 +1,10 @@
 """Render the result figures used by the MDPI manuscript.
 
-The script regenerates Figures 2--6 from stored experiment outputs without
+The script regenerates Figures 3--6 from stored experiment outputs without
 changing any reported value. It is intentionally separate from training and
 missingness evaluation: it only reads JSON/CSV results and writes publication
-figures.
+figures. Figure 1 (architecture) is produced by render_architecture_figure.py;
+Figure 2 (training curves) is produced by new_train_models/generate_fig2_m4.py.
 """
 
 from __future__ import annotations

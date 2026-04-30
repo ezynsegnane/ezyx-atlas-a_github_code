@@ -95,7 +95,7 @@ Metadata (8-dim: age_z, sex01, height_z, weight_z, bmi_z, m_h, m_w, m_bmi)
 
 Availability score:  q_meta = min(1, q_d + 0.5·q_a)
 Residual injection:  h_ts ← h_ts + 0.10·q_meta·W_res·h_m  (W_res init = 0)
-GLU gate (2.66 M):   z = [h_ts ∥ h_m] ⊙ σ(Linear([h_ts ∥ h_m]))
+GLU gate (2.66 M):   z = [h_ts ∥ h_m] ⊙ σ(Linear₂(ReLU(Linear₁([h_ts ∥ h_m]))))
 
 Three heads:   ℓ_ecg,  ℓ_meta,  ℓ_fused = W_f·z + 0.05·q_meta·ℓ_meta
 Inference:     p = w*·σ(ℓ_fused) + (1−w*)·σ(ℓ_ecg)    [w* = 1.0 in all 30 runs]
@@ -122,9 +122,9 @@ eznx-atlas-a/
 ├── LICENSE                          # MIT
 │
 ├── scripts/
-│   ├── evaluate_missingness_robustness.py   # Figure 4 — inference-time masking
+│   ├── evaluate_missingness_robustness.py   # Figure 4 source data (missingness CSV/JSON)
 │   ├── render_architecture_figure.py        # Figure 1 generation
-│   ├── render_manuscript_result_figures.py  # Figures 2, 3, 5, 6 generation
+│   ├── render_manuscript_result_figures.py  # Figures 3, 4, 5, 6 generation (NOT Fig. 2)
 │   ├── render_article_artifacts.py          # Table/artifact export
 │   └── build_index.py                       # PTB-XL index construction helper
 │
@@ -291,8 +291,15 @@ python scripts/evaluate_missingness_robustness.py \
 ### Step 5 — Regenerate figures
 
 ```bash
-python scripts/render_manuscript_result_figures.py
+# Figure 1 — architecture diagram
 python scripts/render_architecture_figure.py
+
+# Figure 2 — validation AUC mean±SD trajectory (reads results/seed_json/*.json)
+python new_train_models/generate_fig2_m4.py
+
+# Figures 3, 4, 5, 6 — per-class results and missingness robustness
+# (reads from results/ by default; no PTB-XL data or retraining needed)
+python scripts/render_manuscript_result_figures.py
 ```
 
 ---
