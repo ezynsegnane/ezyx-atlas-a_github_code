@@ -84,13 +84,22 @@ def collect_metric(
 
 def summarise(vals: List[float]) -> Dict[str, float]:
     if not vals:
-        return {"n": 0, "mean": None, "sd": None,
+        return {"n": 0, "mean": None, "sd": None, "ci95": None,
                 "min": None, "max": None, "median": None}
-    a = np.array(vals)
+    a  = np.array(vals)
+    n  = len(a)
+    sd = float(a.std(ddof=1)) if n > 1 else 0.0
+    # 95% CI half-width: t(0.975, n-1) * SD / sqrt(n)  [TRIPOD+AI item 14]
+    if n > 1:
+        t_crit = float(stats.t.ppf(0.975, df=n - 1))
+        ci95   = t_crit * sd / float(np.sqrt(n))
+    else:
+        ci95 = 0.0
     return {
-        "n":      len(a),
+        "n":      n,
         "mean":   float(a.mean()),
-        "sd":     float(a.std(ddof=1)) if len(a) > 1 else 0.0,
+        "sd":     sd,
+        "ci95":   ci95,
         "min":    float(a.min()),
         "max":    float(a.max()),
         "median": float(np.median(a)),
@@ -154,18 +163,25 @@ def main() -> None:
     variant_aucs: Dict[str, List[float]] = {}
 
     for variant in VARIANTS:
-        vals = collect_metric(runs_dir, variant, SEEDS_20, metric_key="macro_auc")
-        delta = collect_metric(runs_dir, variant, SEEDS_20, metric_key="delta_meta_auc")
+        vals   = collect_metric(runs_dir, variant, SEEDS_20, metric_key="macro_auc")
+        delta  = collect_metric(runs_dir, variant, SEEDS_20, metric_key="delta_meta_auc")
+        f1_opt = collect_metric(runs_dir, variant, SEEDS_20, metric_key="macro_f1_optimal")
+        f1_05  = collect_metric(runs_dir, variant, SEEDS_20, metric_key="macro_f1_fixed_05")
         s = summarise(vals)
-        print(f"  {variant:<15}: {s['mean']:.4f} ± {s['sd']:.4f}  n={s['n']}")
+        sf1 = summarise(f1_opt)
+        print(f"  {variant:<15}: AUC {s['mean']:.4f} ± {s['sd']:.4f} "
+              f"(95% CI ±{s['ci95']:.4f})  F1 {sf1['mean']:.4f} ± {sf1['sd']:.4f}  "
+              f"n={s['n']}")
         group_a[variant] = {
-            "macro_auc": s,
+            "macro_auc":      s,
             "delta_meta_auc": summarise(delta),
-            "per_class_auc": {},
+            "macro_f1_optimal": sf1,
+            "macro_f1_fixed_05": summarise(f1_05),
+            "per_class_auc":  {},
         }
         variant_aucs[variant] = vals
 
-        # Per-class
+        # Per-class AUC
         for lbl in DS5_LABELS:
             class_vals: List[float] = []
             for seed in SEEDS_20:
@@ -282,27 +298,32 @@ def _write_primary_latex(ablation: Dict, path: Path) -> None:
                 "demo+anthro": "Full (Demo+Anthro)"}
     lines = [
         r"\begin{table}[ht]",
-        r"\caption{Primary ablation results (macro-AUC, test fold 10). "
-        r"20 consecutive seeds 2024–2043; mean\,\(\pm\)\,SD reported.}",
+        r"\caption{Primary ablation results (test fold 10, 20 consecutive seeds "
+        r"2024--2043). Mean\,\(\pm\)\,SD and 95\%\ CI (Student \(t\)-distribution) "
+        r"across seeds. TRIPOD+AI item 14: performance reported with uncertainty intervals.}",
         r"\label{tab:primary_ablation}",
-        r"\begin{tabular}{lcccc}",
+        r"\begin{tabular}{lccccc}",
         r"\hline",
-        r"Variant & Macro-AUC & $\Delta$AUC (meta) & NORM & MI \\ \hline",
+        r"Variant & Macro-AUC & 95\%\ CI & Macro-F1 & $\Delta$AUC (meta) & MI-AUC \\ \hline",
     ]
     for v in VARIANTS:
         if v not in ablation:
             continue
-        d = ablation[v]
-        auc = d["macro_auc"]
-        dm  = d["delta_meta_auc"]
-        norm = d["per_class_auc"].get("NORM", {})
+        d    = ablation[v]
+        auc  = d["macro_auc"]
+        f1   = d.get("macro_f1_optimal", {})
+        dm   = d["delta_meta_auc"]
         mi   = d["per_class_auc"].get("MI", {})
+        ci   = auc.get("ci95", 0.0) or 0.0
+        lo   = (auc["mean"] or 0) - ci
+        hi   = (auc["mean"] or 0) + ci
         row = (
-            f"{name_map.get(v,v)} & "
+            f"{name_map.get(v, v)} & "
             f"${auc['mean']:.4f}\\pm{auc['sd']:.4f}$ & "
+            f"$[{lo:.4f},{hi:.4f}]$ & "
+            f"${f1.get('mean', float('nan')):.4f}\\pm{f1.get('sd', 0):.4f}$ & "
             f"${dm['mean']:+.4f}\\pm{dm['sd']:.4f}$ & "
-            f"${norm.get('mean',float('nan')):.4f}\\pm{norm.get('sd',0):.4f}$ & "
-            f"${mi.get('mean',float('nan')):.4f}\\pm{mi.get('sd',0):.4f}$ \\\\"
+            f"${mi.get('mean', float('nan')):.4f}\\pm{mi.get('sd', 0):.4f}$ \\\\"
         )
         lines.append(row)
     lines += [r"\hline", r"\end{tabular}", r"\end{table}"]

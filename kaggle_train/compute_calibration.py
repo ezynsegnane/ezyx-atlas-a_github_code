@@ -5,9 +5,11 @@ Reads NPZ probability files for the 60 PRIMARY runs (3 variants × 20 seeds)
 and computes, per variant:
 
   • Brier score (lower = better calibrated)
-  • Expected Calibration Error (ECE, 10-bin)
+  • Expected Calibration Error (ECE, 10 uniform bins)
   • Macro-AUC (redundant with JSON but kept for cross-check)
+  • Macro-AUPRC (Area Under Precision-Recall Curve, critical for imbalanced classes)
   • Per-class AUC distribution over seeds (mean ± SD)
+  • Per-class AUPRC distribution over seeds (mean ± SD)
 
 Output
 ------
@@ -24,11 +26,11 @@ import argparse
 import json
 import os
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 import numpy as np
 from sklearn.calibration import calibration_curve
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import average_precision_score, roc_auc_score
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -76,6 +78,23 @@ def macro_auc(Y: np.ndarray, P: np.ndarray) -> float:
     return float(np.mean(aucs)) if aucs else float("nan")
 
 
+def auprc_per_class(Y: np.ndarray, P: np.ndarray) -> List[float]:
+    """Area Under Precision-Recall Curve per class (average precision)."""
+    out = []
+    for j in range(Y.shape[1]):
+        if len(np.unique(Y[:, j])) >= 2:
+            out.append(float(average_precision_score(Y[:, j], P[:, j])))
+        else:
+            out.append(float("nan"))
+    return out
+
+
+def macro_auprc(Y: np.ndarray, P: np.ndarray) -> float:
+    """Mean-across-classes AUPRC (classes with at least one positive)."""
+    vals = [v for v in auprc_per_class(Y, P) if not np.isnan(v)]
+    return float(np.mean(vals)) if vals else float("nan")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Loader
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -119,8 +138,9 @@ def main() -> None:
 
     for variant in VARIANTS:
         print(f"\n=== Variant: {variant} ===")
-        aucs_seeds, briers, eces = [], [], []
+        aucs_seeds, briers, eces, auprcs_seeds = [], [], [], []
         per_class: Dict[str, List[float]] = {lbl: [] for lbl in DS5_LABELS}
+        per_class_auprc: Dict[str, List[float]] = {lbl: [] for lbl in DS5_LABELS}
 
         for seed in SEEDS:
             try:
@@ -135,14 +155,19 @@ def main() -> None:
             ma = macro_auc(Y, P)
             bs = brier_score_macro(Y, P)
             ec = ece_macro(Y, P)
+            ap = macro_auprc(Y, P)
             aucs_seeds.append(ma)
             briers.append(bs)
             eces.append(ec)
+            auprcs_seeds.append(ap)
 
             for j, lbl in enumerate(DS5_LABELS):
                 if len(np.unique(Y[:, j])) >= 2:
                     per_class[lbl].append(
                         float(roc_auc_score(Y[:, j], P[:, j]))
+                    )
+                    per_class_auprc[lbl].append(
+                        float(average_precision_score(Y[:, j], P[:, j]))
                     )
 
         n = len(aucs_seeds)
@@ -151,13 +176,15 @@ def main() -> None:
             continue
 
         variant_report = {
-            "n_seeds": n,
+            "n_seeds":          n,
             "macro_auc_mean":   float(np.mean(aucs_seeds)),
-            "macro_auc_sd":     float(np.std(aucs_seeds, ddof=1)) if n > 1 else 0.0,
+            "macro_auc_sd":     float(np.std(aucs_seeds,   ddof=1)) if n > 1 else 0.0,
+            "macro_auprc_mean": float(np.mean(auprcs_seeds)),
+            "macro_auprc_sd":   float(np.std(auprcs_seeds, ddof=1)) if n > 1 else 0.0,
             "brier_mean":       float(np.mean(briers)),
-            "brier_sd":         float(np.std(briers,      ddof=1)) if n > 1 else 0.0,
+            "brier_sd":         float(np.std(briers,        ddof=1)) if n > 1 else 0.0,
             "ece_mean":         float(np.mean(eces)),
-            "ece_sd":           float(np.std(eces,         ddof=1)) if n > 1 else 0.0,
+            "ece_sd":           float(np.std(eces,           ddof=1)) if n > 1 else 0.0,
             "per_class_auc": {
                 lbl: {
                     "mean": float(np.mean(v)),
@@ -165,18 +192,28 @@ def main() -> None:
                 }
                 for lbl, v in per_class.items() if v
             },
+            "per_class_auprc": {
+                lbl: {
+                    "mean": float(np.mean(v)),
+                    "sd":   float(np.std(v, ddof=1)) if len(v) > 1 else 0.0,
+                }
+                for lbl, v in per_class_auprc.items() if v
+            },
             "all_seed_aucs":    aucs_seeds,
+            "all_seed_auprcs":  auprcs_seeds,
             "all_seed_briers":  briers,
             "all_seed_eces":    eces,
         }
         report[variant] = variant_report
 
         print(f"  N seeds: {n}")
-        print(f"  Macro AUC : {variant_report['macro_auc_mean']:.4f} "
+        print(f"  Macro AUC  : {variant_report['macro_auc_mean']:.4f} "
               f"± {variant_report['macro_auc_sd']:.4f}")
-        print(f"  Brier     : {variant_report['brier_mean']:.4f} "
+        print(f"  Macro AUPRC: {variant_report['macro_auprc_mean']:.4f} "
+              f"± {variant_report['macro_auprc_sd']:.4f}")
+        print(f"  Brier      : {variant_report['brier_mean']:.4f} "
               f"± {variant_report['brier_sd']:.4f}")
-        print(f"  ECE       : {variant_report['ece_mean']:.4f} "
+        print(f"  ECE        : {variant_report['ece_mean']:.4f} "
               f"± {variant_report['ece_sd']:.4f}")
 
     # Save JSON
@@ -190,26 +227,28 @@ def main() -> None:
 
 
 def _write_latex_table(report: Dict, path: Path) -> None:
+    name_map = {"none": "ECG-only", "demo": "Demo",
+                "demo+anthro": "Full (Demo+Anthro)"}
     lines = [
         r"\begin{table}[ht]",
         r"\caption{Cross-seed calibration metrics (20 seeds, test fold 10). "
-        r"Macro-AUC, Brier score and Expected Calibration Error (ECE, 10 bins) "
-        r"are reported as mean\,\(\pm\)\,SD across seeds.}",
+        r"Macro-AUC, Macro-AUPRC, Brier score and Expected Calibration Error "
+        r"(ECE, 10 uniform bins) are reported as mean\,\(\pm\)\,SD across seeds. "
+        r"AUPRC is especially informative for imbalanced classes (HYP $\approx$12\%).}",
         r"\label{tab:calibration}",
-        r"\begin{tabular}{lccc}",
+        r"\begin{tabular}{lcccc}",
         r"\hline",
-        r"Variant & Macro-AUC & Brier & ECE \\",
+        r"Variant & Macro-AUC & Macro-AUPRC & Brier & ECE \\",
         r"\hline",
     ]
     for v in VARIANTS:
         if v not in report:
             continue
         r = report[v]
-        name_map = {"none": "ECG-only", "demo": "Demo",
-                    "demo+anthro": "Full (Demo+Anthro)"}
         row = (
             f"{name_map.get(v, v)} & "
             f"${r['macro_auc_mean']:.4f}\\pm{r['macro_auc_sd']:.4f}$ & "
+            f"${r['macro_auprc_mean']:.4f}\\pm{r['macro_auprc_sd']:.4f}$ & "
             f"${r['brier_mean']:.4f}\\pm{r['brier_sd']:.4f}$ & "
             f"${r['ece_mean']:.4f}\\pm{r['ece_sd']:.4f}$ \\\\"
         )
