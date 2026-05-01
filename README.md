@@ -242,7 +242,7 @@ This requires no GPU, no PTB-XL data download, and completes in under a minute. 
 ```bash
 python index_construction.py \
   --data_root "$EZNX_DATA_REAL" \
-  --output index_complete.parquet
+  --out-dir .
 ```
 
 ### Step 2 — Run the full 30-run ablation (≈ 18–25 hours on CPU)

@@ -250,7 +250,7 @@ def wilcoxon_test(data1: np.ndarray, data2: np.ndarray) -> Tuple[float, float]:
             d2,
             alternative='two-sided',
             zero_method='wilcox',
-            method='auto',
+            method='exact',   # n=10, no ties → exact permutation distribution
         )
         return (stat, pval)
     except Exception as exc:
