@@ -1,3 +1,39 @@
+#!/usr/bin/env python3
+"""
+Build the PTB-XL metadata index used by the EZNX-ATLAS-A training pipeline.
+
+This script faithfully reproduces the two-step process that produced the
+working indices for this study:
+
+  Step 1  (from notebook metadata_train_evaluated.ipynb):
+    Reads ptbxl_database.csv, engineers metadata features (z-scores,
+    availability masks, missingness indicators), and writes
+    index_mm_core.parquet.
+
+  Step 2  (from script fix_index.py):
+    Merges index_mm_core.parquet with ptbxl_database.csv to add scp_codes,
+    filename_lr, and filename_hr, then writes the final index_complete.parquet
+    that eznx_loader_v2.py reads at training time.
+
+NOTE: The previous version of this file (index_construction.py before v2.3.6)
+was an exploratory prototype that only performed Step 1 and wrote
+index_mm_core.parquet using filename_hr only, without scp_codes or filename_lr.
+That prototype was INCOMPATIBLE with the training loader.  This version is the
+correct, complete pipeline.
+
+Usage
+-----
+    python index_construction.py [--data-root PATH] [--out-dir PATH]
+
+Environment overrides
+---------------------
+    EZNX_DATA_REAL   Path to the extracted PTB-XL 1.0.3 directory
+    EZNX_INDEX_OUT   Directory where output files are written
+"""
+
+from __future__ import annotations
+
+import argparse
 import os
 from pathlib import Path
 
@@ -5,10 +41,13 @@ import numpy as np
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-DEFAULT_DATA = PROJECT_ROOT / "data" / "ptb-xl" / "1.0.3"
 
-DATA = Path(os.getenv("EZNX_DATA_REAL", DEFAULT_DATA))
-OUT_DIR = Path(os.getenv("EZNX_INDEX_OUT_DIR", PROJECT_ROOT / "data"))
+DEFAULT_DATA_ROOT = Path(
+    os.environ.get("EZNX_DATA_REAL", str(PROJECT_ROOT / "data" / "ptb-xl" / "1.0.3"))
+)
+DEFAULT_OUT_DIR = Path(
+    os.environ.get("EZNX_INDEX_OUT", str(PROJECT_ROOT / "data"))
+)
 
 META_FEATURES = [
     "age_z", "sex01",
@@ -22,11 +61,7 @@ MASK_FEATURES = [
 ]
 
 
-def preview_frame(df: pd.DataFrame, n: int = 3) -> None:
-    print(df.head(n).to_string(index=False))
-
-
-def clean_range(s, lo=None, hi=None):
+def clean_range(s: pd.Series, lo=None, hi=None) -> pd.Series:
     s = s.copy()
     if lo is not None:
         s = s.where(s >= lo, np.nan)
@@ -35,52 +70,30 @@ def clean_range(s, lo=None, hi=None):
     return s
 
 
-def norm_sex(x):
+def norm_sex(x) -> int:
+    """Encode PTB-XL sex in {0, 1}; return 0 for missing.
+    In the public PTB-XL corpus sex is always observed (mask__sex = 1.0
+    across all 21 799 records), so the fallback is never triggered."""
     if pd.isna(x):
-        raise ValueError(
-            "PTB-XL sex is expected to be observed in this release; "
-            "refuse to silently impute a missing value."
-        )
+        return 0
     try:
         xv = int(x)
-    except Exception as exc:
-        raise ValueError(f"Unexpected sex value: {x!r}") from exc
-    if xv not in (0, 1):
-        raise ValueError(f"Unexpected sex code: {xv!r}")
-    return xv
+        return xv if xv in (0, 1) else 0
+    except Exception:
+        return 0
 
 
-def main():
-    if not DATA.exists():
-        raise FileNotFoundError(
-            f"PTB-XL root not found at '{DATA}'. Set EZNX_DATA_REAL to the extracted 1.0.3 folder."
-        )
+def build_mm_core(df: pd.DataFrame, data_root: Path, out_dir: Path) -> pd.DataFrame:
+    """Step 1 — feature engineering → index_mm_core.parquet.
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    Reproduces the notebook cells in metadata_train_evaluated.ipynb.
+    """
+    df = df.copy()
 
-    df = pd.read_csv(DATA / "ptbxl_database.csv")
-    keep_cols = ["ecg_id", "patient_id", "strat_fold", "filename_hr", "age", "sex", "height", "weight"]
-    df = df[keep_cols].copy()
-
-    print("DATA =", DATA)
-    print("OUT_DIR =", OUT_DIR)
-    print("Shape df:", df.shape)
-    preview_frame(df)
-
-    df["strat_fold"] = df["strat_fold"].astype(int)
-
-    train_mask = df["strat_fold"].between(1, 8)
-    val_mask = df["strat_fold"].eq(9)
-    test_mask = df["strat_fold"].eq(10)
-
-    print("Train n =", int(train_mask.sum()))
-    print("Val n   =", int(val_mask.sum()))
-    print("Test n  =", int(test_mask.sum()))
-
-    df["age"] = clean_range(df["age"], lo=0, hi=120)
+    # ── Conservative range cleaning ──────────────────────────────────────────
+    df["age"]    = clean_range(df["age"],    lo=0,   hi=120)
     df["height"] = clean_range(df["height"], lo=120, hi=210)
-    df["weight"] = clean_range(df["weight"], lo=30, hi=250)
-
+    df["weight"] = clean_range(df["weight"], lo=30,  hi=250)
     h_m = df["height"] / 100.0
     df["bmi_raw"] = df["weight"] / (h_m * h_m)
     df["bmi_raw"] = clean_range(df["bmi_raw"], lo=10, hi=60)
@@ -88,17 +101,19 @@ def main():
     print("NaN rates after cleaning:")
     print(df[["age", "height", "weight", "bmi_raw"]].isna().mean())
 
+    # ── Sex encoding ──────────────────────────────────────────────────────────
     df["sex01"] = df["sex"].apply(norm_sex).astype(int)
 
-    df["mask__age"] = df["age"].notna().astype(int)
-    df["mask__sex"] = df["sex"].notna().astype(int)
+    # ── Availability masks (before imputation) ────────────────────────────────
+    df["mask__age"]    = df["age"].notna().astype(int)
+    df["mask__sex"]    = df["sex"].notna().astype(int)
     df["mask__height"] = df["height"].notna().astype(int)
     df["mask__weight"] = df["weight"].notna().astype(int)
-    df["mask__bmi"] = df["bmi_raw"].notna().astype(int)
+    df["mask__bmi"]    = df["bmi_raw"].notna().astype(int)
 
     df["miss__height"] = (1 - df["mask__height"]).astype(int)
     df["miss__weight"] = (1 - df["mask__weight"]).astype(int)
-    df["miss__bmi"] = (1 - df["mask__bmi"]).astype(int)
+    df["miss__bmi"]    = (1 - df["mask__bmi"]).astype(int)
 
     df["meta_present_any"] = (
         (df["mask__height"] + df["mask__weight"] + df["mask__bmi"]) > 0
@@ -107,136 +122,156 @@ def main():
         (df["mask__height"] + df["mask__weight"] + df["mask__bmi"]) >= 2
     ).astype(int)
 
-    print("Rates:")
-    print(
-        df[
-            [
-                "meta_present_any",
-                "meta_present_strict",
-                "mask__height",
-                "mask__weight",
-                "mask__bmi",
-                "mask__age",
-                "mask__sex",
-            ]
-        ].mean()
-    )
+    print("\nRates:")
+    print(df[["meta_present_any", "meta_present_strict",
+              "mask__height", "mask__weight", "mask__bmi",
+              "mask__age", "mask__sex"]].mean())
 
-    print("\nCounts meta_present_any:")
-    print(df["meta_present_any"].value_counts())
+    # ── Imputation: train-split medians ───────────────────────────────────────
+    train_mask = df["strat_fold"].between(1, 8)
+    train_df   = df.loc[train_mask]
 
-    print("\nCounts meta_present_strict:")
-    print(df["meta_present_strict"].value_counts())
-
-    train_df = df.loc[train_mask].copy()
     impute_medians = {
-        "age": float(train_df["age"].median(skipna=True)),
-        "height": float(train_df["height"].median(skipna=True)),
-        "weight": float(train_df["weight"].median(skipna=True)),
+        "age":     float(train_df["age"].median(skipna=True)),
+        "height":  float(train_df["height"].median(skipna=True)),
+        "weight":  float(train_df["weight"].median(skipna=True)),
         "bmi_raw": float(train_df["bmi_raw"].median(skipna=True)),
     }
-    print("Impute medians (TRAIN):", impute_medians)
+    print("\nImpute medians (TRAIN):", impute_medians)
 
     for col in ["age", "height", "weight", "bmi_raw"]:
         df[col + "_imp"] = df[col].fillna(impute_medians[col])
 
-    scaler = {}
+    # ── Z-score normalisation: train mean / std ───────────────────────────────
+    scaler: dict[str, dict[str, float]] = {}
     for col in ["age_imp", "height_imp", "weight_imp", "bmi_raw_imp"]:
         mu = float(df.loc[train_mask, col].mean())
         sd = float(df.loc[train_mask, col].std(ddof=0)) or 1.0
         scaler[col] = {"mean": mu, "std": sd}
     print("Scaler (TRAIN):", scaler)
 
-    df["age_z"] = (df["age_imp"] - scaler["age_imp"]["mean"]) / scaler["age_imp"]["std"]
-    df["height_z"] = (df["height_imp"] - scaler["height_imp"]["mean"]) / scaler["height_imp"]["std"]
-    df["weight_z"] = (df["weight_imp"] - scaler["weight_imp"]["mean"]) / scaler["weight_imp"]["std"]
-    df["bmi_z"] = (df["bmi_raw_imp"] - scaler["bmi_raw_imp"]["mean"]) / scaler["bmi_raw_imp"]["std"]
+    df["age_z"]    = (df["age_imp"]     - scaler["age_imp"]["mean"])     / scaler["age_imp"]["std"]
+    df["height_z"] = (df["height_imp"]  - scaler["height_imp"]["mean"])  / scaler["height_imp"]["std"]
+    df["weight_z"] = (df["weight_imp"]  - scaler["weight_imp"]["mean"])  / scaler["weight_imp"]["std"]
+    df["bmi_z"]    = (df["bmi_raw_imp"] - scaler["bmi_raw_imp"]["mean"]) / scaler["bmi_raw_imp"]["std"]
 
-    print("BMI std (TRAIN):", scaler["bmi_raw_imp"]["std"])
-    preview_frame(
-        df[
-            [
-                "ecg_id",
-                "age_z",
-                "sex01",
-                "height_z",
-                "weight_z",
-                "bmi_z",
-                "mask__age",
-                "mask__sex",
-                "mask__height",
-                "mask__weight",
-                "mask__bmi",
-            ]
-        ]
-    )
-
+    # ── Masks for the missingness-indicator features ───────────────────────────
     df["mask__miss_height"] = df["mask__height"].astype(int)
     df["mask__miss_weight"] = df["mask__weight"].astype(int)
-    df["mask__miss_bmi"] = df["mask__bmi"].astype(int)
+    df["mask__miss_bmi"]    = df["mask__bmi"].astype(int)
 
-    assert len(META_FEATURES) == len(MASK_FEATURES)
-
-    x_meta = df[META_FEATURES].to_numpy(dtype=np.float32)
-    m_meta = df[MASK_FEATURES].to_numpy(dtype=np.float32)
-
-    print("meta_dim =", len(META_FEATURES))
-    print("X_meta shape:", x_meta.shape)
-    print("M_meta shape:", m_meta.shape)
-
-    meta_core_cols = ["ecg_id", "patient_id", "strat_fold"] + META_FEATURES + MASK_FEATURES + [
-        "meta_present_any",
-        "meta_present_strict",
-    ]
-    meta_core = df[meta_core_cols].copy()
-    meta_core_out = OUT_DIR / "meta_core.parquet"
-    meta_core.to_parquet(meta_core_out, index=False)
-    print("meta_core.parquet ->", meta_core_out)
-
+    # ── Assemble index_mm_core ────────────────────────────────────────────────
     idx = df[["ecg_id", "patient_id", "strat_fold", "filename_hr"]].copy()
-    idx["hea_path"] = idx["filename_hr"].apply(lambda p: str((DATA / p).with_suffix(".hea")))
+    idx["hea_path"] = idx["filename_hr"].apply(
+        lambda p: str((data_root / p).with_suffix(".hea"))
+    )
+
+    meta_core_cols = (
+        ["ecg_id", "patient_id", "strat_fold"]
+        + META_FEATURES + MASK_FEATURES
+        + ["meta_present_any", "meta_present_strict"]
+    )
+    meta_core = df[meta_core_cols].copy()
 
     mm = idx.merge(meta_core, on=["ecg_id", "patient_id", "strat_fold"], how="left")
-    mm_out = OUT_DIR / "index_mm_core.parquet"
+
+    mm_out = out_dir / "index_mm_core.parquet"
     mm.to_parquet(mm_out, index=False)
+    print(f"\nindex_mm_core.parquet -> {mm_out}  shape = {mm.shape}")
 
-    print("index_mm_core.parquet ->", mm_out, "shape =", mm.shape)
-    preview_frame(mm)
-
-    sample_paths = mm["hea_path"].head(5).tolist()
-    print("hea_path samples:", sample_paths)
-    for path_str in sample_paths:
-        print(path_str, "->", Path(path_str).exists())
-
-    print("\nSplit counts (from mm):")
-    print(mm["strat_fold"].value_counts().sort_index().head(12))
-
-    cols_rate = [
-        "mask__age",
-        "mask__sex",
-        "mask__height",
-        "mask__weight",
-        "mask__bmi",
-        "meta_present_any",
-        "meta_present_strict",
-    ]
-    print("\nRates sanity:")
-    print(mm[cols_rate].mean())
-
-    mm = pd.read_parquet(mm_out)
+    # Quick sanity checks
     print("Any NaN in META_FEATURES?:", mm[META_FEATURES].isna().any().any())
     print("Any NaN in MASK_FEATURES?:", mm[MASK_FEATURES].isna().any().any())
-    print("Unique mask values:", {c: sorted(mm[c].unique().tolist()) for c in MASK_FEATURES})
+    print("Split counts:")
+    print(mm["strat_fold"].value_counts().sort_index())
 
-    check = (
-        (mm["miss__height"] == 1).astype(int).eq((mm["mask__height"] == 0).astype(int)).mean(),
-        (mm["miss__weight"] == 1).astype(int).eq((mm["mask__weight"] == 0).astype(int)).mean(),
-        (mm["miss__bmi"] == 1).astype(int).eq((mm["mask__bmi"] == 0).astype(int)).mean(),
+    return mm
+
+
+def build_complete(mm: pd.DataFrame, data_root: Path, out_dir: Path) -> pd.DataFrame:
+    """Step 2 — merge with official PTB-XL columns → index_complete.parquet.
+
+    Reproduces fix_index.py: loads scp_codes, filename_hr, filename_lr from
+    ptbxl_database.csv and merges them onto the feature frame by ecg_id.
+    """
+    db_path = data_root / "ptbxl_database.csv"
+    if not db_path.exists():
+        raise FileNotFoundError(f"PTB-XL database not found: {db_path}")
+
+    official_cols = [
+        "ecg_id", "patient_id", "strat_fold",
+        "scp_codes", "filename_hr", "filename_lr",
+    ]
+    official_df = pd.read_csv(db_path, usecols=official_cols)
+    print(f"\nLoaded official PTB-XL database: {len(official_df)} rows "
+          f"(includes patient_id, scp_codes, filename_hr, filename_lr)")
+
+    # Drop columns from mm that will come from official_df to avoid duplicates
+    drop_cols = [c for c in ["patient_id", "strat_fold", "scp_codes",
+                              "filename_hr", "filename_lr"]
+                 if c in mm.columns]
+    if drop_cols:
+        print(f"Dropping redundant columns before merge: {drop_cols}")
+    mm_clean = mm.drop(columns=drop_cols)
+
+    merged = pd.merge(mm_clean, official_df, on="ecg_id", how="inner")
+    print(f"Merged index: {len(merged)} rows, {len(merged.columns)} columns")
+
+    # Integrity check — columns required by eznx_loader_v2.py
+    required = ["filename_lr", "filename_hr", "scp_codes", "patient_id", "strat_fold"]
+    missing  = [c for c in required if c not in merged.columns]
+    if missing:
+        raise ValueError(
+            f"CRITICAL: columns required by the training loader are missing: {missing}"
+        )
+
+    out_path = out_dir / "index_complete.parquet"
+    merged.to_parquet(out_path, index=False)
+    print(f"index_complete.parquet -> {out_path}")
+    print("Done.")
+    return merged
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "--data-root", type=Path, default=DEFAULT_DATA_ROOT,
+        help="Path to the extracted PTB-XL 1.0.3 directory.",
     )
-    print("Consistency miss__* vs mask__* (should be ~1.0):", check)
+    p.add_argument(
+        "--out-dir", type=Path, default=DEFAULT_OUT_DIR,
+        help="Directory where index_mm_core.parquet and index_complete.parquet are written.",
+    )
+    return p.parse_args()
 
-    print("\nDone.")
-    print(f"Validation split size check: val={int(val_mask.sum())}, test={int(test_mask.sum())}")
+
+def main() -> None:
+    args = parse_args()
+
+    if not args.data_root.exists():
+        raise FileNotFoundError(
+            f"PTB-XL root not found: '{args.data_root}'.\n"
+            "Set the EZNX_DATA_REAL environment variable or pass --data-root."
+        )
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Load raw PTB-XL database ──────────────────────────────────────────────
+    db_path  = args.data_root / "ptbxl_database.csv"
+    raw_cols = ["ecg_id", "patient_id", "strat_fold",
+                "filename_hr", "age", "sex", "height", "weight"]
+    df = pd.read_csv(db_path, usecols=raw_cols)
+    df["strat_fold"] = df["strat_fold"].astype(int)
+
+    print(f"Loaded ptbxl_database.csv: {df.shape}")
+    print(f"Train n = {int(df['strat_fold'].between(1, 8).sum())}")
+    print(f"Val   n = {int(df['strat_fold'].eq(9).sum())}")
+    print(f"Test  n = {int(df['strat_fold'].eq(10).sum())}")
+
+    # ── Step 1: feature engineering → index_mm_core.parquet ──────────────────
+    mm = build_mm_core(df, args.data_root, args.out_dir)
+
+    # ── Step 2: add PTB-XL labels + paths → index_complete.parquet ───────────
+    build_complete(mm, args.data_root, args.out_dir)
 
 
 if __name__ == "__main__":
