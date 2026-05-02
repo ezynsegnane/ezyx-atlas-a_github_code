@@ -51,7 +51,8 @@ from eznx_model_v5 import EZNX_ATLAS_A_v5, count_parameters
 torch.use_deterministic_algorithms(True, warn_only=True)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
-torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cuda.matmul.allow_tf32 = False   # disable TF32 on matmul (all GPUs)
+torch.backends.cudnn.allow_tf32 = False          # disable TF32 on cuDNN (Ampere+)
 
 # PTB-XL population statistics for age group decoding
 # Source: PTB-XL paper (Wagner et al. 2020): mean=62.5 yr, SD=17.2 yr
@@ -437,8 +438,8 @@ class Config:
     # Optimisation
     batch_size:                 int   = 32
     lr:                         float = 1e-3
-    epochs:                     int   = 10
-    patience:                   int   = 25
+    epochs:                     int   = 10   # 10 epochs fits 170 runs in ~28h on P100
+    patience:                   int   = 25   # intentionally > epochs: always run full 10 epochs
     gradient_accumulation_steps: int  = 2
     max_grad_norm:              float = 1.0
 

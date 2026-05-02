@@ -141,11 +141,15 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    rng    = np.random.default_rng(42)   # fixed for reproducible MCAR masks
+    # NOTE: rng is created fresh per (variant, seed) pair — NOT shared globally.
+    # This ensures that if a checkpoint is missing and a seed is skipped, all
+    # other seeds still receive identical MCAR masks across re-runs of this script.
+    # Formula: rng_seed = 42 + variant_index * 100_000 + seed_value
+    # (large offset ensures no collision across variants)
 
     report: Dict[str, Any] = {}
 
-    for variant in VARIANTS:
+    for variant_idx, variant in enumerate(VARIANTS):
         print(f"\n=== Variant: {variant} ===")
         # variant "none" has no metadata, so MCAR is not meaningful.
         # We still run it to show AUC is constant (invariant to metadata zeroing).
@@ -170,6 +174,10 @@ def main() -> None:
                 print(f"  MISSING checkpoint: {ckpt_path.name}")
                 continue
 
+            # Fresh per-(variant, seed) rng — reproducible regardless of which
+            # other seeds have completed.
+            seed_rng = np.random.default_rng(42 + variant_idx * 100_000 + seed)
+
             model = EZNX_ATLAS_A_v5(
                 meta_dim=16, n_classes=len(DS5_LABELS), meta_dropout_p=0.10
             ).to(device)
@@ -180,7 +188,7 @@ def main() -> None:
             row: Dict[str, Any] = {"seed": seed, "variant": variant}
             for mr in MISS_RATES:
                 auc = evaluate_with_missingness(model, test_loader, device,
-                                                miss_rate=mr, rng=rng)
+                                                miss_rate=mr, rng=seed_rng)
                 row[f"miss_{int(mr*100):03d}pct"] = auc
                 miss_aucs_by_rate[mr].append(auc)
 
