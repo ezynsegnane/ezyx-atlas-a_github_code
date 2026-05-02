@@ -1,7 +1,7 @@
 """
-run_experiments_v2.py — Orchestrator for the 170-run Scientific Reports campaign.
+run_experiments_v2.py — Orchestrator for the Scientific Reports campaign.
 
-Experiment taxonomy (170 total)
+Experiment taxonomy (170 descriptors / 150 unique training runs)
 ────────────────────────────────
   [A] Primary ablation         60 runs   3 variants × 20 seeds (2024–2043)
   [B] GLU-width sensitivity    60 runs   3 meta_hid × 20 seeds (demo+anthro only)
@@ -10,6 +10,8 @@ Experiment taxonomy (170 total)
 
 All runs are idempotent: if results_{run_name}.json already exists the training
 script skips that run, so the orchestrator can be restarted after interruption.
+Group B intentionally repeats the default demo+anthro width (meta_hid=128),
+which creates 20 duplicate descriptors that are skipped once Group A is done.
 
 Usage (Kaggle / local)
 ──────────────────────
@@ -120,6 +122,10 @@ def build_experiment_list(
     return experiments
 
 
+def count_unique_run_names(experiments: List[Dict[str, Any]]) -> int:
+    return len({exp["run_name"] for exp in experiments})
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Progress tracking
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -180,6 +186,7 @@ def main() -> None:
 
     experiments = build_experiment_list(data_root, index_path, runs_dir, args.group)
     n_total     = len(experiments)
+    n_unique    = count_unique_run_names(experiments)
 
     # ── Dry run ──────────────────────────────────────────────────────────────
     if args.dry_run:
@@ -192,7 +199,10 @@ def main() -> None:
             groups_seen[g] = groups_seen.get(g, 0) + 1
             print(f"{g:<6} {exp['run_name']:<70} {done}")
         print("-" * 90)
-        print(f"\nTotal: {n_total} runs")
+        print(f"\nDescriptors: {n_total}")
+        print(f"Unique training runs: {n_unique}")
+        if n_unique != n_total:
+            print(f"Duplicate descriptors skipped by auto-resume: {n_total - n_unique}")
         for g, cnt in sorted(groups_seen.items()):
             print(f"  Group {g}: {cnt}")
         write_progress_csv(experiments, resume_csv)
@@ -201,7 +211,10 @@ def main() -> None:
 
     # ── Execute ──────────────────────────────────────────────────────────────
     print("=" * 80)
-    print(f"EZNX-ATLAS-A  Scientific Reports  —  {n_total} experiments")
+    print(
+        f"EZNX-ATLAS-A  Scientific Reports  —  "
+        f"{n_total} descriptors / {n_unique} unique training runs"
+    )
     print(f"  data_root:  {data_root}")
     print(f"  index_path: {index_path}")
     print(f"  runs_dir:   {runs_dir}")
@@ -209,7 +222,7 @@ def main() -> None:
     print("=" * 80)
 
     n_done = sum(Path(e["result_file"]).exists() for e in experiments)
-    print(f"  Already complete: {n_done}/{n_total}")
+    print(f"  Already complete (descriptor-level): {n_done}/{n_total}")
 
     campaign_start = time.time()
     for i, exp in enumerate(experiments, 1):

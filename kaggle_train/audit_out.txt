@@ -1,0 +1,185 @@
+
+==============================================================================
+AUDIT FINAL -- EZNX-ATLAS-A SCIENTIFIC REPORTS -- kaggle_train/
+==============================================================================
+
+1.DETERMINISM  [ALL OK]
+  [OK] CUBLAS_WORKSPACE_CONFIG set BEFORE import torch
+  [OK] use_deterministic_algorithms(True)
+  [OK] cudnn.deterministic = True
+  [OK] cudnn.benchmark = False
+  [OK] matmul.allow_tf32 = False
+  [OK] cudnn.allow_tf32 = False  [future-proof for A100]
+  [OK] num_workers=0 in ALL 3 DataLoaders
+  [OK] set_seed() called before training
+  [OK] set_seed covers random / numpy / torch / cuda
+
+2.RUN_NAMING  [ALL OK]
+  [OK] training: prefix ATLAS_A_v5_{variant}
+  [OK] orchestrator: prefix ATLAS_A_v5_{variant}
+  [OK] calibration: prefix ATLAS_A_v5_{variant}
+  [OK] analyze: prefix ATLAS_A_v5_{variant}
+  [OK] training uses metaH{cfg.meta_hid} suffix
+  [OK] orchestrator uses metaH{meta_hid} suffix
+  [OK] training: lauc suffix uses :g format
+  [OK] orchestrator: lauc suffix uses :g format
+  [OK] training: threshold abs(lauc-0.08)>1e-6
+  [OK] orchestrator: threshold abs(lauc-0.08)>1e-6
+  [OK] training: noaug suffix
+  [OK] orchestrator: noaug suffix
+  [OK] missingness uses Group-A naming only (no suffixes)
+  [OK] calibration naming matches training (metaH / lauc / noaug)
+
+3.AUTO_RESUME  [ALL OK]
+  [OK] training skips if results JSON already exists
+  [OK] orchestrator checks result_file before launching subprocess
+  [OK] result filename: results_{run_name}.json  (training)
+  [OK] result filename: results_{name}.json  (orchestrator)
+  [OK] run_dir used consistently for all 3 output files
+
+4.DATASETS_FOLDS  [ALL OK]
+  [OK] training folds 1--8: range(1, 9)
+  [OK] val fold hardcoded to 9
+  [OK] test fold hardcoded to 10
+  [OK] loader uses filename_lr for 100 Hz (col_name='filename_lr')
+  [OK] shuffle=True only for train_loader
+  [OK] val/test loaders no shuffle (default False)
+  [OK] EZNXDataset receives meta_mode=cfg.variant
+  [OK] ConcatDataset wraps 8 train folds
+
+5.POS_WEIGHTS  [ALL OK]
+  [OK] compute_pos_weights() defined
+  [OK] reads .y from each train dataset
+  [OK] pos_weight_j = neg_j / pos_j
+  [OK] clipped to [0.5, 30.0]
+  [OK] BCEWithLogitsLoss(pos_weight=pos_weights)
+  [OK] pos_weights saved in results JSON
+
+6.LOSS_WEIGHTS  [ALL OK]
+  [OK] fused_w = max(0.0, 0.60 - lauc_w)
+  [OK] total_w = fused_w + ecg_w + meta_w + lauc_w
+  [OK] fused_w /= total_w
+  [OK] ecg_w /= total_w
+  [OK] lauc_w_n = lauc_w / total_w
+  [OK] lauc_w_n (normalised) used in training loss
+  [OK] loss_weights logged to JSON
+  [OK] auc_margin_loss handles empty pos/neg gracefully
+
+7.NPZ_DUMP  [ALL OK]
+  [OK] NPZ key: Y
+  [OK] NPZ key: P_fused
+  [OK] NPZ key: P_ecg
+  [OK] NPZ key: P_meta
+  [OK] NPZ key: P_blend
+  [OK] NPZ key: P_no_meta
+  [OK] NPZ key: ecg_id
+  [OK] NPZ key: patient_id
+  [OK] NPZ key: thresholds
+  [OK] NPZ key: w_fused
+  [OK] NPZ key: labels
+  [OK] NPZ saved with np.savez_compressed
+  [OK] NPZ filename: probs_{run_name}.npz
+
+8.SUBGROUP_ORDER  [ALL OK]
+  [OK] training: test_df_raw = parquet[fold==10].reset_index
+  [OK] compute_subgroups: masks from parquet[fold==10].reset_index
+  [OK] age thresholds identical: (45-PTB_MEAN)/PTB_SD
+  [OK] compute_subgroups uses same PTB_AGE_MEAN=62.5, SD=17.2
+  [OK] anthro_complete uses meta_present_strict==1
+  [OK] fairness_sex_gap computed as |male - female|
+  [OK] compute_subgroups reads P_blend from NPZ (not raw logits)
+
+9.MISSINGNESS  [WARN]
+  [OK] MISS_RATES = [0.0, 0.25, 0.50, 0.75, 1.0]
+  [OK] all 3 variants evaluated
+  [OK] SEEDS_20 = range(2024,2044) used
+  [OK] base rng seed 42 used for MCAR masks
+  [OK] rng is per-(variant,seed) -- NOT a single shared instance
+  [WW] missingness uses blended probs (not raw logits_fused only)
+       >> Uses torch.sigmoid(logits_fused) -- equivalent to w_fused=1.0. Baseline 
+       AUC will differ slightly from results.json blend value.
+  [OK] LaTeX table caption mentions MCAR scope limitation
+  [OK] model instantiated with default meta_hid=128 (Group A only)
+
+10.MODEL_DIMS  [ALL OK]
+  [OK] meta_dim=16 passed by training script
+  [OK] META_FEATURES has 8 entries (= meta_dim//2)
+  [OK] MASK_FEATURES has 8 entries
+  [OK] meta_fuse input=130 (64+64+1+1)
+  [OK] demo_encoder: input = demo_value_dim*2
+  [OK] anthro_encoder: input = anthro_value_dim*2
+  [OK] gated fusion: gate(h)*h
+  [OK] 3 output heads: head_ecg, head_meta, head_fused
+  [OK] count_parameters() exported
+  [OK] model output returns dict with logits_fused/ecg/meta
+
+11.TRAINING_CFG  [ALL OK]
+  [OK] epochs=10 (budget-calibrated for 28h P100)
+  [OK] patience=25 > epochs=10  [WARNING: patience is dead parameter]
+  [OK] gradient_accumulation_steps=2
+  [OK] max_grad_norm=1.0
+  [OK] AdamW with weight_decay=5e-4
+  [OK] CosineAnnealingWarmRestarts T_0=10 T_mult=2 eta_min=1e-6
+  [OK] trailing micro-batch flush at end of epoch
+  [OK] checkpoint includes thresholds + w_fused + optimizer state
+  [OK] no_aug: train_loader uses collate_fn_val (no augment)
+  [OK] GPU memory peak logged
+  [OK] hardware provenance saved in JSON
+
+12.JSON_METRICS  [ALL OK]
+  [OK] test JSON contains "macro_auc"
+  [OK] test JSON contains "macro_auc_ecg"
+  [OK] test JSON contains "macro_auc_no_meta"
+  [OK] test JSON contains "delta_meta_auc"
+  [OK] test JSON contains "macro_f1_optimal"
+  [OK] test JSON contains "macro_f1_fixed_05"
+  [OK] test JSON contains "w_fused"
+  [OK] test JSON contains "thresholds"
+  [OK] per_class dict: auc + f1 + threshold for each DS5 label
+  [OK] subgroups dict saved in JSON
+  [OK] training_history saved in JSON
+
+13.ANALYSIS_METRICS  [ALL OK]
+  [OK] macro_auc collected for all 3 variants
+  [OK] macro_f1_optimal collected per variant
+  [OK] macro_f1_fixed_05 collected per variant
+  [OK] delta_meta_auc collected per variant
+  [OK] 95% CI via t.ppf(0.975) in summarise()
+  [OK] Wilcoxon exact test (method='exact' for n<=25)
+  [OK] effect size r = z/sqrt(n) computed
+  [OK] CI interval [lo, hi] in primary LaTeX table
+  [OK] Macro-F1 column in primary LaTeX table
+  [OK] AUPRC in compute_calibration
+  [OK] per_class_auprc in calibration report
+  [OK] Brier + ECE in calibration report
+
+14.INDEX_CONSTRUCTION  [ALL OK]
+  [OK] two-step pipeline in docstring
+  [OK] build_mm_core() -> index_mm_core.parquet
+  [OK] build_complete() -> index_complete.parquet
+  [OK] argparse: --data-root and --out-dir
+  [OK] integrity check: raises ValueError if required cols missing
+  [OK] hea_path column removed before Step 2 merge (drop_cols)
+  [OK] inner join on ecg_id (no phantom rows)
+  [OK] notebook asserts exactly 21799 rows
+
+15.NOTEBOOK  [ALL OK]
+  [OK] Cell 3 (GitHub bootstrap) BEFORE Cell 4 (index build)
+  [OK] Cell 3 clones repo and sets CODE_DIR
+  [OK] REPO_URL has a real GitHub URL
+  [OK] index_construction.py uses CODE_DIR (not hardcoded path)
+  [OK] Cell 6 uses check=False (single failure does not abort campaign)
+  [OK] all 4 eval scripts called in Cell 7 via CODE_DIR
+  [OK] PTB-XL path auto-detected via glob (no hardcode)
+  [OK] scp_statements.csv presence checked in Cell 2
+  [OK] records100 and records500 presence checked
+  [OK] env vars EZNX_DATA_REAL/INDEX_PATH/RUNS_DIR set for subprocesses
+  [OK] Cell 8 zip: INCLUDE_NPZ flag (default False to keep size small)
+  [OK] GitHub repo has REPO_REF fallback (supports branch pinning)
+  [OK] required_scripts list verified after clone
+  [OK] WARNING -- GitHub repo must be public and contain kaggle_train/ BEFORE launch
+
+==============================================================================
+TOTAL : 144 checks | 143 OK | 1 WARN | 0 FAIL
+==============================================================================
+STATUS: READY WITH WARNINGS -- review WW items above
