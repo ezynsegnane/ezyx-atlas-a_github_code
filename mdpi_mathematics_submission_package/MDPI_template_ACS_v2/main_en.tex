@@ -53,16 +53,21 @@
 \newcommand{\orcidauthorF}{0000-0002-9045-6997}
 % Author G (Beddi Mohamed Abdellahi): ORCID not publicly registered — icon omitted
 
-\Author{Ezyn~SEGNANE$^{1,\ast}$\orcidA{}, Younes~OMMANE$^{2}$\orcidB{}, Khalil~EL~WALED$^{1}$\orcidC{}, Mohamedou~CHEIKH~TOURAD$^{1}$\orcidD{}, Mariam~MOUADILI$^{2}$, Diego~H.~PELUFFO-ORD\'O\~NEZ$^{3}$\orcidF{} and Beddi~Mohamed~ABDELLAHI$^{4}$}
-\AuthorNames{Ezyn SEGNANE, Younes OMMANE, Khalil EL WALED, Mohamedou CHEIKH TOURAD, Mariam MOUADILI, Diego H. PELUFFO-ORD\'O\~NEZ and Beddi Mohamed ABDELLAHI}
-\AuthorCitation{SEGNANE, E.; OMMANE, Y.; EL WALED, K.; CHEIKH TOURAD, M.; MOUADILI, M.; PELUFFO-ORD\'O\~NEZ, D.H.; ABDELLAHI, B.M.}
+\Author{Ezyn~Segnane$^{1,\ast}$\orcidA{}, Younes~Ommane$^{3}$\orcidB{}, Khalil~El~Waled$^{1}$\orcidC{}, Mohamedou~Cheikh~Tourad$^{2}$\orcidD{}, Mariam~Mouadili$^{3}$, Diego~Peluffo-Ord\'o\~nez$^{4}$\orcidF{} and Mohamed~Abdellahi~Beddi$^{5}$}
+
+\AuthorNames{Ezyn Segnane, Younes Ommane, Khalil El Waled, Mohamedou Cheikh Tourad, Mariam Mouadili, Diego Peluffo-Ord\'o\~nez and Mohamed Abdellahi Beddi}
+
+\AuthorCitation{Segnane, E.; Ommane, Y.; El Waled, K.; Cheikh Tourad, M.; Mouadili, M.; Peluffo-Ord\'o\~nez, D.; Beddi, M.A.}
 
 \address{%
-$^{1}$\quad Faculty of Sciences and Techniques, Al-Khawarizmi, University of Nouakchott, Nouakchott, Mauritania; ezyn.segnane@univ-nkc.mr (E.S.); khalil.elwaled@univ-nkc.mr (K.E.W.); cheikhtouradmohamedou@univ-nkc.mr (M.C.T.)\\
-$^{2}$\quad Faculty of Medical Sciences, UM6P Hospitals, University Mohammed VI Polytechnic (UM6P), 43150, Benguerir, Morocco; Younes.OMMANE@um6p.ma (Y.O.); Maryam.MOUADILI@um6p.ma (M.M.)\\
-$^{3}$\quad College of Computing, University Mohammed VI Polytechnic (UM6P), Lot 660, Hay Moulay Rachid, 43150, Benguerir, Morocco; PELUFFO.Diego@um6p.ma (D.H.P.-O.)\\
-$^{4}$\quad Faculty of Medicine, Pharmacy and Odontostomatology, University of Nouakchott, Nouakchott, Mauritania; mohamed\_obeddi@yahoo.fr (B.M.A.)}
+	$^{1}$\quad Digital Systems and Applications (SAN), Faculty of Sciences and Techniques, University of Nouakchott, Nouakchott, Mauritania; ezyn.segnane@univ-nkc.mr (E.S.); khalil.elwaled@univ-nkc.mr (K.E.W.)\\
+	$^{2}$\quad Al-Khawarizmi, Faculty of Sciences and Techniques, University of Nouakchott, Nouakchott, Mauritania; cheikhtouradmohamedou@univ-nkc.mr (M.C.T.)\\
+	$^{3}$\quad Faculty of Medical Sciences, UM6P Hospitals, Mohammed VI Polytechnic University (UM6P), 43150 Benguerir, Morocco; Younes.OMMANE@um6p.ma (Y.O.); Maryam.MOUADILI@um6p.ma (M.M.)\\
+	$^{4}$\quad College of Computing, Mohammed VI Polytechnic University (UM6P), Lot 660, Hay Moulay Rachid, 43150 Benguerir, Morocco; PELUFFO.Diego@um6p.ma (D.P.-O.)\\
+	$^{5}$\quad Geometry, Analysis, Algebra and Applications (G3A), Faculty of Sciences and Technology, University of Nouakchott, Nouakchott, Mauritania; mohamed\_obeddi@yahoo.fr (M.A.B.)}
+
 \corres{Correspondence: ezyn.segnane@univ-nkc.mr}
+
 
 % ---- Abstract ----------------------------------------------
 \abstract{We present a paired multi-seed measurement framework for multimodal-ML ablations, applied to ECG combined with clinical metadata on PTB-XL. We introduce EZNX-ATLAS-A, a 3.95 million-parameter dual-branch architecture coupling a residual ECG encoder, a demographic and anthropometric encoder, an explicit metadata-availability score, and GLU-style late fusion on PTB-XL 1.0.3. We run a \textbf{250-run} campaign organised in six experimental groups (A--F) across a total of \textbf{270 seed-variant descriptors}. The primary confirmatory group (Group~A: three metadata variants $\times$ 20 seeds) reaches macro-AUC $0.9289$ (SD $0.0013$) for the full-metadata variant. Paired Wilcoxon signed-rank tests with Benjamini--Hochberg correction over the \textbf{3-test pre-specified family} (three pairwise macro-AUC contrasts in Group~A) reveal that: (i) age and sex alone yield a small but \emph{statistically significant} gain ($\Delta{=}{+}0.0007$ macro-AUC, 95\% paired CI $[0.0002, 0.0011]$, BH-adjusted $p{\approx}0.009$), localised in NORM and MI; (ii) full metadata produce a larger and highly significant gain ($\Delta{=}{+}0.0019$ macro-AUC, 95\% paired CI $[0.0014, 0.0023]$, BH-adjusted $p{<}0.001$), concentrated in NORM, MI, and STTC; and (iii) CD and HYP show no statistically significant effect in either metadata contrast. Exploratory groups confirm that the fusion capacity (Group~B, four \texttt{meta\_hid} values) and the LAUC-BCE balance (Group~C, five $\lambda_{\mathrm{LAUC}}$ values) are insensitive to these hyperparameters. Group~D demonstrates that training without augmentation incurs a nominally significant macro-AUC drop ($\Delta{=}{-}0.0014$, $p{=}0.0195$, exploratory). Group~E architectural ablations confirm that ECG is essential (meta-only AUC $0.6966$, $p{=}0.002$) while the gating mechanism variants yield comparable performance. Group~F multi-split analysis shows that fold~10 lies below the inter-fold range $[0.9400, 0.9445]$, confirming it is a conservatively difficult evaluation split. Under inference-time masking of anthropometric fields, macro-AUC remains within $0.0014$ of the unmasked model, converging to the demographics-only baseline at full masking. These results provide a reproducibility baseline for multimodal ECG studies, demonstrating the value of paired multi-seed statistics, per-class analysis, and explicit missingness audits.}
