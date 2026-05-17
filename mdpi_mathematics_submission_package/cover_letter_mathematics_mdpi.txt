@@ -16,18 +16,25 @@ GLU-style multiplicative fusion gate (Sections 4.2--4.5); (iii) a composite mult
 loss that combines weighted binary cross-entropy with an unsquared pairwise AUC
 surrogate (Section 5.1); and (iv) a rigorous paired statistical protocol using exact
 two-sided Wilcoxon signed-rank tests, Benjamini--Hochberg FDR correction across a
-declared 36-test confirmatory family, Cohen d_z and Hedges g_z effect sizes, and
-10,000-resample percentile bootstrap confidence intervals (Section 5.5).
+pre-declared 3-test confirmatory family (the three pairwise macro-AUC contrasts of
+Group A), Cohen d_z and Hedges g_z effect sizes, and 10,000-resample percentile
+bootstrap confidence intervals (Section 5.5).
 
 The study is aligned with the scope of Mathematics through its formal mathematical
 framework and its use of nonparametric statistical inference to answer a concrete
-scientific question: whether, and for which ECG pathology classes, structured
-anthropometric metadata adds statistically measurable information beyond a strong
-ECG-only baseline. The main finding is that demographic variables alone (age, sex) add
-nothing statistically significant (Delta = +0.0002 macro-AUC, BH-adjusted p = 0.626),
-whereas anthropometric variables (height, weight, BMI) produce a small but
-reproducible gain of +0.0014 macro-AUC (paired 95% CI [0.0009, 0.0019],
-BH-adjusted p = 0.028), concentrated in the MI and STTC superclasses.
+scientific question: whether, and for which ECG pathology classes, structured clinical
+metadata adds statistically measurable information beyond a strong ECG-only baseline.
+
+The main finding is that both metadata conditions yield statistically significant
+gains once 20 paired seeds are used. Demographic variables alone (age, sex) yield a
+small but significant gain (Delta = +0.0007 macro-AUC, 95% paired CI [0.0002, 0.0011],
+BH-adjusted p ≈ 0.009), localised in the NORM and MI superclasses. Full metadata
+(demographics + anthropometrics) produce a larger and highly significant gain
+(Delta = +0.0019 macro-AUC, 95% paired CI [0.0014, 0.0023], BH-adjusted p < 0.001),
+concentrated in NORM, MI, and STTC. CD and HYP show no statistically significant
+effect in either contrast. Critically, the small demographic-only gain was NOT
+detectable at 10 seeds (the pilot campaign), illustrating the value of the 20-seed
+paired protocol introduced here.
 
 --- Novelty and reproducibility ---
 
@@ -38,23 +45,26 @@ anthropometric masking stress test, on the standard PTB-XL 1.0.3 benchmark. To o
 knowledge no prior PTB-XL study separates demographic from anthropometric metadata
 under a paired multi-seed protocol with explicit missingness stress testing.
 
-All 30 runs (10 seeds x 3 variants) were executed on a single CPU-only machine
-(Intel Core i5, 8 GB RAM, PyTorch 2.3.1+cpu) without GPU or CUDA, which makes the
-results inherently free of CUDA non-determinism and straightforward to replicate on
-any standard workstation. Total elapsed compute was 18.61 run-hours.
+The campaign comprises 250 unique runs organised in six experimental groups (A--F)
+across 270 seed-variant descriptors. The primary confirmatory Group A (3 variants x
+20 seeds) is accompanied by exploratory groups covering fusion-capacity sensitivity
+(Group B), loss-weight sensitivity (Group C), augmentation ablation (Group D),
+architectural ablations including ECG-only and meta-only controls (Group E), and
+multi-split generalisation (Group F). All 250 runs were executed on CPU-only hardware
+(Intel Core i5, 8 GB RAM, PyTorch 2.3.1+cpu) without GPU or CUDA, making the results
+free of CUDA non-determinism and straightforward to replicate.
 
 --- Supplementary package ---
 
 The reviewed submission is accompanied by a self-contained supplementary package that
-includes: the 30 raw seed-level result JSON files; derived CSV and Markdown statistical
-tables; paired comparison reports with bootstrap confidence intervals; a dataset
-integrity report verifying zero shared patient IDs across train/validation/test
-partitions and verifying superclass prevalence; a statistical analysis protocol note
-documenting the executed 36-test confirmatory family; environment files
-(requirements.txt and environment.yml); the complete training, evaluation, and
-figure-generation source code; and the six final manuscript figures. Patient-level
-probability arrays were not archived in the original release; this is documented
-explicitly in the manuscript (Section 7, Limitation 3 and 6).
+includes: all 250 seed-level result JSON files across six groups; derived CSV and
+Markdown statistical tables; paired comparison reports with bootstrap confidence
+intervals; a dataset-integrity report; a pre-specification document (analysis_plan.md,
+whose SHA-256 is embedded in every result JSON to document confirmatory intent);
+environment files (requirements.txt and environment.yml); the complete training,
+evaluation, and figure-generation source code; and the six final manuscript figures.
+Patient-level probability arrays were not archived; this is documented explicitly in
+the manuscript data-availability statement.
 
 --- Ethics and data ---
 
@@ -92,9 +102,19 @@ ezyn.segnane@univ-nkc.mr
 ORCID: 0009-0005-0538-4335
 
 On behalf of all co-authors:
-  Younes OMMANE — Faculty of Medical Sciences, Mohammed VI Polytechnic University, Ben Guerir, Morocco
+  Younes OMMANE — Faculty of Medical Sciences, UM6P Hospitals, University Mohammed VI
+    Polytechnic (UM6P), 43150, Benguerir, Morocco
     Younes.OMMANE@um6p.ma | ORCID: 0000-0001-6827-2967
   Khalil EL WALED — Faculty of Sciences and Techniques, Al-Khawarizmi, University of Nouakchott, Nouakchott, Mauritania
     khalil.elwaled@univ-nkc.mr | ORCID: 0009-0001-7356-032X
   Mohamedou CHEIKH TOURAD — Faculty of Sciences and Techniques, Al-Khawarizmi, University of Nouakchott, Nouakchott, Mauritania
     cheikhtouradmohamedou@univ-nkc.mr | ORCID: 0000-0003-1273-7512
+  Mariam MOUADILI — Faculty of Medical Sciences, UM6P Hospitals, University Mohammed VI
+    Polytechnic (UM6P), 43150, Benguerir, Morocco
+    Maryam.MOUADILI@um6p.ma | ORCID: not publicly registered
+  Diego H. PELUFFO-ORDONEZ — College of Computing, University Mohammed VI Polytechnic
+    (UM6P), Lot 660, Hay Moulay Rachid, 43150, Benguerir, Morocco
+    PELUFFO.Diego@um6p.ma | ORCID: 0000-0002-9045-6997
+  Beddi Mohamed ABDELLAHI — Faculty of Medicine, Pharmacy and Odontostomatology,
+    University of Nouakchott, Nouakchott, Mauritania
+    mohamed_obeddi@yahoo.fr | ORCID: not publicly registered
