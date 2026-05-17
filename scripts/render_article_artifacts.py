@@ -264,7 +264,7 @@ def save_figure(fig: plt.Figure, output_stem: Path, formats: list[str], dpi: int
 def load_seed_results(runs_dir: Path, seed: int) -> dict[str, dict[str, Any]]:
     seed_runs: dict[str, dict[str, Any]] = {}
     for variant in VARIANT_ORDER:
-        pattern = f"**/results_{variant}_seed{seed}.json"
+        pattern = f"**/results_ATLAS_A_v5_{variant}_seed{seed}.json"
         matches = sorted(runs_dir.glob(pattern))
         if not matches:
             raise FileNotFoundError(

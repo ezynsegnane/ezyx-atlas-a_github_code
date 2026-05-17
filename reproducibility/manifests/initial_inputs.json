@@ -1,0 +1,18 @@
+{
+  "mode": "initial",
+  "snapshot_dir": "published_snapshots/initial",
+  "index_path": "reproducibility/archived_index/index_complete.parquet",
+  "reference_outputs_dir": "results/seed_json",
+  "expected_output_count": 30,
+  "index_sha256": "6aee1a17c55166b5ac7f43cdcd298de4db441ad7554f05f97e42551cb835098d",
+  "snapshot_files": {
+    "analyze_multiseed_results.py": "638e51cab0d7a39802465730cc343622797775d5b74c96ea624a3ca9dd0ae141",
+    "atlas_a_v5_multiseed.py": "926337ac9576f68948e7d79ca23ab3c171ebfb29ba045632701f72deeb8b2dab",
+    "environment.yml": "d0a015baebbed354dfa785e8c651931cd2e946a7294aaa5f25ea0acf71d1fe2c",
+    "eznx_loader_v2.py": "d22e2d34570f6d69b9d99a969e05722c42b22aa1c1e3742a8fe9ef34dec86538",
+    "eznx_model_v5.py": "87980a378aeac39d9b6e3b9d0f5102d8a8de6c5ef700165cf0f45482293d3d46",
+    "index_construction.py": "41d5392e4117fbdd7708d323b47771400e8f6b9dbd5b1d59fcfe46dd317be5a0",
+    "requirements.txt": "601d4420079c9a865146166b5e049d729321b01ef5483dc2217ae2023f39895b",
+    "run_multiseed_experiments.py": "693dfb03f1f3507bb9c6ea7ec54009a8ff655d5d3bec6b1e6bdcec025042247c"
+  }
+}

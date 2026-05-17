@@ -1,0 +1,16 @@
+{
+  "mode": "extended",
+  "snapshot_dir": "published_snapshots/extended",
+  "index_path": "reproducibility/archived_index/index_complete.parquet",
+  "reference_outputs_dir": "results/extended_json",
+  "expected_output_count": 5,
+  "index_sha256": "6aee1a17c55166b5ac7f43cdcd298de4db441ad7554f05f97e42551cb835098d",
+  "snapshot_files": {
+    "atlas_a_v5_extended.py": "44766031572bb6f8e45dbbbe0d0dfe5492b3210e966ea7d4a313fbae529c9ebf",
+    "environment.yml": "9bb251491dfc96a9eac1e22fc47e253739f414cc9cc2e29fe1cf5d78f25558cc",
+    "eznx_loader_v2.py": "d22e2d34570f6d69b9d99a969e05722c42b22aa1c1e3742a8fe9ef34dec86538",
+    "eznx_model_v5_extended.py": "8302e6ed77d87e8c64ae0472e07d460c7ab8b0cf8c75294cba816aee5262c2dd",
+    "requirements.txt": "ed5d120929b33147c1382e74180b35e5eca83a4be8245251bf017d8df1989e58",
+    "run_extended_experiments.py": "7bacc1057effc8a4e981933d6f602733448e6f40b06e57e59d167ba6fab3f21a"
+  }
+}

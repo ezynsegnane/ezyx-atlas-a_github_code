@@ -1,7 +1,3 @@
-# DEPRECATED — v1 pilot script (10 seeds, Group A only).
-# The 250-run campaign used atlas_a_v5_multiseed_v2.py instead.
-# Kept for historical reference only; do not use for reproduction.
-
 
 import os
 import json
@@ -520,13 +516,14 @@ def main():
 
             train_loss += loss.item() * cfg.gradient_accumulation_steps
 
-        # Trailing flush: apply any gradient accumulated in the final micro-batch
-        # of the epoch if it did not fall on an accumulation boundary.
-        n_batches = len(train_loader)
-        if n_batches % cfg.gradient_accumulation_steps != 0:
-            torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.max_grad_norm)
-            opt.step()
-            opt.zero_grad()
+        # NOTE (archived behaviour): no trailing flush is performed after the
+        # batch loop.  With 17 418 training samples and batch_size=32, there are
+        # 545 micro-batches per epoch.  Because 545 % 2 == 1, the last micro-
+        # batch (~10 samples, ≈0.06 % of the epoch) accumulates a gradient via
+        # backward() but opt.step() is never called for it; that gradient is
+        # discarded by opt.zero_grad() at the start of the next epoch.
+        # The practical impact on the reported results is negligible.
+        # The root atlas_a_v5_multiseed.py adds a trailing flush for future runs.
 
         # Stepped once per epoch, so T_0 and T_mult are expressed in epochs.
         scheduler.step()

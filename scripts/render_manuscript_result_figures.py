@@ -174,7 +174,7 @@ def metric_std(stats: dict[str, Any], variant: str, metric: str) -> float:
 
 
 def result_path_for_seed(runs_dir: Path, variant: str, seed: int) -> Path:
-    matches = sorted(runs_dir.glob(f"**/results_{variant}_seed{seed}.json"))
+    matches = sorted(runs_dir.glob(f"**/results_ATLAS_A_v5_{variant}_seed{seed}.json"))
     if not matches:
         raise FileNotFoundError(f"Missing result JSON for {variant}, seed {seed}")
     return matches[0]

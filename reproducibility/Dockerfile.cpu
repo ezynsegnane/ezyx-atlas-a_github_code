@@ -1,0 +1,29 @@
+FROM python:3.11.7-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONHASHSEED=0 \
+    OMP_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    NUMEXPR_NUM_THREADS=1 \
+    VECLIB_MAXIMUM_THREADS=1 \
+    BLIS_NUM_THREADS=1
+
+WORKDIR /workspace
+
+COPY reproducibility/requirements-cpu-lock.txt /tmp/requirements-cpu-lock.txt
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --upgrade pip setuptools wheel && \
+    pip install --index-url https://download.pytorch.org/whl/cpu torch==2.3.1+cpu && \
+    pip install -r /tmp/requirements-cpu-lock.txt
+
+COPY . /workspace
+
+CMD ["python", "reproducibility/verify_reproducibility.py", "--mode", "both", "--verify-published"]

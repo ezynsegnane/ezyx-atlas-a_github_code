@@ -1,7 +1,3 @@
-# DEPRECATED — v1 pilot script (10 seeds, Group A only).
-# The 250-run campaign used run_experiments_v2.py instead.
-# Kept for historical reference only; do not use for reproduction.
-
 #!/usr/bin/env python3
 # ============================================================================
 # run_multiseed_experiments.py - Orchestrateur d'expÃ©riences multi-graines

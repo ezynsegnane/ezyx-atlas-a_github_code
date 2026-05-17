@@ -1,7 +1,3 @@
-# DEPRECATED — v1 pilot script (10 seeds, Group A only).
-# The 250-run campaign used analyze_multiseed_v2.py instead.
-# Kept for historical reference only; do not use for reproduction.
-
 # ============================================================================
 # analyze_multiseed_results.py - Analyse statistique des résultats multi-graines
 # ============================================================================
@@ -993,9 +989,8 @@ def generate_analysis_notes() -> str:
 
 
 # ============================================================================
-# MAIN
-# ============================================================================
 # Post-hoc power analysis (Pitman-efficiency normal approximation)
+# Referenced in §5.4 of the manuscript and in statistical_analysis_protocol.md
 # ============================================================================
 
 def _norm_cdf(x: float) -> float:
@@ -1009,34 +1004,13 @@ def wilcoxon_power_pitman(d_z: float, n: int, alpha: float = 0.05) -> dict:
     via the Pitman-efficiency-adjusted normal approximation.
 
     Method (as stated in §5.4 of the manuscript):
-      1. Compute the non-centrality parameter δ = |d_z| × √n.
+      1. Compute the non-centrality parameter delta = |d_z| * sqrt(n).
       2. Approximate the paired t-test power using the normal approximation:
-           Power_t ≈ Φ(δ − z_crit) + Φ(−δ − z_crit),  z_crit = Φ⁻¹(1 − α/2) ≈ 1.96.
-         (The normal approximation is used here because it matches the large-sample
-         formula; exact non-central t power with df=9 is within 0.01 of these values
-         for the three contrasts in the manuscript.)
-      3. Wilcoxon power lower bound = (3/π) × Power_t.
-         (3/π ≈ 0.955 is the Pitman ARE of the Wilcoxon test relative to the paired
-         t-test under normality; it is a lower bound for any continuous symmetric
-         distribution.)
-
-    Note: The Pitman factor gives a conservative lower bound. For the large primary
-    contrast (d_z = 1.77), the actual Wilcoxon power is substantially higher than this
-    lower bound: at d_z = 1.77 with n = 10, almost all paired differences are expected
-    to be positive, and the test nearly always rejects, yielding power > 0.99 in practice.
-
-    Parameters
-    ----------
-    d_z   : Cohen's d_z for the contrast (signed or unsigned; absolute value used).
-    n     : Number of paired runs.
-    alpha : Two-sided significance level (default 0.05).
-
-    Returns
-    -------
-    dict with all intermediate quantities and the final Wilcoxon power lower bound.
+           Power_t = Phi(delta - z_crit) + Phi(-delta - z_crit)
+      3. Wilcoxon power lower bound = (3/pi) * Power_t.
+         (3/pi ~= 0.955 is the Pitman ARE of Wilcoxon vs paired t-test under
+         normality; it is a lower bound for any continuous symmetric distribution.)
     """
-    # Compute z_crit: Φ(z_crit) = 1 - alpha/2  →  z_crit = Φ⁻¹(1 - alpha/2)
-    # Bisection on the standard normal CDF (no scipy needed)
     lo, hi = 0.0, 10.0
     target = 1.0 - alpha / 2.0
     for _ in range(60):
@@ -1045,12 +1019,12 @@ def wilcoxon_power_pitman(d_z: float, n: int, alpha: float = 0.05) -> dict:
             lo = mid
         else:
             hi = mid
-    z_crit = (lo + hi) / 2  # ≈ 1.96 for alpha=0.05
+    z_crit = (lo + hi) / 2  # ~= 1.96 for alpha=0.05
 
     delta = abs(d_z) * math.sqrt(n)
     power_t = _norm_cdf(delta - z_crit) + _norm_cdf(-delta - z_crit)
     power_t = min(1.0, max(0.0, power_t))
-    pitman_efficiency = 3.0 / math.pi          # ≈ 0.9549
+    pitman_efficiency = 3.0 / math.pi          # ~= 0.9549
     power_wilcoxon_lb = min(1.0, pitman_efficiency * power_t)
 
     return {
@@ -1074,8 +1048,8 @@ def compute_post_hoc_power(tests: dict, metric: str = "macro_auc", n_default: in
     """
     Compute post-hoc Wilcoxon power for all pairwise contrasts on a given metric.
 
-    Called in main() and the result is stored under 'power_analysis' in the
-    exported statistical_analysis_full.json, making the manuscript's power claims
+    Called in main() and stored under 'power_analysis' in the exported
+    statistical_analysis_full.json, making the manuscript's power claims
     (§5.4) computationally reproducible from the archived result JSON files.
     """
     power_results = {}
@@ -1102,6 +1076,8 @@ def compute_post_hoc_power(tests: dict, metric: str = "macro_auc", n_default: in
     }
 
 
+# ============================================================================
+# MAIN
 # ============================================================================
 
 def main():
@@ -1267,7 +1243,7 @@ def main():
             f.write("")
     print(f"   Supplement CSV: {seed_level_csv_path}")
     
-    # Post-hoc power analysis (§5.4)
+    # Post-hoc power analysis (§5.4) — Pitman lower bounds for macro-AUC contrasts
     power_analysis = compute_post_hoc_power(tests, metric="macro_auc")
     print(f"   Power analysis: {len(power_analysis['contrasts'])} contrasts computed")
 
