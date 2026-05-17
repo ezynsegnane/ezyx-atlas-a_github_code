@@ -1,0 +1,363 @@
+===============================================================
+REVIEWER PASS 1 NOTES — Full A-to-Z read of main_en.tex
+Date: 2026-05-17
+Role: Qualified independent reviewer (ML/DL + statistics + cardiology)
+Scope: Every paragraph, every citation, every bibliography entry
+===============================================================
+
+=== METHODOLOGY ===
+Read entire manuscript + bibliography.bib from beginning to end.
+Checked: (1) paragraph content vs. citations; (2) citation vs. bib
+entry; (3) bib entry accuracy; (4) internal cross-references;
+(5) notation consistency; (6) statistical claims; (7) figure captions.
+
+===============================================================
+LEVEL 1 — DEFINITE FACTUAL ERRORS (must fix before submission)
+===============================================================
+
+[P1A] §3.3 — Missingness indicator convention REVERSED
+  LOCATION: Line ~146
+  TEXT: "m_⋅∈{0,1} is a derived indicator set to 1 if the
+   corresponding anthropometric was originally observed (0 if missing
+   before imputation)."
+  ERROR: The convention is exactly BACKWARDS.
+   Evidence 1: Variable names in confirmed code: "miss__height",
+     "miss__weight", "miss__bmi" — "miss" = 1 means MISSING.
+   Evidence 2: §5.4 (demo variant description): "height, weight, BMI
+     values set to 0, their missingness indicators set to 1, and all
+     anthropometric/missingness masks set to 0." In demo mode
+     anthropometrics are ABSENT, yet missingness indicators = 1.
+     If 1=observed this would be contradictory (saying "observed"
+     when the field is intentionally removed).
+   Evidence 3: CONFRONTATION PASS 1 confirmed: "demo mode: anthro
+     values zeroed, miss flags set to 1" — miss flags = 1 when absent.
+  CORRECT TEXT: "m_⋅∈{0,1} is a derived indicator (missingness flag)
+   set to 1 if the corresponding anthropometric field is MISSING
+   (0 if originally observed)."
+  NOTE: The separate AVAILABILITY MASK uses the opposite convention
+   (mask=1 if PRESENT), so the two conventions in the same system
+   are: x_meta[5:8] = miss=1 if absent; mask[2:5] = 1 if present.
+   This is a well-known dual representation in clinical ML. The text
+   just had the x_meta miss indicator described backwards.
+  SEVERITY: HIGH — Reviewers reading both §3.3 and §5.4 will catch
+   this contradiction immediately.
+
+[P1B] §3.4 — HYP prevalence inconsistency: body text vs. Table 1
+  LOCATION: Line ~153
+  TEXT: "the most-prevalent class (NORM, 43.6% of training records)
+   receives the smallest weight, while the rarest (HYP, 12.1%)
+   receives the largest."
+  ERROR: Table 1 shows HYP training prevalence = 12.2%.
+   Calculation: f_HYP = 1/(1+7.2199) = 12.165% → rounds to 12.2%.
+   The body text says 12.1% (truncation, not rounding).
+  FIX: Change "12.1%" to "12.2%" in §3.4 body text.
+
+[P1C] §7.3 (HYP paradox) — "three hypotheses" but FOUR listed
+  LOCATION: Line ~410
+  TEXT: "This remains consistent with the three hypotheses from the
+   earlier analysis: (1)...; (2)...; (3)...; and (4)..."
+  ERROR: The text says "three" but explicitly numbers four distinct
+   hypotheses: (1) low HYP prevalence limits power; (2) TSPool
+   absorbs habitus effects; (3) superclass heterogeneity dilutes
+   LVH signal; (4) HYP label noise attenuates signal.
+  FIX: Change "three hypotheses" to "four hypotheses".
+
+[P1D] Table 8 "This work" row — NORM omitted from significant classes
+  LOCATION: Line ~623 (tab:prior_a last row)
+  TEXT: "Demographics yield +0.0007 and full metadata yield +0.0019
+   macro-AUC over ECG alone (both BH-significant), concentrated in
+   MI and STTC."
+  ERROR: NORM is also BH-significant (p_BH < 0.0001, Δ=+0.0016),
+   with even a stronger adjusted p than STTC. Three classes reach
+   significance: NORM, MI, STTC. The omission of NORM is factually
+   wrong and inconsistent with the abstract, §6.2, and §8.
+   - Abstract: "concentrated in NORM, MI, and STTC" ✓
+   - §6.2: "three classes reach significance: NORM, MI, and STTC" ✓
+   - §8 conclusion (b): "concentrates in MI, STTC, and NORM" ✓
+   - Table 8 "This work": "concentrated in MI and STTC" ✗ WRONG
+  FIX: Add NORM: "concentrated in NORM, MI, and STTC."
+
+===============================================================
+LEVEL 2 — SIGNIFICANT CLARITY / ATTRIBUTION ISSUE
+===============================================================
+
+[P1E] §4.4 + §4.5 + §7.5 — q_meta is effectively 1 for all
+       PTB-XL records with demographics present; attribution of
+       graceful degradation needs clarification
+  LOCATIONS: Lines ~194 (§4.4), ~213 (§4.5), ~416 (§7.5 Q3)
+  ISSUE:
+   q_meta = min(1, q_d + 0.5*q_a)
+   In PTB-XL: age available 98.7%, sex always → q_d = 1 for 98.7%
+   When q_d = 1: q_meta = min(1, 1 + 0.5*q_a) = 1 regardless of q_a.
+   Therefore q_meta = 1 for virtually all demo and demo+anthro records,
+   regardless of whether height/weight/BMI are present or absent.
+  CONSEQUENCE: The claim in §4.5 "aggressively suppressing metadata-
+   to-ECG cross-talk at partial availability" refers to DEMOGRAPHIC
+   partial availability (age missing, ~1.3% of PTB-XL), NOT to
+   anthropometric partial availability (height/weight missing, ~69%).
+   The graceful degradation shown in Fig. 5 (missingness stress test)
+   is driven by:
+    - Explicit missingness flags (m_h, m_w, m_bmi) in x_meta
+    - Sample meta-dropout during training
+   NOT by q_meta scaling (which is constant = 1 throughout the
+   anthropometric masking experiment since demographics are present).
+  The §7.5 Q3 text says "joint mechanism of q_meta scaling...zero-
+   initialised residual injection...and sample meta-dropout" which is
+   technically fine (joint mechanism), but attributing robustness to
+   q_meta is misleading for readers who will compute q_meta values.
+  §4.4 already correctly notes q_d=1 for 98.7% of records — the
+   issue is subsequent text implying q_meta varies with anthropometric
+   availability.
+  FIX RECOMMENDATION: Add one clarifying sentence in §4.4 or §4.5:
+   "In practice for PTB-XL, q_meta equals 1 for all records where
+   demographics are present (98.7% of records); attenuation below 1
+   occurs only when age is unavailable. Anthropometric missingness
+   robustness is therefore driven primarily by the explicit missingness
+   flags (m_h, m_w, m_bmi) in x_meta and by sample meta-dropout,
+   rather than by q_meta scaling."
+  SEVERITY: MODERATE — A reviewer who computes q_meta for PTB-XL
+   will catch this. Failing to clarify could lead to a request for
+   major revision.
+
+===============================================================
+LEVEL 3 — ITEMS REQUIRING WEB/PAPER VERIFICATION
+===============================================================
+
+[P1F] §7.1 — Attia2019AgeSex: "age MAE 6.9 y, sex AUC 0.97"
+  LOCATION: Line ~404
+  Citation: Attia2019AgeSex (Circ Arrhythm Electrophysiol 2019)
+  CLAIM: "demonstrated that age and sex are themselves recoverable
+   from the raw ECG (age MAE 6.9 y, sex AUC 0.97)"
+  STATUS: Needs verification of "6.9 y" specifically. Sex AUC 0.97
+   is commonly cited for this paper. Age MAE varies: some papers cite
+   ~7 years, "6.9 y" needs confirming against paper Table 2 or main
+   results.
+  ACTION: Web-verify against abstract/tables of this paper.
+
+[P1G] §2.1 — Nonaka2021: "swept nine 1D-CNN backbones"
+  LOCATION: Line ~98 (Related Work §2.1)
+  Citation: Nonaka2021 (MLHC 2021, PMLR 149:414-439)
+  CLAIM: "Nonaka and Seita swept nine 1D-CNN backbones and found
+   ResNet-18 competitive with deeper variants."
+  STATUS: Exact count of architectures needs verification. MLHC 2021
+   paper title is "In-depth Benchmarking of Deep Neural Network
+   Architectures for ECG Diagnosis". The number "nine" needs
+   confirming from the paper.
+  ACTION: Web-verify.
+
+[P1H] §2.1 — Smigiel2021/Palczynski2022: "70/15/15 split"
+  LOCATION: Line ~98 (Related Work §2.1)
+  Citation: Smigiel2021 (Entropy 23(9):1121) and Palczynski2022
+   (Sensors 22(3):904)
+  CLAIM: "used a non-standard 70/15/15 split"
+  STATUS: Needs verification that both papers use this specific split
+   ratio. The citation groups both papers under this characterization.
+  ACTION: Web-verify.
+
+[P1I] §2.5 — Kim2018ACCV: "reliability-aware gates for sensor dropout"
+  LOCATION: Line ~110 (Related Work §2.5)
+  Citation: Kim2018ACCV (ACCV 2018)
+  CLAIM: "Kim et al. introduce reliability-aware gates for sensor
+   dropout"
+  STATUS: The paper title "Robust Deep Multi-modal Learning Based on
+   Gated Information Fusion Network" uses "gated information fusion"
+   not "sensor dropout." Need to verify whether the paper actually
+   addresses sensor dropout scenarios.
+  ACTION: Web-verify specific claim.
+
+===============================================================
+LEVEL 4 — ABBREVIATIONS TABLE GAPS
+===============================================================
+
+[P1J] Missing abbreviations:
+  - SCP: used in §3.1 ("SCP-ECG diagnostic statements") — not listed
+  - MCAR, MAR, MNAR: used in §7.5 Q3 — not listed
+  - IQR: used in Figure 6 caption — not listed
+  ACTION: Add these to the abbreviations table.
+
+===============================================================
+LEVEL 5 — BIBLIOGRAPHY IMPROVEMENTS
+===============================================================
+
+[P1K] Na2024 (ICLR 2024): No URL or DOI provided
+  ENTRY: @inproceedings{Na2024} — has no doi or url field
+  The ICLR 2024 paper is available at:
+  https://openreview.net/forum?id=... (openreview)
+  Providing a url improves reproducibility.
+  ACTION: Add url field to the Na2024 entry.
+  NOTE: The DOI for ICLR papers via OpenReview is typically
+  10.48550/arXiv.[arxiv_id] if a preprint version exists.
+  For ICLR 2024 the OpenReview URL suffices.
+
+[P1L] Kiyasseh2021 (ICML 2021): No URL
+  ENTRY: @inproceedings{Kiyasseh2021} — no url
+  PMLR URL: https://proceedings.mlr.press/v139/kiyasseh21a.html
+  ACTION: Add url field.
+
+===============================================================
+BIBLIOGRAPHY ENTRY-BY-ENTRY REVIEW
+===============================================================
+
+Wagner2020:       correct (Sci Data 7:154) ✓
+Goldberger2000:   correct (Circulation 101:e215) ✓
+Strodthoff2021:   correct (IEEE JBHI 25(5):1519, doi correct) ✓
+Ribeiro2020:      correct (Nat Commun 11:1760) ✓
+Hannun2019:       correct (Nat Med 25(1):65-69) ✓
+Attia2019LV:      correct (Nat Med 25(1):70-74) ✓
+Attia2019AgeSex:  correct entry; content claims need verification [P1F]
+Siontis2021:      correct (Nat Rev Cardiol 18(7):465) ✓
+Kiyasseh2021:     correct entry; no URL [P1L]
+Smigiel2021:      correct entry; split claim needs verification [P1H]
+Nonaka2021:       correct entry; backbone count needs verification [P1G]
+Palczynski2022:   correct entry; split claim needs verification [P1H]
+Mehari2022:       correct (Comput Biol Med 141:105114) ✓
+Na2024:           correct entry; no URL [P1K]
+Weimann2025:      correct (Comput Biol Med 196:110809) ✓
+Coppola2024:      correct (medRxiv, appropriately marked preprint) ✓
+Strodthoff2023PTBXLPlus: correct (Sci Data 10:279) ✓
+Atwa2025:         correct (Diagnostics 15(15):1950) ✓
+Holloway2026:     correct (SGAI-AI LNCS 16302, in press) ✓
+Nguyen2025:       correct (arXiv 2507.09887, appropriately marked) ✓
+Qiu2024:          correct (BMC Med Inform 24(1):225) ✓
+Sokolow1949:      correct (Am Heart J 37(2):161) ✓
+Romhilt1968:      correct (Am Heart J 75(6):752) ✓
+Casale1985:       correct (JACC 6(3):572); Cornell criteria ✓
+Peguero2017:      correct (JACC 69(13):1694) ✓
+Srivastava2025:   correct (arXiv 2502.16255, preprint) ✓
+Dauphin2017:      correct (ICML PMLR 70:933) ✓
+Arevalo2020:      correct (Neural Comput Appl 32(14):10209) ✓
+Chen2019MICCAI:   correct (MICCAI LNCS 11766:447) ✓
+Kim2018ACCV:      correct entry; sensor dropout claim needs check [P1I]
+Baltrusaitis2019: correct (IEEE TPAMI 41(2):423) ✓
+Havaei2016:       correct (MICCAI LNCS 9901:469) ✓
+Ma2021:           correct (AAAI 2021 vol 35:2302) ✓
+Zhang2022:        correct (MICCAI LNCS 13435:107) ✓
+Rautaharju2009:   correct (Circulation 119(10):e241) ✓
+MacFarlane2011:   correct (Springer 2nd ed.) ✓
+Hollander2014:    correct (Wiley 3rd ed.) ✓
+Bouthillier2021:  correct (MLSys 2021 vol 3:747) ✓
+Dodge2019:        correct (EMNLP 2019:2185) ✓
+
+===============================================================
+CITATION-TO-TEXT MATCHING REVIEW (paragraph by paragraph)
+===============================================================
+
+§1 Introduction ¶1:
+  Hannun2019 → "cardiologist-level arrhythmia detection on
+   ambulatory single-lead recordings" — matches paper ✓
+  Ribeiro2020 → "large-scale automatic diagnosis from standard
+   12-lead ECGs" on "2M-record Brazilian telehealth corpus" ✓
+  Attia2019LV → "CNN could screen for reduced LV ejection fraction"
+   — matches (AUC 0.93 for LVef ≤35%) ✓
+  Siontis2021 → "review these and related AI-ECG applications in
+   cardiovascular disease management" ✓
+  Wagner2020 → "public PTB-XL corpus" ✓
+  Strodthoff2021 → "canonical benchmark...0.928±0.005 for a
+   1D-ResNet" ✓ (fixed from previous TV6)
+  Mehari2022, Weimann2025, Coppola2024 → "self-supervised systems...
+   improve selected ECG benchmarks, waveform-centric" ✓
+
+§1 ¶2:
+  Qiu2024, Srivastava2025, Atwa2025, Holloway2026 → "ECG-fusion
+   works...ECG representations combined with clinical variables..." ✓
+  Tables \ref{tab:prior_a}--\ref{tab:prior_b} → cross-reference ✓
+
+§2.1 PTB-XL benchmarks:
+  Wagner2020 → corpus description ✓
+  Strodthoff2021 → benchmark result ✓
+  Nonaka2021 → "swept nine 1D-CNN backbones" — NEEDS VERIFICATION [P1G]
+  Smigiel2021, Palczynski2022 → "entropy features and few-shot
+   learning, 70/15/15 split" — NEEDS VERIFICATION [P1H]
+
+§2.2 Landmark clinical ECG models:
+  Hannun2019 → 91,232 single-lead ambulatory ECGs ✓
+  Ribeiro2020 → 2M Brazilian corpus ✓
+  Attia2019LV → AUC 0.93 for LVef ≤35% ✓
+  Attia2019AgeSex → "age and sex recoverable (age MAE 6.9 y,
+   sex AUC 0.97)" — age MAE NEEDS VERIFICATION [P1F]
+  Siontis2021 → "identify this latent-demographic phenomenon as
+   both an opportunity and a confounding risk" — characterization
+   of a review paper; consistent with the review's themes ✓
+
+§2.3 SSL models:
+  Kiyasseh2021 → CLOCS, contrastive learning ✓
+  Mehari2022 → CPC-based pretraining ✓
+  Na2024 → ST-MEM (masked representation learning) ✓
+  Weimann2025 → ECG-JEPA ✓
+  Coppola2024 → HuBERT-ECG (preprint, appropriately marked) ✓
+  Nguyen2025 → TolerantECG (arXiv preprint, appropriately marked) ✓
+
+§2.4 Multimodal fusion:
+  Qiu2024 → AF recurrence, non-PTB-XL cohort ✓
+  Srivastava2025 → rECGnition_v2.0, MIT-BIH/INCARTDB/ST-T ✓
+  Atwa2025 → PTB-X, age/sex, CNN/VGG, accuracy metrics ✓
+  Strodthoff2023PTBXLPlus → Uni-G, 12SL, ECGDeli tables ✓
+  Holloway2026 → PTB-XL+ features comparison ✓
+
+§2.5 Gated fusion:
+  Dauphin2017 → GLU "h ⊙ σ(·)" ✓
+  Arevalo2020 → Gated Multimodal Unit (GMU) ✓
+  Chen2019MICCAI → brain-tumor segmentation gated fusion ✓
+  Kim2018ACCV → "reliability-aware gates for sensor dropout"
+   — sensor dropout characterization NEEDS VERIFICATION [P1I]
+
+§2.6 Missing modalities:
+  Baltrusaitis2019 → survey of multimodal ML ✓
+  Havaei2016 → HeMIS, hetero-modal image segmentation ✓
+  Ma2021 → SMIL, severely missing modality ✓
+  Zhang2022 → mmFormer, brain tumor segmentation ✓
+
+§2.7 Clinical motivation:
+  Sokolow1949 → Sokolow-Lyon LVH criteria ✓
+  Casale1985 → Cornell voltage/duration product ✓
+  Romhilt1968 → Romhilt-Estes point-score ✓
+  Peguero2017 → Peguero-Lo Presti criteria ✓
+  Rautaharju2009 → AHA/ACCF/HRS ST/T/QT standards ✓
+  MacFarlane2011 → Comprehensive Electrocardiology textbook ✓
+
+§3.3:
+  ISSUE P1A: Miss indicator described backwards — see above.
+  NOTE: The AVAILABILITY MASK convention (mask=1 if present) is
+   correctly described as separate from x_meta miss indicators.
+
+§5.4 Statistical analysis:
+  Hollander2014 → "exact two-sided paired Wilcoxon signed-rank
+   tests" — correct textbook ✓
+  Bouthillier2021 → "three to five seeds are commonly reported"
+   — Bouthillier2021 explicitly discusses underreporting of variance
+   in ML benchmarks and the modal practice of few seeds ✓
+  Dodge2019 → "Show Your Work" — discusses experimental reporting
+   in NLP, complements Bouthillier2021 ✓
+
+§6 Results: All cross-references to tables/figures ✓
+§7 Discussion: All citations match the literature claims ✓
+
+===============================================================
+SUMMARY TABLE OF ALL ISSUES
+===============================================================
+
+Issue | Type       | Section    | Fix complexity | Priority
+------+------------+------------+----------------+---------
+P1A   | Factual    | §3.3       | Simple         | CRITICAL
+P1B   | Factual    | §3.4       | Trivial        | HIGH
+P1C   | Factual    | §7.3       | Trivial        | HIGH
+P1D   | Factual    | Table 8    | Simple         | HIGH
+P1E   | Clarity    | §4.4/4.5   | 2-3 sentences  | MODERATE
+P1F   | Verify     | §7.1       | Web check      | MODERATE
+P1G   | Verify     | §2.1       | Web check      | LOW-MOD
+P1H   | Verify     | §2.1       | Web check      | LOW
+P1I   | Verify     | §2.5       | Web check      | LOW
+P1J   | Format     | Abbrevs    | Easy           | LOW
+P1K   | Biblio     | Na2024     | Easy           | LOW
+P1L   | Biblio     | Kiyasseh   | Easy           | LOW
+
+PLAN:
+Step 1: Apply P1A, P1B, P1C, P1D (definite fixes)
+Step 2: Web-verify P1F, P1G, P1H, P1I
+Step 3: Apply P1E (clarification) with findings from Step 2
+Step 4: Apply P1J, P1K, P1L (abbreviations + bib)
+Step 5: Recompile, begin Pass 2
+
+===============================================================
+END OF REVIEWER PASS 1 NOTES
+===============================================================

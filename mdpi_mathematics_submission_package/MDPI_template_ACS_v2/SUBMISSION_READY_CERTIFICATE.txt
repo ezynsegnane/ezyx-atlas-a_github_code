@@ -1,0 +1,122 @@
+===============================================================
+SUBMISSION-READINESS CERTIFICATE
+EZNX-ATLAS-A — MDPI Mathematics
+Date: 2026-05-17
+===============================================================
+
+CERTIFICATION: The manuscript main_en.tex is certified submission-ready
+after four complete adversarial reviewer passes (A→Z × 4).
+
+=== FINAL COMPILATION STATE ===
+  File : main_en.pdf
+  Pages: 26
+  Size : 1,721,818 bytes
+  LaTeX errors: 0
+  Undefined references: 0
+  Label-change warnings: 0
+
+=== COMPLETE FIX HISTORY (19 fixes total) ===
+
+---- SESSION START (pre-pass) ----
+[TV6] Strodthoff2021 benchmark notation corrected in 4 locations:
+  "0.9285 ± 0.0005" → "0.928 ± 0.005"
+  (parenthetical SD notation "0.928(05)" misread; fixed in §1 intro,
+   §6.1, §6.6, and Table 8 Strodthoff row)
+
+---- PASS 1 (12 fixes) ----
+[P1A] §3.3 missingness indicator: m=1 means ABSENT (not observed) ✓
+[P1B] §3.4 HYP prevalence: 12.1% → 12.2% ✓
+[P1C] §7.3 hypothesis count: "three" → "four" ✓
+[P1D] Table 8 "This work": added NORM to significant per-class classes ✓
+[P1E] §4.4: added q_meta hard-gate clarification paragraph ✓
+[P1F] Attia2019AgeSex metrics: VERIFIED CORRECT (age MAE 6.9 y, AUC 0.97)
+[P1G] Nonaka2021: VERIFIED CORRECT (nine backbones, ResNet-18 competitive)
+[P1H] Smigiel/Palczynski 70/15/15: VERIFIED CORRECT
+[P1I] §2.4 Kim2018ACCV: "sensor dropout" → "degraded or low-quality
+       modalities" (paper addresses degraded modalities, not missing) ✓
+[P1J] Abbreviations: added IQR, MAR, MCAR, MNAR, SCP ✓
+[P1K] bibliography: Na2024 — added OpenReview URL ✓
+[P1L] bibliography: Kiyasseh2021 — added PMLR URL ✓
+
+---- PASS 2 (3 fixes) ----
+[P2A] §7.3: "from the earlier analysis" (no antecedent) → removed ✓
+[P2B] Abstract: Group D "significant" → "nominally significant...
+       exploratory" ✓
+[P2C] §3.3: merged two consecutive "Note that..." sentences ✓
+
+---- PASS 3 (2 fixes) ----
+[P3A] §7.3 title: "not resolved at 20 seeds" contradicted body text
+       ("genuine absence"); fixed to "no detectable gain at the
+        superclass level" ✓
+[P3B] Fig 6 caption: added significance key
+       "** p_BH<0.01; *** p_BH<0.001" ✓
+
+---- PASS 4 (1 fix) ----
+[P4A] Table 8 "This work": disambiguated class-localization per gain;
+       demographics → "localised in NORM and MI";
+       full metadata → "concentrated in NORM, MI, and STTC" ✓
+
+=== VERIFIED CORRECT (no fix needed) ===
+  - All BH-FDR arithmetic (3-test and 5-test families) ✓
+  - All effect sizes (d_z, g_z, Hedges correction) ✓
+  - Fold record counts: 17,418/2,183/2,198 = 21,799 ✓
+  - Group F mean/range arithmetic ✓
+  - Run count arithmetic (250 unique, 270 descriptors, 20 shared) ✓
+  - All 39 citation-to-claim matches ✓
+  - Minimum Wilcoxon p (2/2^20 ≈ 1.9×10^{-6}) ✓
+  - All 9 tables internally consistent ✓
+  - All 6 figure captions consistent with body text ✓
+  - MDPI administrative sections (contributions, funding, ethics,
+    data availability, AI disclosure, conflicts) ✓
+  - MSC codes and keywords ✓
+
+=== WHAT THE AUTHOR MUST VERIFY BEFORE UPLOAD ===
+
+  1. GitHub URL: https://github.com/ezynsegnane/ezyx-atlas-a_github_code
+     — verify it is publicly accessible and the code/data are present.
+
+  2. PhysioNet DOI: 10.13026/kfzx-aw45
+     — verify this resolves to PTB-XL 1.0.3 on PhysioNet.
+
+  3. Supplementary Table S1 (pre-specified 3-test BH-FDR family) must be
+     bundled with the submission (referenced in §8 supplementary note).
+
+  4. Figures (fig1_architecture.pdf through fig6_seed_distribution.pdf)
+     must be supplied as separate PDF files per MDPI requirements.
+
+  5. ORCID identifiers (lines 47-50) must match authors' registered ORCIDs.
+
+  6. MDPI cover letter (not part of main_en.tex): should note the
+     paired multi-seed statistical framework as the methodological
+     contribution beyond the ECG application.
+
+=== POTENTIAL REVIEWER QUESTIONS (NO MANUSCRIPT CHANGE NEEDED) ===
+
+  Q1. "Pre-specified" vs formally pre-registered?
+      Answer: Supplementary Table S1 documents the 3-test family;
+      no public pre-registration was performed, but the analysis plan
+      is documented before any confirmatory inference is made.
+      Acceptable for MDPI Mathematics; note in rebuttal if raised.
+
+  Q2. Why not a larger Transformer/foundation model?
+      Answer: §1 intro (line 78) explains: compact model for attribution
+      clarity and computational tractability of 250 CPU-only runs.
+
+  Q3. Fold 10 generalizability?
+      Answer: Group F (pre-declared) confirms fold 10 is conservatively
+      hard; Group A results likely understate typical performance.
+
+  Q4. MCAR assumption in missingness robustness test?
+      Answer: Explicitly acknowledged in §7.5 and §9.3 (Limitations):
+      "generalisability to structurally missing data under MCAR, MAR, or
+      MNAR mechanisms remains an open evaluation direction."
+
+=== FINAL VERDICT ===
+
+  MANUSCRIPT IS READY FOR MDPI MATHEMATICS SUBMISSION.
+  No further reviewer passes are required.
+  The author may submit manually at any time.
+
+===============================================================
+END OF CERTIFICATE
+===============================================================

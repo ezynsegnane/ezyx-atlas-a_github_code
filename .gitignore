@@ -28,14 +28,22 @@ data/
 ptb-xl/
 index_complete.parquet
 *.parquet
+!reproducibility/
+!reproducibility/archived_index/
+!reproducibility/archived_index/index_complete.parquet
 
 # ── Intermediate / legacy analysis (superseded by results/) ─────────────────
 submission_artifacts_en/
 legacy/
-mdpi_mathematics_submission_package/
+
+# ── Old Scientific Reports submission package (superseded by MDPI v2) ────────
+scientific_reports_submission_package/
 
 # ── Manuscript (added to GitHub after journal acceptance) ───────────────────
 paper/
+
+# ── Large inference probability arrays (not tracked; .npz can be regenerated)
+*.npz
 
 # ── Internal methodology tools (not needed for public reproduction) ──────────
 atlas_a_v5_optimized.py
@@ -67,3 +75,9 @@ Thumbs.db
 ~$*.docx
 *.backup_before_*.docx
 *.REPAIRED.docx
+.claude/
+
+# Repro / Colab transient outputs
+reproducibility/runs_initial/
+reproducibility/runs_extended/
+colab_runs_smoke/

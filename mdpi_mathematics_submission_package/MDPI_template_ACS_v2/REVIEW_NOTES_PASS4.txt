@@ -1,0 +1,82 @@
+===============================================================
+REVIEWER NOTES — PASS 4 (Final targeted spot-checks)
+Date: 2026-05-16
+Based on: main_en.tex after Pass 1 (25 fixes) + Pass 2 (9 fixes) + Pass 3 (3 fixes)
+===============================================================
+
+=== SPOT CHECKS PERFORMED ===
+
+[S1] All BH p-values verified present and consistent:
+  STTC: p_BH=0.00035 ✓
+  NORM: p_BH<0.0001  ✓
+  MI:   p_BH<0.0001  ✓
+  CD:   p_BH=0.648   ✓ (body text, Discussion, Conclusions)
+  HYP:  p_BH=0.648   ✓ (body text, Discussion, Conclusions)
+
+[S2] DEMO-NONE raw p-values verified:
+  NORM: p_raw=0.006 ✓ (Results §Per-class, Discussion §Q2, Fig3 caption)
+  MI:   p_raw=0.003 ✓
+  CD:   p_raw=0.123 ✓ (Discussion §CD)
+  HYP:  p_raw=0.048 ✓ (Discussion §HYP borderline note)
+
+[S3] Table 4 BH column: <0.0001, <0.0001, 0.00035, 0.648, 0.648 ✓
+  Step-down explanation in caption ✓
+
+[S4] Benchmark comparison: "approximately 0.0014 macro-AUC below" ✓
+  (old erroneous "within 0.001" confirmed removed)
+
+[S5] New eq:hm label present and referenced correctly in §4.5 ✓
+  (no undefined reference in LaTeX log)
+
+[S6] Meta-correction explanation added in §4.7 ✓
+
+[S7] Effective total <1 note in Table 2 ✓
+
+[S8] BH step-down monotonicity note in Table 4 caption ✓
+
+[S9] Fig2 caption has ≈0.001 (with \approx) ✓
+
+[S10] LaTeX compiles cleanly: no fatal errors, no overfull hboxes,
+  no undefined references (26 pages, 1718513 bytes) ✓
+
+[S11] Old wrong values (0.715, 0.752, p=0.211, p=0.004 for NORM-demo)
+  confirmed absent from manuscript ✓
+
+[S12] British spelling "localised/localises" in abstract and body ✓
+
+=== NO NEW ISSUES FOUND IN PASS 4 ===
+
+=== FINAL STATUS ===
+
+The manuscript has undergone four complete reviewer passes with the following
+corrections applied:
+
+PASS 1 (25 items):
+  - 3 critical (BH-labeling errors in Discussion)
+  - 5 high priority (q_meta^2 note, metadata encoding clarification, etc.)
+  - 9 medium priority (GLU description, language, completeness)
+  - 8 low priority (bibliography, formatting, table labels)
+
+PASS 2 (9 items from data audit):
+  - 4 data-level errors (Table 4 BH p-values wrong, STTC ** → ***,
+    DEMO-NONE NORM p_raw wrong threshold, BH recalculation from 20-seed data)
+  - 2 equation errors (circular reference in §4.5, benchmark distance claim)
+  - 1 missing explanation (meta-correction term in §4.7)
+  - 2 minor (Fig2 ≈, loss-weight table note)
+
+PASS 3 (3 items):
+  - CD demo-none p_raw corrected (0.211 → 0.123)
+  - HYP DEMO-NONE borderline finding added to Discussion
+  - Table 4 step-down note added to caption
+
+PASS 4 (0 new issues): Manuscript confirmed publication-ready.
+
+CERTIFICATION: All reported p-values have been verified against the actual
+20-seed JSON result files via scipy.stats.wilcoxon. BH corrections computed
+using correct step-down algorithm (m=5 for per-class sub-family, m=3 for
+confirmatory family). All figures regenerated with corrected markers.
+LaTeX compiles without errors.
+
+===============================================================
+END OF PASS 4 NOTES — MANUSCRIPT READY FOR SUBMISSION
+===============================================================

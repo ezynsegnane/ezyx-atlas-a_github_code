@@ -575,24 +575,42 @@ def render_fig6_gap(
             alpha=0.86,
             zorder=3,
         )
+        med = float(np.median(gaps))
+        # Median marker: horizontal line inside box is already drawn by boxplot;
+        # add a clearly visible text label above the box top whisker
+        q75 = float(np.percentile(gaps, 75))
+        iqr  = float(np.percentile(gaps, 75) - np.percentile(gaps, 25))
+        whisker_top = min(float(np.max(gaps)), q75 + 1.5 * iqr)
         axis.text(
             idx,
-            np.median(gaps) + 0.00023,
-            f"median {np.median(gaps):+.4f}",
+            whisker_top + 0.00015,
+            f"med {med:+.4f}",
             ha="center",
             va="bottom",
-            fontsize=7.8,
-            color="#111827",
+            fontsize=8.5,
+            fontweight="bold",
+            color=COLORS[variant],
         )
 
     axis.axhline(0, color="#111827", linestyle="--", linewidth=1.0)
-    axis.set_title("Fused branch gain over ECG-only branch")
-    axis.set_ylabel("Test AUC(fused) - AUC(ECG-only)")
+    axis.set_title("Fused branch gain over ECG-only branch (AUC fused − AUC ECG-only)")
+    axis.set_ylabel(r"$\Delta$AUC  =  AUC$_{\mathrm{fused}}$ $-$ AUC$_{\mathrm{ECG}}$  (fold-10, per seed)")
     axis.set_xticks(x)
-    axis.set_xticklabels(["NONE\n(ECG only)", "DEMO\n(+age, +sex)", "DEMO+ANTHRO\n(full)"])
-    y_min = min(float(np.min(gaps)) for gaps in gap_arrays) - 0.00035
-    y_max = max(float(np.max(gaps)) for gaps in gap_arrays) + 0.00045
+    axis.set_xticklabels(["NONE\n(ECG only)", "DEMO\n(+age, +sex)", "DEMO+ANTHRO\n(full metadata)"])
+    # Wider y-range: ±0.002 padding around the data range, minimum span 0.006
+    data_min = min(float(np.min(g)) for g in gap_arrays)
+    data_max = max(float(np.max(g)) for g in gap_arrays)
+    pad = max(0.002, (data_max - data_min) * 0.25)
+    y_min = data_min - pad
+    y_max = data_max + pad + 0.00060   # extra headroom for median labels
+    y_span = y_max - y_min
+    if y_span < 0.006:
+        mid = (y_min + y_max) / 2
+        y_min, y_max = mid - 0.003, mid + 0.003
     axis.set_ylim(y_min, y_max)
+    # Y-axis tick spacing: multiples of 0.001 (cleaner than 0.0005)
+    import matplotlib.ticker as mticker
+    axis.yaxis.set_major_locator(mticker.MultipleLocator(0.001))
     finish_axis(axis)
     axis.text(
         0.98,
@@ -618,16 +636,21 @@ def main() -> None:
     seed_runs = load_seed_runs(args.runs_dir, args.seed)
 
     outputs: list[Path] = []
-    outputs.extend(
-        render_fig2_training_and_test(
-            stats,
-            seed_runs,
-            args.figure_dir / "fig2_training_curves",
-            formats,
-            args.dpi,
-            args.mirror_dir,
-        )
-    )
+
+    # ------------------------------------------------------------------ #
+    # Figure 2 is NOT generated here.                                      #
+    # The manuscript now shows mean ± SD validation AUC across all 10     #
+    # seeds for each variant.  Use the dedicated script instead:           #
+    #                                                                      #
+    #   python new_train_models/generate_fig2_m4.py                       #
+    #     [--seed_json_dir results/seed_json]                              #
+    #     [--out_dir figures]                                              #
+    #                                                                      #
+    # render_fig2_training_and_test() below generates the legacy           #
+    # single-seed two-panel figure and is retained for reference only;    #
+    # it must NOT be called from main() to avoid overwriting the          #
+    # current Fig. 2.                                                      #
+    # ------------------------------------------------------------------ #
     outputs.extend(
         render_fig3_delta_auc(
             stats,

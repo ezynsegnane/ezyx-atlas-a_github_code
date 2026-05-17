@@ -1,0 +1,170 @@
+===============================================================
+REVIEWER NOTES — PASS 1 (Full manuscript A-Z read)
+Date: 2026-05-16
+===============================================================
+
+=== CRITICAL ERRORS (scientific correctness) ===
+
+[C1] Discussion §Q2, line ~405:
+  "Even the demographic-only contrast (demo−none) shows BH-significant effects
+   for NORM (p_BH=0.015) and MI (p_BH=0.011)"
+  → DEMO-NONE per-class tests are EXPLICITLY EXPLORATORY (not in any BH-FDR
+    family per §5 Statistical Analysis). Calling them "BH-significant" is
+    wrong. The correct values are p_raw=0.004 (NORM) and p_raw=0.003 (MI)
+    from Results §Per-class. Fix: remove p_BH labels; use p_raw.
+
+[C2] Discussion §CD, line ~411:
+  "The demo variant produces a slight negative trend in CD AUC (−0.0011,
+   p_BH=0.211)"
+  → DEMO-NONE per-class is exploratory. "p_BH" label is wrong. Should be
+    "p_raw=0.211" (the value itself is fine; just the label is incorrect).
+
+[C3] Fig6 caption vs body text:
+  Caption: "demo+anthro exceeds none in 19 of 20 seeds"
+  Main text §5.4: "fused head … positive for all 20 of 20 seeds" (this is
+  for AUC_fused - AUC_ecg gap, not DA-NONE macro). These are different
+  quantities and actually consistent — just needs a clearer narrative in
+  body text so readers don't confuse the two counts.
+
+=== HIGH PRIORITY (methodology / precision) ===
+
+[H1] Table 4 caption + Statistics section:
+  The per-class DA-NONE sub-family BH-FDR is post-hoc / secondary, not
+  pre-specified. The protocol section only pre-declares the 3-test macro-AUC
+  family. Table 4 caption must make clear this is a "secondary analysis."
+  Statistics section (§5.7) should add one sentence about this sub-family.
+
+[H2] Eq.(5) q_meta^2 note:
+  Since h_m = q_meta * MLP(u_m) (Eq.4), and Eq.5 has 0.10*q_meta*W*h_m,
+  the combined effective attenuation is 0.10*q_meta^2. The text says only
+  "q_meta attenuation" which hides the quadratic guard. Add note:
+  "Combined with the q_meta scaling applied to h_m in Eq.(4), the effective
+   attenuation of the residual path at partial availability is q_meta^2."
+
+[H3] Metadata encoding Eq.(3) is confusing:
+  x_meta bundles 5 actual values + 3 missingness indicators (m_h,m_w,m_bmi)
+  into one 8-dim vector, PLUS there's a separate 8-dim availability mask m.
+  A reviewer will be confused: what are the 8 bits of the separate mask m
+  when x_meta already contains 3 missingness indicators?
+  Need one clarifying sentence: "x_meta combines imputed metadata values
+  (age_z, sex01, height_z, weight_z, bmi_z) with derived missingness
+  indicators (m_h, m_w, m_bmi); the separate 8-dim mask m flags whether
+  each entry of x_meta was originally observed before imputation."
+
+[H4] §4.2 Dual metadata encoder:
+  "a 4-dim demographic slice and a 12-dim anthropometric slice" — these are
+  AFTER concatenating values+masks, not raw feature dims. Clarify:
+  "(2 values + 2 availability masks)" and "(6 values + 6 availability masks)."
+
+[H5] Training dynamics text (line ~310):
+  "Cross-seed SD narrows from 0.008–0.010 at epoch 1 to 0.001–0.001 at
+   epoch 10" → "0.001–0.001" is redundant/odd. Change to "≈0.001 at epoch 10."
+
+[H6] GLU description:
+  "preserves linear gradient flow" — slightly imprecise. Dauphin's GLU
+  allows gradient to pass through the non-gated linear branch; the sigmoid-
+  gated branch attenuates gradients. Better: "allows a direct linear gradient
+  path through the ungated branch."
+
+[H7] Group D augmentation language:
+  "The result confirms that the light augmentation block contributes a
+   consistent positive effect and is not a neutral design choice." — With
+  n=10 and raw p=0.0195 (exploratory, no BH correction), "confirms" is too
+  strong. Replace with "suggests" or "provides preliminary evidence."
+
+[H8] Conclusions line:
+  "provides sufficient power to detect small effects such as the demographic
+   gain (d_z=0.64)" — no formal power analysis is done. Replace "sufficient
+   power" with "enough paired seeds."
+
+=== MEDIUM PRIORITY (language, completeness) ===
+
+[M1] Abstract: "localized" → "localised" (British spelling consistency).
+
+[M2] Abstract: "arguing for paired multi-seed statistics" →
+  "demonstrating the value of paired multi-seed statistics."
+
+[M3] Abstract: "CD and HYP show no statistically significant effect" — which
+  contrast? Add "(in the full-metadata contrast)" for clarity.
+
+[M4] §2.5 GLU: check notation. "h ⊙ σ(·)" — the argument of σ(·) is
+  unspecified in the related-work description. Fine for a survey sentence.
+
+[M5] §4.3 Quality score: "q_d is usually 1 and can drop to 0.5 when age is
+  missing" — also note q_d=0 is theoretically possible (both age and sex
+  missing), even if rare. Add: "(or 0 if both are unavailable, a theoretical
+  edge case not observed in PTB-XL)."
+
+[M6] §5.2 Optimizer schedule:
+  "CosineAnnealingWarmRestarts, T_0=10, T_mult=2; 10 epochs" — with exactly
+  10 epochs and T_0=10, the model only completes one cosine cycle (no actual
+  warm restart occurs). Note: "With 10 epochs and T_0=10, the schedule
+  executes one complete cosine cycle; the warm-restart feature is not
+  activated within the training budget."
+
+[M7] §5.7 Statistics: Add sentence about secondary per-class BH sub-family
+  for DA-NONE (5 tests). "A secondary exploratory BH-FDR correction is
+  applied within the 5 per-class DA-NONE Wilcoxon tests (reported in Table 4
+  and Fig. 3 for context); this family was not pre-specified."
+
+[M8] §Limitations: "CPU-only execution eliminates CUDA non-determinism" —
+  add caveat: "across runs on identical hardware and software; results may
+  differ on different CPU architectures or BLAS implementations."
+
+[M9] Q3 answer in Introduction uses "dropout" (deep-learning term):
+  "(Q3) macro-AUC loss ≈ 0.0014 under full anthropometric dropout at
+   inference" → change "dropout" to "masking."
+
+=== LOW PRIORITY (bibliographic, formatting) ===
+
+[L1] ORPHAN REFERENCES in bibliography.bib — NEVER cited in manuscript:
+  - Haimovich2024 (JACC Advances 2024, CD conduction disorders)
+  - Hollander2014 (Nonparametric Statistical Methods textbook)
+  Remove both from bibliography.bib.
+
+[L2] Cite Hollander2014 for Wilcoxon test if desired, or remove. The
+  Wilcoxon test citation could use Hollander 2014 in the Statistics section.
+  Decision: either cite it or remove it from bib.
+
+[L3] GitHub URL in \dataavailability: verify
+  https://github.com/ezynsegnane/ezyx-atlas-a_github_code is the correct
+  public repository URL.
+
+[L4] Table 2: Loss weight sum note. 0.52+0.30+0.08=0.90 (meta BCE is
+  conditional on q_meta). Worth one clarifying parenthetical.
+
+[L5] "0.928(5)" notation (§2.1, physics-style error notation):
+  Add a brief parenthetical "(i.e., 0.9285 ± 0.0005)" or "(SD: 0.0005)"
+  for readers unfamiliar with this compact notation.
+
+[L6] \supplementary mentions Table S1 — ensure it is included in submission.
+
+[L7] Table 5a label says "Table 5a:" at the start of the caption. MDPI
+  captions should not start with the table number (it's auto-generated).
+  Same for Table 5b. Remove "Table 5a:" and "Table 5b:" from captions.
+
+[L8] [table=htbp] for Tab5a/5b: MDPI prefers [H] for all float objects.
+  Change from \begin{table}[htbp] to \begin{table}[H].
+
+=== INTERNAL CONSISTENCY CHECKS ===
+
+[IC1] "19 of 20 differences positive" for DA-NONE (intro, results, fig6):
+  All three occurrences are consistent ✓. Keep.
+
+[IC2] DA(ρ=1) vs DEMO(ρ=0) = −0.00018, "less than 1/6 SD":
+  Cross-seed SD for DA ≈ 0.0013; 1/6 × 0.0013 ≈ 0.000217.
+  −0.00018 < 0.000217 ✓. Claim is correct.
+
+[IC3] Parameter count: 3.95 M across all occurrences ✓ (fixed).
+
+[IC4] Group C coupling: "w_fused = max(0, 0.60 - λ_LAUC)" — the reference
+  uses w_fused = 0.60 - 0.08 = 0.52 ✓. At λ=0.16, w_fused=0.44. At
+  λ=0.60, w_fused=0. This coupling is correctly described ✓.
+
+[IC5] Abstract says "19 of 20 differences positive" is NOT stated in
+  abstract — the abstract only gives CI and p. That's fine.
+
+===============================================================
+END OF PASS 1 NOTES
+Total issues: 8 Critical/High + 9 Medium + 8 Low = 25 items
+===============================================================

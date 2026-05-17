@@ -1,0 +1,100 @@
+Dear Academic Editor,
+
+Please consider the manuscript entitled "EZNX-ATLAS-A: Measuring the Incremental
+Contribution of Clinical Metadata to 12-Lead ECG Superclass Classification on PTB-XL"
+for publication in Mathematics (MDPI). The ORCID of the corresponding author is
+https://orcid.org/0009-0005-0538-4335.
+
+--- Contribution and scope ---
+
+The manuscript presents a controlled measurement study of multimodal ECG
+classification. Its central mathematical contributions are: (i) a formal multi-label
+problem setting with an explicit missingness-aware feature representation (Section 3);
+(ii) an availability-quality score q_meta derived from the metadata availability mask,
+used as a continuous attenuator in a zero-initialised residual injection and a
+GLU-style multiplicative fusion gate (Sections 4.2--4.5); (iii) a composite multi-task
+loss that combines weighted binary cross-entropy with an unsquared pairwise AUC
+surrogate (Section 5.1); and (iv) a rigorous paired statistical protocol using exact
+two-sided Wilcoxon signed-rank tests, Benjamini--Hochberg FDR correction across a
+declared 36-test confirmatory family, Cohen d_z and Hedges g_z effect sizes, and
+10,000-resample percentile bootstrap confidence intervals (Section 5.5).
+
+The study is aligned with the scope of Mathematics through its formal mathematical
+framework and its use of nonparametric statistical inference to answer a concrete
+scientific question: whether, and for which ECG pathology classes, structured
+anthropometric metadata adds statistically measurable information beyond a strong
+ECG-only baseline. The main finding is that demographic variables alone (age, sex) add
+nothing statistically significant (Delta = +0.0002 macro-AUC, BH-adjusted p = 0.626),
+whereas anthropometric variables (height, weight, BMI) produce a small but
+reproducible gain of +0.0014 macro-AUC (paired 95% CI [0.0009, 0.0019],
+BH-adjusted p = 0.028), concentrated in the MI and STTC superclasses.
+
+--- Novelty and reproducibility ---
+
+This paper does not propose a state-of-the-art ECG architecture. Its novelty is the
+protocol: a seed-matched three-variant ablation (none / demo / demo+anthro) with
+paired multi-seed statistics, per-class decomposition, and an inference-time
+anthropometric masking stress test, on the standard PTB-XL 1.0.3 benchmark. To our
+knowledge no prior PTB-XL study separates demographic from anthropometric metadata
+under a paired multi-seed protocol with explicit missingness stress testing.
+
+All 30 runs (10 seeds x 3 variants) were executed on a single CPU-only machine
+(Intel Core i5, 8 GB RAM, PyTorch 2.3.1+cpu) without GPU or CUDA, which makes the
+results inherently free of CUDA non-determinism and straightforward to replicate on
+any standard workstation. Total elapsed compute was 18.61 run-hours.
+
+--- Supplementary package ---
+
+The reviewed submission is accompanied by a self-contained supplementary package that
+includes: the 30 raw seed-level result JSON files; derived CSV and Markdown statistical
+tables; paired comparison reports with bootstrap confidence intervals; a dataset
+integrity report verifying zero shared patient IDs across train/validation/test
+partitions and verifying superclass prevalence; a statistical analysis protocol note
+documenting the executed 36-test confirmatory family; environment files
+(requirements.txt and environment.yml); the complete training, evaluation, and
+figure-generation source code; and the six final manuscript figures. Patient-level
+probability arrays were not archived in the original release; this is documented
+explicitly in the manuscript (Section 7, Limitation 3 and 6).
+
+--- Ethics and data ---
+
+This study uses only the public, fully de-identified PTB-XL v1.0.3 dataset available
+on PhysioNet (doi:10.13026/kfzx-aw45). No patient-level data are included in the
+submission package. Ethical review was waived in accordance with the PTB-XL original
+approval. No new clinical data collection was performed.
+
+--- Declarations ---
+
+The manuscript is original, has not been published previously, and is not under
+consideration elsewhere. The authors declare no conflict of interest and no external
+funding. All authors have read and approved the final manuscript and agree with its
+submission to Mathematics.
+
+--- AI tool disclosure ---
+
+During the preparation of this submission, the authors used Claude (Anthropic) to
+audit the reference list for dataset and terminology consistency, to verify
+manuscript compliance with journal formatting requirements (abstract word count and
+author contribution format), and to correct grammar, spelling, and punctuation
+errors in the manuscript text. The authors reviewed all outputs and take full
+responsibility for the content of this publication.
+
+We would welcome reviewers with expertise in one or more of the following areas:
+nonparametric statistical inference and multiplicity correction; multimodal or
+multi-task deep learning; clinical ECG classification and PTB-XL benchmarking;
+reproducibility methodology in machine learning.
+
+Sincerely,
+
+Ezyn SEGNANE (corresponding author)
+Faculty of Sciences and Techniques, Al-Khawarizmi, University of Nouakchott, Nouakchott, Mauritania
+ezyn.segnane@univ-nkc.mr
+ORCID: 0009-0005-0538-4335
+
+On behalf of all co-authors:
+  Younes OMMANE — Faculty of Medical Sciences, Mohammed VI Polytechnic University, Ben Guerir, Morocco
+    Younes.OMMANE@um6p.ma | ORCID: 0000-0001-6827-2967
+  Khalil EL WALED — Faculty of Sciences and Techniques, Al-Khawarizmi, University of Nouakchott, Nouakchott, Mauritania
+    khalil.elwaled@univ-nkc.mr | ORCID: 0009-0001-7356-032X
+  Mohamedou CHEIKH TOURAD — Faculty of Sciences and Techniques, Al-Khawarizmi, University of Nouakchott, Nouakchott, Mauritania
+    cheikhtouradmohamedou@univ-nkc.mr | ORCID: 0000-0003-1273-7512

@@ -1,0 +1,270 @@
+===============================================================
+CONFRONTATION NOTES — PASS 1 (Code vs. Manuscript)
+Date: 2026-05-17
+Reviewer roles: Senior ML/DL engineer + ECG cardiologist + statistician
+Based on:
+  - main_en.tex (after Passes 1–4, 37 prior fixes applied)
+  - eznx_model_v5.py           — model architecture (ground truth)
+  - atlas_a_v5_multiseed_v2.py — training script (ground truth)
+  - eznx_loader_v2.py          — data loader (ground truth)
+  - analyze_multiseed_v2.py    — statistical analysis script
+  - analysis_plan.md           — pre-declared analysis plan
+  - Actual result JSON (ATLAS_A_v5_demo_seed2024) — verified training outputs
+===============================================================
+
+=== SCOPE ===
+This pass confronts the TRAINING CODE against the MANUSCRIPT text,
+tables, equations, and figures. We focus on factual contradictions
+between the code and the manuscript. Pure style issues are excluded.
+
+=== FINDINGS ===
+
+─────────────────────────────────────────────────────────────────
+[CF1] CRITICAL — §4.5 Residual injection: W_sum formula is WRONG
+─────────────────────────────────────────────────────────────────
+
+MANUSCRIPT (§4.5, Eq. hts):
+  h_ts = h_ts1 + 0.10 × q_meta × W_sum × h_m
+  W_sum = W_res + W_addon
+  W_res, W_addon ∈ R^{1024×128}, both ← 0 at init.
+  "The two projections are independently zero-initialised,
+   making both injection paths neutral at initialisation."
+  "the effective attenuation of each residual path is q_meta²"
+
+MANUSCRIPT (Figure 1 caption):
+  "Two parallel zero-initialised 1024×128 projections
+   (W_res, W_addon) softly bias the ECG embedding via
+   residual injection (Eq. hts)"
+
+MANUSCRIPT (§4.8 parameter budget):
+  "0.26 M in the two metadata-to-ECG residual projections
+   (W_res and W_addon, each R^{1024×128}, both zero-initialised)"
+
+CODE (eznx_model_v5.py, forward()):
+  Standard mode (all 60 Group A runs):
+    h_ts = h_ts + 0.10 * self.ts_meta_residual(h_m) * meta_quality
+  — only ts_meta_residual (W_res) is used.
+
+  E3 additive ablation (Group E only):
+    h_ts_aug = h_ts + self.ts_meta_addon(h_m)
+  — only ts_meta_addon (W_addon) is used, WITHOUT q_meta scaling.
+
+  W_res + W_addon are NEVER combined in any mode.
+  ts_meta_addon receives ZERO gradient in standard mode (never
+  called in forward()). It stays at zero throughout training.
+
+CONCLUSION:
+  The manuscript's "W_sum = W_res + W_addon" formula is FACTUALLY
+  INCORRECT for the standard architecture. W_addon is an E3-only
+  ablation path, never combined with W_res.
+
+FIX REQUIRED:
+  §4.5: Replace the W_sum equation with the single-projection form.
+  Add a note that W_addon exists for E3 only.
+  Figure 1 caption: correct "two parallel projections" to "one
+  residual projection (W_res); W_addon instantiated for E3 only".
+  §4.8: Clarify that W_res is active in standard mode; W_addon
+  is only active during E3 ablation runs (but both count toward
+  the 0.26 M parameter budget since both exist in the model).
+
+─────────────────────────────────────────────────────────────────
+[CF2] SIGNIFICANT — §3.4 Pos-weights formula describes
+       normalization that is NOT implemented in the code
+─────────────────────────────────────────────────────────────────
+
+MANUSCRIPT (§3.4, Eq. posweights):
+  w_c^+ = ((1-f_c)/f_c) / ((1-f_NORM)/f_NORM)
+  "Normalising to NORM ... keeping the NORM weight at unity."
+  "The resulting weight vector [w_NORM, w_MI, w_STTC, w_CD, w_HYP]
+   ≈ [1.0, 2.98, 3.16, 3.46, 7.22] is computed once on folds 1–8
+   and held fixed across all runs."
+
+CODE (atlas_a_v5_multiseed_v2.py, compute_pos_weights()):
+  raw_weights = neg / np.maximum(pos, 1)
+  weights = np.clip(raw_weights, 0.5, 30.0)
+  — NO normalization to NORM.
+
+ANALYSIS PLAN (analysis_plan.md §4, item 4):
+  "pos_weights: dynamic, computed per run — neg_j / pos_j per class,
+   clipped to [0.5, 30.0], computed from training folds only."
+
+ACTUAL TRAINING LOG (results_ATLAS_A_v5_demo_seed2024.json):
+  "pos_weights": [1.2930, 2.9776, 3.1610, 3.4582, 7.2199]
+
+  NORM actual weight = 1.2930 (NOT 1.0 as stated in manuscript).
+  MI, STTC, CD, HYP values closely match the manuscript (rounded),
+  because they happen to be near the raw neg/pos values.
+
+SPECIFIC ERRORS:
+  1. Formula wrong: code uses raw neg/pos + clip; no NORM division.
+  2. NORM weight wrong: 1.29 (actual) vs 1.0 (claimed).
+  3. "held fixed across all runs" is WRONG: the code recomputes
+     per run from training folds. For Group F (different fold
+     assignments), the weights differ from Groups A–E. For Groups
+     A–E all using folds 1–8 for training, the values are
+     numerically identical run-to-run but NOT "computed once."
+
+FIX REQUIRED:
+  Update §3.4 Eq. (posweights) to the actual formula:
+    w_c^+ = clip(neg_c / pos_c, 0.5, 30.0)
+  Update the weight vector to ≈ [1.29, 2.98, 3.16, 3.46, 7.22].
+  Remove "normalising to NORM" text.
+  Replace "computed once on folds 1–8 and held fixed" with
+    "computed dynamically at the start of each run from the
+     training folds."
+
+─────────────────────────────────────────────────────────────────
+[CF3] OBSERVATION — Group D: 20 seeds trained, only 10 analyzed
+─────────────────────────────────────────────────────────────────
+
+MANUSCRIPT (§5.4):
+  "Group D (exploratory, 20 runs). Augmentation ablation: standard
+   (aug, reference) vs. no-augmentation (noaug), 10 seeds each."
+
+CODE (run_experiments_v2.py):
+  SEEDS_20 = list(range(2024, 2044))   # 20 seeds
+  Group D loop: for s in SEEDS_20: _add("D", ..., no_aug=True)
+  → 20 noaug runs trained (seeds 2024–2043).
+
+ANALYSIS SCRIPT (analyze_multiseed_v2.py):
+  aug_vals   = collect_metric(runs_dir, "demo+anthro", SEEDS_10)
+  noaug_vals = collect_metric(runs_dir, "demo+anthro", SEEDS_10, no_aug=True)
+  → Analysis uses only SEEDS_10 (seeds 2024–2033, first 10).
+
+CONCLUSION:
+  The manuscript correctly reports n=10 (matching the analysis
+  script). However, 20 noaug seeds were trained but only 10 were
+  used in the analysis. The extra 10 noaug runs (seeds 2034–2043)
+  are unused. This is suboptimal but not a factual error in the
+  manuscript.
+
+  No manuscript fix required. Add a remark acknowledging this
+  in the confrontation notes for transparency.
+
+─────────────────────────────────────────────────────────────────
+[CF4] VERIFIED CORRECT — Architecture claims match code
+─────────────────────────────────────────────────────────────────
+
+The following were verified against the code and are correct:
+
+[✓] ECG backbone: Conv1d(k=7, s=2, p=3, 12→64) + BN + ReLU +
+    MaxPool(k=3, s=2, p=1) + 3 stages with 2 ResBlocks each.
+    Channel schedule 64→64→128→256. T'=63 for T=1000. ✓
+
+[✓] TemporalStatPool: mean, std, max, min → R^1024. ✓
+
+[✓] Demo encoder: R^4→R^64→R^64→R^64 (in_dim=4, hid=64, out=64).
+    Each intermediate layer: Linear+ReLU+BN+Dropout(0.10). ✓
+
+[✓] Anthro encoder: R^12→R^96→R^96→R^64 (in_dim=12, hid=96, out=64).
+    Same intermediate structure. ✓
+
+[✓] q_meta formula: q_d = mean(m[:2]), q_a = mean(m[2:]),
+    q_meta = clamp(q_d + 0.5×q_a, max=1.0). ✓
+
+[✓] Meta-fuse MLP: 130→meta_hid→128 (meta_hid=128 default). ✓
+
+[✓] GLU gate: z = h × σ(Linear_2(ReLU(Linear_1(h)))). ✓
+
+[✓] Three heads: ℓ_ecg computed on pre-residual h_ts1.
+    ℓ_fused = W_fused z + b_fused + 0.05 × q_meta × ℓ_meta. ✓
+
+[✓] Effective attenuation q_meta² for residual path:
+    h_m already scaled by q_meta; then multiplied again by q_meta
+    in the residual injection. This is correct in the text,
+    even though the W_sum formula itself is wrong. ✓
+
+[✓] 8-dim x_meta: age_z, sex01, height_z, weight_z, bmi_z,
+    miss__height, miss__weight, miss__bmi. ✓
+
+[✓] 8-dim mask: mask__age, mask__sex, mask__height, mask__weight,
+    mask__bmi, mask__miss_height, mask__miss_weight,
+    mask__miss_bmi. ✓
+
+[✓] Augmentation block fires with probability 0.5; each of the
+    3 operations (noise σ=0.02, shift [-20,+19], amplitude [0.95,1.05])
+    fires independently at probability 0.3. ✓
+
+[✓] Signal normalization: divide by 5.0. ✓
+
+[✓] AdamW: lr=1e-3, weight_decay=5e-4. ✓
+
+[✓] Scheduler: CosineAnnealingWarmRestarts T_0=10, T_mult=2. ✓
+
+[✓] Batch size 32, gradient accumulation 2 (effective 64). ✓
+
+[✓] Gradient clipping at L2-norm ≤ 1.0. ✓
+
+[✓] 10 epochs; patience=25 (> epochs → always runs full 10). ✓
+
+[✓] F1 threshold search: 61 values from 0.05 to 0.95. ✓
+
+[✓] Checkpoint: best val macro-AUC only (no delta_meta tie-break). ✓
+
+[✓] Loss weights (default): fused=0.52, ecg=0.30, meta=0.10,
+    lauc=0.08. Sum=1.00 before normalization = no change. ✓
+
+[✓] Meta BCE uses unweighted BCE (no pos_weight);
+    fused and ECG BCE use pos-weighted BCE. ✓
+
+[✓] 250 unique runs, 270 descriptors (20 shared). ✓
+
+[✓] Group A: 3 variants × 20 seeds = 60 runs. ✓
+
+[✓] Group B: 4 meta_hid × 10 seeds = 40 desc, 30 unique. ✓
+
+[✓] Group C: 5 lauc × 10 seeds = 50 desc, 40 unique. ✓
+
+[✓] Group D: 20 noaug runs (20 trained; 10 analyzed). ✓
+
+[✓] Group E: 8 modes × 10 seeds = 80 runs. ✓
+
+[✓] Group F: 4 splits × 5 seeds = 20 runs. ✓
+
+[✓] Seeds A,D: 2024–2043; B,C,E: 2024–2033; F: 2024–2028. ✓
+
+[✓] Ablation variants: none, demo, demo+anthro in loader. ✓
+
+[✓] demo mode: anthro values zeroed, miss flags set to 1,
+    anthro masks zeroed. ✓
+
+[✓] none mode: all meta and masks zeroed. ✓
+
+[✓] Patient-level dropout: probability 0.10 during training only. ✓
+
+[✓] meta_quality used both in h_m scaling and in residual injection
+    AND in logits_fused correction (0.05 × q_meta × ℓ_meta). ✓
+
+[✓] E6 (no_q_meta): meta_quality forced to 1.0 in forward(). ✓
+
+[✓] E8 (trainmask): x_meta=0 and mpm=0 during training. ✓
+
+[✓] Parameter budget: ECG 0.96M, meta encoders+fuse 0.06M,
+    GLU gate 2.66M, residual projections 0.26M,
+    heads 11.5k → total 3.95M. ✓
+
+[✓] Training folds 1–8 (8 folds), val fold 9, test fold 10. ✓
+
+[✓] Loss coupling: fused_w = max(0, 0.60 − lauc_w). ✓
+
+[✓] No zero differences in Group A Wilcoxon → exact method. ✓
+
+=== SUMMARY ===
+
+CRITICAL FIXES REQUIRED: 2
+  [CF1] W_sum = W_res + W_addon formula: WRONG — standard mode
+        uses only W_res. Fix §4.5, Fig 1 caption, §4.8.
+  [CF2] Pos-weights formula and NORM value wrong: code uses raw
+        neg/pos (no NORM normalization). Fix §3.4 formula,
+        change weight vector, remove "held fixed" claim.
+
+OBSERVATION (no fix required):
+  [CF3] 20 noaug seeds trained, only 10 used in Group D analysis.
+
+VERIFIED CORRECT: 36 architectural, statistical, and training
+  claims confirmed consistent between code and manuscript.
+
+===============================================================
+END OF CONFRONTATION PASS 1
+Apply CF1 and CF2 fixes to main_en.tex, then re-read for Pass 2.
+===============================================================

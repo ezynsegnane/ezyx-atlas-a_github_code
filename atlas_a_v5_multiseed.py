@@ -26,7 +26,7 @@ from eznx_model_v5 import EZNX_ATLAS_A_v5, count_parameters
 
 DEFAULT_BLEND_CANDIDATES = (0.0, 0.5, 0.65, 0.75, 0.85, 0.95, 1.0)
 DEFAULT_DATA_ROOT = Path(os.getenv("EZNX_DATA_REAL", PROJECT_ROOT / "data" / "ptb-xl" / "1.0.3"))
-DEFAULT_INDEX_PATH = Path(os.getenv("EZNX_INDEX_PATH", PROJECT_ROOT / "index_complete.parquet"))
+DEFAULT_INDEX_PATH = Path(os.getenv("EZNX_INDEX_PATH", PROJECT_ROOT / "data" / "index_complete.parquet"))
 DEFAULT_RUNS_DIR = Path(os.getenv("EZNX_RUNS_DIR", PROJECT_ROOT / "runs"))
 
 
@@ -515,6 +515,14 @@ def main():
                 opt.zero_grad()
 
             train_loss += loss.item() * cfg.gradient_accumulation_steps
+
+        # Trailing flush: apply any gradient accumulated in the final micro-batch
+        # of the epoch if it did not fall on an accumulation boundary.
+        n_batches = len(train_loader)
+        if n_batches % cfg.gradient_accumulation_steps != 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.max_grad_norm)
+            opt.step()
+            opt.zero_grad()
 
         # Stepped once per epoch, so T_0 and T_mult are expressed in epochs.
         scheduler.step()

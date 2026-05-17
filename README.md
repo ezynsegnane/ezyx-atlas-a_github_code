@@ -7,8 +7,11 @@
 [![PyTorch 2.3.1+cpu](https://img.shields.io/badge/PyTorch-2.3.1--cpu-EE4C2C.svg)](https://pytorch.org/get-started/locally/)
 [![PTB-XL 1.0.3](https://img.shields.io/badge/dataset-PTB--XL%201.0.3-green.svg)](https://physionet.org/content/ptb-xl/1.0.3/)
 
-**Ezyn SEGNANE** · Department of Mathematics and Computer Science, University of Nouakchott, Mauritania  
-Submitted to *Mathematics* (MDPI) — manuscript v2.3.3 · 2026-04-25
+**Ezyn SEGNANE** · University of Nouakchott, Mauritania  
+**Younes OMMANE** · Mohammed VI Polytechnic University, Morocco  
+**Khalil EL WALED · Mohamedou CHEIKH TOURAD** · University of Nouakchott, Mauritania  
+
+Submitted to *Mathematics* (MDPI) — manuscript v2 · 2026-05-17
 
 ---
 
@@ -19,12 +22,17 @@ It provides:
 
 - The full **model architecture** source code (`eznx_model_v5.py`, `eznx_loader_v2.py`)
 - The **training and evaluation pipeline** (`atlas_a_v5_multiseed.py`, `run_multiseed_experiments.py`, `analyze_multiseed_results.py`)
-- All **30 archived seed-level result JSON files** (`results/seed_json/`) — no GPU or checkpoint needed to verify the statistics
+- All **250 seed-level result JSON files** across six experimental groups (A–F) — no GPU or checkpoint needed to verify the statistics:
+  - `results/seed_json/` — 60 Group A files (3 variants × 20 seeds)
+  - `results/extended_json/` — 190 Groups B–F files
 - The **paper figures** (Figures 1–6) in `figures/`
-- The **LaTeX manuscript** source and compiled PDFs in `paper/`
-- A complete **statistical analysis** package (`results/`) with paired Wilcoxon tests, Benjamini–Hochberg correction, bootstrap CIs, effect sizes, and integrity reports
+- The **authoritative MDPI submission package** (`mdpi_mathematics_submission_package/MDPI_template_ACS_v2/`) including `main_en.tex`, `main_en.pdf`, and `bibliography.bib`
+- A complete **statistical analysis** package (`results/`) with paired Wilcoxon tests, Benjamini–Hochberg FDR correction over the pre-specified 3-test family, bootstrap CIs, and effect sizes
+- A strict **CPU Docker reproducibility layer** (`reproducibility/`)
+- A **Google Colab smoke-test path** (`colab/`)
 
-All 30 runs were executed on **CPU only** (Intel Core i5, 8 GB RAM, PyTorch 2.3.1+cpu, no GPU, no CUDA). Total compute: **18.61 run-hours**. Anyone with a standard laptop can reproduce the full study.
+All 250 runs were executed on **CPU only** (Intel Core i5, 8 GB RAM, PyTorch 2.3.1+cpu, no GPU, no CUDA).  
+Group A compute: **48.2 h** (60 runs, median 43.8 min/run). Total campaign: **≈185 h**.
 
 ---
 
@@ -32,7 +40,7 @@ All 30 runs were executed on **CPU only** (Intel Core i5, 8 GB RAM, PyTorch 2.3.
 
 PTB-XL exposes age, sex, height, weight, and BMI alongside the ECG waveform. Do these structured variables actually improve superclass classification, once seed variance is accounted for? And if so, which type of metadata (demographic vs. anthropometric) helps which pathology class?
 
-We run a **seed-matched three-variant ablation** across **10 random seeds**:
+We run a **seed-matched three-variant ablation** across **20 random seeds** (Group A, the primary confirmatory group):
 
 | Variant | What is provided to the model |
 |---|---|
@@ -40,47 +48,54 @@ We run a **seed-matched three-variant ablation** across **10 random seeds**:
 | `demo` | ECG + age + sex |
 | `demo+anthro` | ECG + age + sex + height + weight + BMI |
 
+Beyond Group A, five exploratory and confirmatory supplementary groups (B–F) test hyperparameter sensitivity, augmentation effect, architectural ablations, and multi-split generalisability across a **250-run campaign**.
+
 ---
 
-## Key results
+## Key results (Group A — 20 seeds, fold 10)
 
-### Macro-AUC on PTB-XL fold 10 (mean ± SD, 10 seeds)
+### Macro-AUC on PTB-XL fold 10 (mean ± SD, 20 seeds)
 
 | Variant | Macro-AUC | 95% CI |
 |---|---|---|
-| `none` | 0.9274 ± 0.0008 | [0.9270, 0.9279] |
-| `demo` | 0.9277 ± 0.0008 | [0.9271, 0.9281] |
-| `demo+anthro` | 0.9289 ± 0.0009 | [0.9284, 0.9294] |
+| `none` | 0.9271 ± 0.0011 | [0.9266, 0.9276] |
+| `demo` | 0.9277 ± 0.0010 | [0.9272, 0.9282] |
+| `demo+anthro` | 0.9289 ± 0.0013 | [0.9283, 0.9295] |
 
-### Paired Wilcoxon tests (BH-FDR corrected, 36-test family)
+### Paired Wilcoxon tests — pre-specified 3-test BH-FDR family (q = 0.05)
 
 | Comparison | Δ macro-AUC | 95% paired CI | BH-adj *p* | Cohen *d*z |
 |---|---|---|---|---|
-| `demo` − `none` (age + sex only) | +0.0002 | [−0.0002, +0.0007] | 0.626 | 0.30 |
-| **`demo+anthro` − `none` (full)** | **+0.0014** | **[+0.0009, +0.0019]** | **0.028** | **1.77** |
-| `demo+anthro` − `demo` (anthro only) | +0.0012 | [+0.0007, +0.0018] | 0.028 | 1.27 |
+| **`demo` − `none`** | **+0.0007** | **[+0.0002, +0.0011]** | **≈ 0.009** | **0.64** |
+| **`demo+anthro` − `demo`** | **+0.0012** | **[+0.0007, +0.0018]** | **≈ 0.001** | **0.95** |
+| **`demo+anthro` − `none`** | **+0.0019** | **[+0.0014, +0.0023]** | **< 0.001** | **1.65** |
 
-### Per-class AUC gain (`demo+anthro` − `none`)
+All three pairwise contrasts are statistically significant after BH-FDR correction. The 20-seed design (vs. the earlier 10-seed pilot) was required to detect the small but real demographic gain (+0.0007).
+
+### Per-class AUC gain (`demo+anthro` − `none`) — secondary BH-FDR sub-family
 
 | Class | Δ AUC | BH-adj *p* | Significant |
 |---|---|---|---|
-| NORM | +0.0014 | 0.167 | — |
-| **MI** | **+0.0047** | **0.023** | **✓** |
-| **STTC** | **+0.0013** | **0.023** | **✓** |
-| CD | −0.0011 | 0.237 | — |
-| HYP | +0.0008 | 0.482 | — |
+| **NORM** | **+0.0016** | **< 0.0001** | **✓** |
+| **MI** | **+0.0058** | **< 0.0001** | **✓** |
+| **STTC** | **+0.0018** | **0.00035** | **✓** |
+| CD | −0.0003 | 0.648 | — |
+| HYP | +0.0004 | 0.648 | — |
 
-**Main findings:**
-- Demographics alone (age, sex) add **nothing statistically measurable** — consistent with their known recoverability from the raw ECG waveform (Attia et al. 2019).
-- Anthropometrics (height, weight, BMI) provide a **small but statistically significant gain**, concentrated in **MI** and **STTC** — two morphology-rich classes where body-size calibration of waveform amplitudes is physiologically plausible.
-- **HYP shows no significant effect**, despite classical LVH criteria depending on body habitus — likely due to superclass heterogeneity and limited power at 12% prevalence.
-- Under full anthropometric masking at inference, macro-AUC drops by only **0.0010** — the quality-gated fusion degrades gracefully.
+### Main findings
+
+- **Both demographic and anthropometric variables show statistically significant macro-AUC gains** with 20 paired seeds — a result that required 20 seeds; the 10-seed pilot did not detect the demographic gain.
+- The class-wise signal concentrates in **MI** (+0.0058), **STTC** (+0.0018), and **NORM** (+0.0016) — morphology-rich classes where body-size calibration of waveform amplitudes is physiologically plausible.
+- Demographics alone (age, sex) are already detectable by the ECG (Attia et al. 2019: age MAE 6.9 y, sex AUC 0.97), yet a **residual +0.0007 increment** not fully captured by the ECG-only model is detected with 20 seeds.
+- **HYP shows no significant effect** (p_BH = 0.648), despite classical LVH criteria depending on body habitus — consistent with superclass heterogeneity at 12% prevalence.
+- **Fold 10 is conservatively difficult**: Group F (4 alternative folds, 5 seeds each) shows inter-fold range [0.9400, 0.9445], substantially above fold 10 (0.9289); Group A results likely understate typical performance.
+- Under full anthropometric masking at inference, macro-AUC drops by only **≈ 0.0014** — the quality-gated fusion degrades gracefully, converging to the demographics-only baseline.
 
 ---
 
 ## Architecture
 
-EZNX-ATLAS-A is a **3.82 M-parameter quality-gated dual-branch architecture**:
+EZNX-ATLAS-A is a **3.95 M-parameter quality-gated dual-branch architecture**:
 
 ```
 ECG waveform (12 × 1000)
@@ -93,14 +108,33 @@ Metadata (8-dim: age_z, sex01, height_z, weight_z, bmi_z, m_h, m_w, m_bmi)
             └── MetaFusion MLP → h_m ∈ ℝ¹²⁸  (scaled by q_meta)
 
 Availability score:  q_meta = min(1, q_d + 0.5·q_a)
-Residual injection:  h_ts ← h_ts + 0.10·q_meta·W_res·h_m  (W_res init = 0)
+                     q_meta = 1 for virtually all demo/demo+anthro records (q_d = 1
+                     whenever age and sex are present — 98.7% of PTB-XL)
+Residual injection:  h_ts ← h_ts + 0.10·q_meta·W_res·h_m  (W_res init = 0; effective
+                     attenuation = q_meta² for cross-modal contamination)
 GLU gate (2.66 M):   z = [h_ts ∥ h_m] ⊙ σ(Linear([h_ts ∥ h_m]))
 
 Three heads:   ℓ_ecg,  ℓ_meta,  ℓ_fused = W_f·z + 0.05·q_meta·ℓ_meta
-Inference:     p = w*·σ(ℓ_fused) + (1−w*)·σ(ℓ_ecg)    [w* = 1.0 in all 30 runs]
+Inference:     p = w*·σ(ℓ_fused)    [w* = 1.0 fixed a priori in all 250 runs]
 ```
 
-See `paper/main_en.pdf` for the full mathematical formulation and `figures/fig1_architecture.pdf` for a diagram.
+See `mdpi_mathematics_submission_package/MDPI_template_ACS_v2/main_en.pdf` for the full mathematical formulation and `figures/fig1_architecture.pdf` for a diagram.
+
+---
+
+## Experimental groups
+
+| Group | Type | Description | Runs | Seeds |
+|---|---|---|---|---|
+| **A** | Confirmatory | `none` vs `demo` vs `demo+anthro` (BH-FDR 3-test family) | 60 | 20 |
+| B | Exploratory | `meta_hid` sensitivity {32, 64, 128†, 256} | 40 | 10 |
+| C | Exploratory | λ_LAUC sensitivity {0.00, 0.04, 0.08†, 0.12, 0.16} | 50 | 10 |
+| D | Exploratory | Augmentation ablation (aug† vs noaug) | 20 | 10 |
+| E | Exploratory | 8 architectural ablations (E1 meta-only … E8 trainmask) | 80 | 10 |
+| **F** | Confirmatory | 4 alternative fold pairs (folds 2, 3, 7, 8 as test) | 20 | 5 |
+| **Total** | | | **250** unique runs | |
+
+† = reference value shared with Group A (counted once in unique run total).
 
 ---
 
@@ -111,66 +145,75 @@ eznx-atlas-a/
 ├── eznx_model_v5.py                 # Model architecture (EZNX-ATLAS-A)
 ├── eznx_loader_v2.py                # PTB-XL data loader + ablation modes
 ├── atlas_a_v5_multiseed.py          # Single-seed training entry point
-├── run_multiseed_experiments.py     # 30-run multi-seed orchestrator
+├── run_multiseed_experiments.py     # Multi-seed orchestrator (Groups A–F)
 ├── analyze_multiseed_results.py     # Statistical analysis (BH-FDR, bootstrap, Wilcoxon)
 ├── index_construction.py            # PTB-XL index builder
-├── run_all_experiments.sh           # Interactive shell helper
 ├── requirements.txt                 # pip dependencies (CPU-only)
 ├── environment.yml                  # Conda environment (CPU-only)
 ├── CITATION.cff                     # Machine-readable citation
 ├── LICENSE                          # MIT
 │
 ├── scripts/
-│   ├── evaluate_missingness_robustness.py   # Figure 4 — inference-time masking
-│   ├── render_architecture_figure.py        # Figure 1 generation
-│   ├── render_manuscript_result_figures.py  # Figures 2, 3, 5, 6 generation
+│   ├── render_manuscript_result_figures.py  # Figures 3, 5, 6 generation
 │   ├── render_article_artifacts.py          # Table/artifact export
-│   └── build_index.py                       # PTB-XL index construction helper
+│   └── ...
+│
+├── reproducibility/
+│   ├── archived_index/index_complete.parquet # Archived working index
+│   ├── manifests/                           # SHA256 manifests
+│   ├── reproduce_training.py                # Snapshot-based reproduction wrapper
+│   ├── verify_reproducibility.py            # Checksum verification
+│   └── Dockerfile.cpu                       # Frozen CPU-only Docker image
+│
+├── colab/
+│   ├── EZNX_ATLAS_A_smoke_test.ipynb        # Hosted Colab notebook
+│   └── README.md
 │
 ├── results/                         # All numerical artifacts from the paper
 │   ├── statistical_analysis_full.json       # Master paired-statistics export
 │   ├── statistical_analysis_report.md       # Human-readable analysis narrative
-│   ├── seed_level_results.csv               # 30 rows (3 variants × 10 seeds)
+│   ├── statistical_analysis_protocol.md     # Pre-specified 3-test BH-FDR family
+│   ├── seed_level_results.csv               # 60 rows (3 variants × 20 seeds)
 │   ├── seed_level_results.md                # Markdown rendering of the above
 │   ├── table_results_latex.tex              # LaTeX table fragment
 │   ├── missingness_eval_demo_anthro_summary.json  # Figure 4 source data
-│   ├── missingness_eval_demo_anthro_rows.csv      # Per-mask-rate rows
-│   ├── dataset_integrity_report.json              # Patient-disjoint split audit
-│   ├── dataset_integrity_report.md                # Human-readable integrity report
-│   ├── statistical_analysis_protocol.md           # 36-test family documentation
-│   └── seed_json/                           # 30 raw seed-level JSON files
-│       ├── results_none_seed2024.json
-│       ├── results_demo_seed2024.json
-│       ├── results_demo+anthro_seed2024.json
-│       └── ... (30 files total)
+│   ├── missingness_eval_demo_anthro_rows.csv
+│   ├── dataset_integrity_report.json
+│   ├── dataset_integrity_report.md
+│   ├── seed_json/                           # 60 Group A raw seed-level JSON files
+│   │   ├── results_ATLAS_A_v5_none_seed2024.json
+│   │   ├── results_ATLAS_A_v5_demo_seed2024.json
+│   │   ├── results_ATLAS_A_v5_demo+anthro_seed2024.json
+│   │   └── ... (60 files: 3 variants × seeds 2024–2043)
+│   └── extended_json/                       # 190 Groups B–F raw JSON files
+│       ├── results_ATLAS_A_v5_demo+anthro_metaH32_seed2024.json  (Group B)
+│       ├── results_ATLAS_A_v5_demo+anthro_lauc0.04_seed2024.json (Group C)
+│       ├── results_ATLAS_A_v5_demo+anthro_noaug_seed2024.json    (Group D)
+│       ├── results_ATLAS_A_v5_demo+anthro_meta_only_seed2024.json (Group E)
+│       ├── results_ATLAS_A_v5_demo+anthro_tf2_vf3_seed2024.json  (Group F)
+│       └── ... (190 files total)
 │
-├── figures/                         # Paper figures (PDF)
+├── figures/                         # Paper figures (PDF + PNG)
 │   ├── fig1_architecture.pdf
 │   ├── fig2_training_curves.pdf
 │   ├── fig3_per_class_delta_auc.pdf
 │   ├── fig4_missingness_robustness.pdf
 │   ├── fig5_per_class_heatmap.pdf
-│   └── fig6_fused_vs_ecg_gap.pdf
+│   └── fig6_seed_distribution.pdf
 │
-└── paper/                           # LaTeX manuscript (source + compiled PDF)
-    ├── main_en.tex                  # English submission (primary)
-    ├── main_en.pdf                  # Compiled English PDF
-    ├── main_en.bbl                  # BibTeX-compiled references
-    ├── main.tex                     # French companion
-    ├── main.pdf                     # Compiled French PDF
-    ├── main.bbl
-    ├── bibliography.bib             # BibTeX database
-    ├── CHANGELOG.md                 # Package revision history
-    ├── VERSION                      # Current version (2.3.3)
-    ├── Definitions/                 # MDPI LaTeX style files
-    └── figures/                     # Figures used by the LaTeX source
+└── mdpi_mathematics_submission_package/
+    └── MDPI_template_ACS_v2/        # AUTHORITATIVE MDPI submission package
+        ├── main_en.tex              # LaTeX source (v2, 2026-05-17)
+        ├── main_en.pdf              # Compiled PDF (26 pages)
+        ├── bibliography.bib         # BibTeX database (39 entries)
+        └── figures/                 # Final manuscript figures (Figs 1–6)
 ```
 
 ---
 
 ## Data download
 
-This repository does **not** include the PTB-XL dataset (it is publicly available on PhysioNet under a Creative Commons licence).
+This repository does **not** include the PTB-XL dataset (freely available on PhysioNet).
 
 ```bash
 # Option 1 — wget (Linux/macOS)
@@ -181,12 +224,10 @@ pip install wfdb
 python -c "import wfdb; wfdb.dl_database('ptb-xl', './ptb-xl')"
 ```
 
-Set the environment variable to your local PTB-XL root before running any script:
+Set the environment variable before running any script:
 
 ```bash
 export EZNX_DATA_REAL="/path/to/ptb-xl/1.0.3"    # Linux/macOS
-# or
-set EZNX_DATA_REAL=C:\path\to\ptb-xl\1.0.3        # Windows CMD
 $env:EZNX_DATA_REAL = "C:\path\to\ptb-xl\1.0.3"  # PowerShell
 ```
 
@@ -210,15 +251,15 @@ conda env create -f environment.yml
 conda activate eznx-atlas-a
 ```
 
-> **Note:** All 30 paper runs used PyTorch 2.3.1+cpu on a CPU-only machine (no CUDA). CPU-only execution is inherently free of CUDA non-determinism, providing a stronger reproducibility guarantee.
+> **Note:** All 250 paper runs used PyTorch 2.3.1+cpu on a CPU-only machine (no CUDA). CPU-only execution eliminates CUDA non-determinism, providing a stronger reproducibility guarantee.
 
 ---
 
 ## Reproduce paper results
 
-### Step 0 — Verify statistics without any retraining (≈ 30 seconds)
+### Step 0 — Verify statistics without retraining (≈ 30 seconds)
 
-The 30 raw seed-level JSON files are archived in `results/seed_json/`. You can recompute all paired Wilcoxon tests, BH-FDR corrections, bootstrap CIs, and effect sizes directly from these files:
+The 60 Group A raw seed-level JSON files are in `results/seed_json/`. Recompute all paired Wilcoxon tests, BH-FDR corrections, bootstrap CIs, and effect sizes directly from these files:
 
 ```bash
 python analyze_multiseed_results.py \
@@ -227,17 +268,17 @@ python analyze_multiseed_results.py \
   --n_bootstrap 10000
 ```
 
-This requires no GPU, no PTB-XL data download, and completes in under a minute. Compare `results/recomputed/statistical_analysis_full.json` with the archived `results/statistical_analysis_full.json` to verify numerical identity.
+No GPU, no PTB-XL download, completes in under a minute.
 
-### Step 1 — Build the PTB-XL index (one-time setup)
+### Step 1 — Build the PTB-XL working index
 
 ```bash
 python index_construction.py \
   --data_root "$EZNX_DATA_REAL" \
-  --output index_complete.parquet
+  --out-dir .
 ```
 
-### Step 2 — Run the full 30-run ablation (≈ 18–25 hours on CPU)
+### Step 2 — Run the full Group A confirmatory campaign (≈ 48 h on CPU)
 
 ```bash
 python run_multiseed_experiments.py \
@@ -245,10 +286,11 @@ python run_multiseed_experiments.py \
   --index_path index_complete.parquet \
   --runs_dir runs_output \
   --seeds 2024 2025 2026 2027 2028 2029 2030 2031 2032 2033 \
+          2034 2035 2036 2037 2038 2039 2040 2041 2042 2043 \
   --variants none demo demo+anthro
 ```
 
-For a quick sanity check with 3 seeds (≈ 5–6 hours):
+For a quick sanity check with 3 seeds (≈ 2 h):
 
 ```bash
 python run_multiseed_experiments.py \
@@ -268,105 +310,31 @@ python analyze_multiseed_results.py \
   --n_bootstrap 10000
 ```
 
-### Step 4 — Reproduce anthropometric missingness robustness (Figure 4)
-
-```bash
-python scripts/evaluate_missingness_robustness.py \
-  --runs-dir runs_output \
-  --data-root "$EZNX_DATA_REAL" \
-  --index-path index_complete.parquet \
-  --stats-json results/statistical_analysis_full.json \
-  --seeds 2024,2025,2026,2027,2028,2029,2030,2031,2032,2033 \
-  --rhos 0,0.25,0.5,0.75,1.0
-```
-
-### Step 5 — Regenerate figures
-
-```bash
-python scripts/render_manuscript_result_figures.py
-python scripts/render_architecture_figure.py
-```
-
 ---
 
-## Compile the paper (optional)
+## Statistical protocol
 
-The compiled PDFs are already included in `paper/`. To recompile from source:
+The primary confirmatory analysis applies **exact two-sided paired Wilcoxon signed-rank tests** with **Benjamini–Hochberg FDR control at q = 0.05** over the **pre-specified 3-test family** (the three pairwise macro-AUC contrasts of Group A). This family was declared before any confirmatory inference and is documented in the supplementary Table S1 bundled with the MDPI submission.
 
-```bash
-cd paper
-pdflatex -interaction=nonstopmode main_en.tex
-bibtex main_en
-pdflatex -interaction=nonstopmode main_en.tex
-pdflatex -interaction=nonstopmode main_en.tex
-```
+All other groups (B, C, D, E) are **exploratory**: raw p-values are reported descriptively without FDR correction. Group F is a **pre-declared confirmatory generalisation check** analysed at the fold level (4 units), with no statistical test across the 20 runs as if independent.
 
-Requires a standard LaTeX installation (MiKTeX or TeX Live) with the packages listed in `paper/Definitions/`.
+Per-class tests (DA−NONE sub-family, 5 tests) form a **secondary, post-hoc BH-FDR family** and are not pre-specified.
 
----
-
-## Reproducibility notes
-
-| Aspect | Detail |
-|---|---|
-| Hardware | Intel Core i5, 8 GB RAM, 500 GB storage |
-| OS | Windows 10/11 (local Jupyter Notebook environment) |
-| PyTorch | 2.3.1+cpu (CPU-only wheel, no CUDA/GPU) |
-| Determinism | CPU-only execution is free of CUDA non-determinism; CuDNN flags in the source code are present but inactive |
-| Seeds | {2024, 2025, …, 2033} — 10 consecutive seeds crossed with 3 variants = 30 runs |
-| Statistical protocol | Exact two-sided paired Wilcoxon signed-rank test; BH-FDR at q=0.05 across 36 confirmatory tests; 10,000-resample percentile bootstrap CIs |
-| Model selection | Blend weight w* and per-class thresholds selected on fold 9, fixed for fold 10 |
-| Patient-level arrays | Not archived (see Limitation 3 and 6 in the paper); seed-level summaries in `results/seed_json/` are the verification base |
+The minimum attainable exact Wilcoxon p at n = 20 is 2/2²⁰ ≈ 1.9 × 10⁻⁶.
 
 ---
 
 ## Citation
 
-If you use this code or build on our results, please cite the paper:
-
 ```bibtex
-@article{Segnane2026EZNXATLASA,
-  author  = {SEGNANE, Ezyn},
-  title   = {{EZNX-ATLAS-A}: Measuring the Incremental Contribution of
-             Clinical Metadata to 12-Lead {ECG} Superclass Classification
-             on {PTB-XL}},
+@article{segnane2026eznxatlasa,
+  title   = {{EZNX-ATLAS-A}: Measuring the Incremental Contribution of Clinical
+             Metadata to 12-Lead {ECG} Superclass Classification on {PTB-XL}},
+  author  = {Segnane, Ezyn and Ommane, Younes and El Waled, Khalil and
+             Cheikh Tourad, Mohamedou},
   journal = {Mathematics},
   year    = {2026},
-  publisher = {MDPI},
   note    = {Submitted}
-}
-```
-
-You may also cite the software repository directly using the `CITATION.cff` file or the following:
-
-```bibtex
-@software{Segnane2026EZNXATLASA_code,
-  author  = {SEGNANE, Ezyn},
-  title   = {{EZNX-ATLAS-A} -- code and reproducibility package},
-  year    = {2026},
-  version = {2.3.3},
-  url     = {https://github.com/ezynsegnane/ezyx-atlas-a_github_code},
-  license = {MIT}
-}
-```
-
----
-
-## Dataset citation
-
-This study uses PTB-XL v1.0.3, which must be cited independently:
-
-```bibtex
-@article{Wagner2020,
-  author  = {Wagner, Patrick and Strodthoff, Nils and Bousseljot, Ralf-Dieter
-             and Kreiseler, Dieter and Lunze, Fatima I. and Samek, Wojciech
-             and Schaeffter, Tobias},
-  title   = {{PTB-XL}, a large publicly available electrocardiography dataset},
-  journal = {Scientific Data},
-  year    = {2020},
-  volume  = {7},
-  pages   = {154},
-  doi     = {10.1038/s41597-020-0495-6}
 }
 ```
 
@@ -374,14 +342,4 @@ This study uses PTB-XL v1.0.3, which must be cited independently:
 
 ## License
 
-This repository is released under the [MIT License](LICENSE).
-
-You are free to use, modify, and distribute this code for any purpose — academic, commercial, or personal — provided you **retain the copyright notice** and **cite the paper** when publishing results derived from this work.
-
-The PTB-XL dataset is subject to its own licence (Creative Commons Attribution 4.0 International). See [PhysioNet](https://physionet.org/content/ptb-xl/1.0.3/) for details.
-
----
-
-## Contact
-
-Ezyn SEGNANE · [ezyn.segnane@univ-nkc.mr](mailto:ezyn.segnane@univ-nkc.mr) · ORCID [0009-0005-0538-4335](https://orcid.org/0009-0005-0538-4335)
+MIT — see [LICENSE](LICENSE).
