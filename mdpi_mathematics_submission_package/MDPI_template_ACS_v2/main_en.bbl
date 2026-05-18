@@ -109,9 +109,11 @@ Atwa, A.E.M.; Atlam, E.S.; Ahmed, A.; Atwa, M.A.; Abdelrahim, E.M.; Siam, A.I.
 Holloway, C.; Saheer, L.B.; Dar, M.M.
 \newblock Evaluation of Raw Signal and Feature-Based Deep Learning Models for
   Multi-Label {ECG} Diagnosis on {PTB-XL}.
-\newblock In Proceedings of the Artificial Intelligence XLII (SGAI-AI).
-  Springer,  2026, Vol. 16302, {\em LNCS}.
-\newblock In press; page numbers not yet assigned.
+\newblock In Proceedings of the Artificial Intelligence XLII: Proceedings of
+  the 44th SGAI International Conference on Artificial Intelligence. Springer,
+  Cham,  2026, Vol. 16302, {\em Lecture Notes in Computer Science}.
+\newblock Proceedings published 2026; individual chapter DOIs available via
+  Springer, {\url{https://doi.org/10.1007/978-3-031-87568-3}}.
 
 \bibitem[Nonaka and Seita(2021)]{Nonaka2021}
 Nonaka, N.; Seita, J.

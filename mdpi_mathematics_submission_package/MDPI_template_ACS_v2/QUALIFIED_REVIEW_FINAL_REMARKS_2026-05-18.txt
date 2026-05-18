@@ -1,0 +1,183 @@
+FINAL QUALIFIED REVIEW REPORT - CONSOLIDATED REMARKS
+Date: 2026-05-18
+Manuscript: EZNX-ATLAS-A, main_en.tex / main_en.pdf
+Reviewer stance: professional external reviewer, ML/statistics/reproducibility
+
+Executive verdict
+-----------------
+The manuscript has a strong scientific core: the main Group A numbers are
+internally coherent and reproducible from the public seed-level JSON files. The
+paper's best contribution is not a large performance jump; it is the careful
+paired multi-seed measurement of a very small metadata effect.
+
+However, a qualified reviewer can still attack the submission on reproducibility
+and interpretation. The highest-risk issues are:
+1. current public code does not run as advertised;
+2. public model source does not match the manuscript parameter budget;
+3. missingness robustness experiment is not reproducible from current public
+   script/artifacts;
+4. Group D seed count is inconsistent with public files;
+5. fold-10 and E8/trainmask interpretations are too strong.
+
+Critical issues to fix before submission
+----------------------------------------
+
+[C1] Public code currently fails.
+Location: Data Availability line 491; GitHub public repo.
+Finding: The public training script atlas_a_v5_multiseed_v2.py imports
+VALID_ARCH_MODES and passes arch_mode into EZNX_ATLAS_A_v5, but current
+eznx_model_v5.py does not define VALID_ARCH_MODES and does not expose arch_mode.
+Running the public script with --help fails with an ImportError.
+Fix: Publish/tag the exact source used for the reported runs, and verify a clean
+clone can run the training script help path and analysis scripts.
+
+[C2] Parameter budget/source mismatch.
+Location: main_en.tex lines 180, 226, 243; Table 2 line 571.
+Finding: Manuscript and JSON imply two 1024 x 128 residual projections and
+3,951,951 parameters. Current released model source has only one projection and
+counts 3,819,855 parameters.
+Fix: Restore W_addon and the correct arch-mode implementation in public source,
+or revise manuscript and parameter table if W_addon was not part of the actual
+standard model.
+
+[C3] Missingness robustness is not publicly reproducible.
+Location: main_en.tex lines 328-329 and Fig. 4.
+Finding: Manuscript describes anthropometric-only masking. Current public
+evaluate_missingness_v2.py masks all 8 metadata features and zeroes all metadata
+at rho=1.0. Public missingness summary appears to be a 10-seed demo+anthro-only
+artifact, while local Fig. 4 uses a 20-seed all-variant report.
+Fix: Publish the exact 20-seed anthropometric-only missingness script and JSON
+used to generate Fig. 4.
+
+[C4] Group D no-augmentation inconsistency.
+Location: main_en.tex lines 287, 365-366, abstract line 75.
+Finding: Manuscript reports Group D as n=10 with p=0.0195. Public repository
+contains 20 noaug JSON files. Using all 20 gives p=0.002325, not p=0.0195.
+Fix: Either justify the pre-specified 10-seed subset or update all Group D
+statistics to use 20 noaug seeds.
+
+[C5] Run accounting is opaque.
+Location: main_en.tex lines 279-290.
+Finding: "250 unique runs" and "270 descriptors" are plausible but hard to audit,
+especially with Group D ambiguity.
+Fix: Add a run-ledger table: group, variants, seed range, unique runs, shared
+reference runs, analysis n, confirmatory/exploratory status.
+
+Major interpretive issues
+-------------------------
+
+[M1] Fold-10 conservativeness is overinterpreted.
+Location: lines 391-392, 440-441, 474.
+Finding: Group F evaluates only demo+anthro on alternative folds. It supports
+lower absolute performance on fold 10, not that metadata gains are conservative.
+Fix: Say "fold 10 gives lower absolute full-metadata performance" unless none
+and demo are also run on alternative folds.
+
+[M2] q_meta is not the main missingness robustness mechanism.
+Location: lines 200-207, 428-429, conclusion item d.
+Finding: q_meta saturates to 1 for nearly all records with age/sex present.
+Fix: Reframe as "availability-aware pathway with missingness flags and sample
+meta-dropout"; q_meta is mainly an all/no-metadata gate in PTB-XL.
+
+[M3] E8 trainmask is overinterpreted.
+Location: lines 368-369, 437-438, 473.
+Finding: E8 collapse to 0.5046 should be treated as a distribution-shift negative
+control, not proof that metadata must be present during training in general. The
+none variant proves ECG-only training can work.
+Fix: Revise E8 language accordingly.
+
+[M4] ECG auxiliary head is not an independent ECG-only baseline.
+Location: lines 331-332 and Fig. 6 caption.
+Finding: The auxiliary ECG head is trained inside the multimodal model.
+Fix: Keep none as the independent ECG-only baseline; call auxiliary-head gap an
+internal diagnostic only.
+
+[M5] "Quality-gated fusion" wording is stronger than the mechanism.
+Location: abstract, title-adjacent framing, discussion.
+Fix: Keep "quality-gated" if desired, but add precise wording that the measured
+robustness under anthropometric dropout is mainly due to missingness indicators
+and meta-dropout.
+
+Moderate issues and polish
+--------------------------
+
+[O1] Add version-specific PTB-XL v1.0.3 citation.
+Location: Dataset section and Data Availability.
+Fix: Add a bibliography entry for the PhysioNet v1.0.3 resource DOI
+10.13026/kfzx-aw45, while keeping Wagner 2020 and Goldberger 2000.
+
+[O2] Clarify sex01 mapping.
+Location: metadata extraction line 159.
+Fix: State whether sex01=1 means male and sex01=0 means female.
+
+[O3] Clarify HIPAA-coded ages.
+Location: preprocessing line 170.
+Fix: State that PTB-XL ages above 89 encoded as high HIPAA values are treated as
+missing by the 0-120 filter.
+
+[O4] Avoid "meaningfully improve" for tiny AUC gains.
+Location: Q1 and abstract-style claims.
+Fix: Use "measurably" or "detectably" and keep "small but reproducible."
+
+[O5] Avoid undefined "acceptable clinical threshold."
+Location: discussion of meta-only model.
+Fix: Say "far below ECG-based variants" unless a clinical threshold is defined.
+
+[O6] Clean source/reproducibility package.
+Finding: source_snapshot/scripts/render_figures_v2.py contains hard-coded local
+C:\Users\hp paths. local artifacts/seed_json is empty.
+Fix: Replace hard-coded paths with CLI args/relative paths and either populate
+local artifacts or state GitHub is authoritative.
+
+[O7] PDF metadata warnings.
+Finding: PDF compiles, but hyperref strips math symbols from PDF Subject
+metadata. Low risk.
+Fix: Optional: simplify PDF metadata subject or define more
+pdfstringdefDisableCommands.
+
+[O8] AI disclosure.
+Location: line 496.
+Fix: If these OpenAI/Codex review notes are used to revise the manuscript, update
+the AI-use disclosure according to journal policy.
+
+Numerical verification summary
+------------------------------
+Recomputed from public Group A JSON:
+- none macro-AUC: 0.9270653 +/- 0.0010979.
+- demo macro-AUC: 0.9277178 +/- 0.0010398.
+- demo+anthro macro-AUC: 0.9289342 +/- 0.0012928.
+- demo-none: +0.0006525, exact p=0.0094357, 16/20 positive.
+- demo+anthro-demo: +0.0012163, exact p=0.0005856, 16/20 positive.
+- demo+anthro-none: +0.0018689, exact p=0.00000954, 19/20 positive.
+- Per-class DA-NONE: NORM +0.0016451, MI +0.0057936, STTC +0.0018186,
+  CD -0.0002771, HYP +0.0003641.
+
+Recommended revision order
+--------------------------
+1. Fix and tag public code/artifacts first.
+2. Resolve Group D seed count and update all related text/tables.
+3. Publish exact missingness script/report and regenerate Fig. 4 if needed.
+4. Add run-ledger supplementary table.
+5. Revise fold-10, q_meta, E8, and auxiliary-head interpretations.
+6. Add PTB-XL v1.0.3 citation and small metadata clarifications.
+7. Recompile and confirm log/PDF metadata are clean enough.
+
+External sources checked
+------------------------
+- Public repository named in manuscript:
+  https://github.com/ezynsegnane/ezyx-atlas-a_github_code
+- Public Group A JSON example:
+  https://raw.githubusercontent.com/ezynsegnane/ezyx-atlas-a_github_code/main/results/seed_json/results_ATLAS_A_v5_demo%2Banthro_seed2024.json
+- Public PTB-XL v1.0.3 resource:
+  https://physionet.org/content/ptb-xl/1.0.3/
+- Atwa 2025 Diagnostics article:
+  https://www.mdpi.com/2075-4418/15/15/1950
+- TolerantECG arXiv:
+  https://arxiv.org/abs/2507.09887
+
+Final reviewer-style conclusion
+-------------------------------
+If the artifact mismatches are fixed, the paper can be defended as a careful
+measurement study with small but reproducible metadata effects. If they are not
+fixed, the strongest reviewer attack will be reproducibility, not the main
+statistics.

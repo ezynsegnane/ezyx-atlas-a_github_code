@@ -7,7 +7,7 @@ not a preregistration or an external time-stamped analysis plan.
 ## Experimental units
 
 - Variants: `none`, `demo`, `demo+anthro`
-- Random seeds: `10`
+- Random seeds: `20`  (seeds 2024–2043, Group A confirmatory)
 - Pairwise contrasts: `3`
   - `demo - none`
   - `demo+anthro - demo`
@@ -20,16 +20,21 @@ not a preregistration or an external time-stamped analysis plan.
 - Per-class AUC for `NORM`, `MI`, `STTC`, `CD`, `HYP`
 - Per-class `F1*` for `NORM`, `MI`, `STTC`, `CD`, `HYP`
 
-## Statistical family
+## Statistical family (confirmatory)
 
-The manuscript-wide confirmatory family contains `36` tests:
+The manuscript-wide **confirmatory** family contains **3 tests**:
 
-- `3` variant contrasts
-- multiplied by:
-  - `1` macro-AUC
-  - `1` macro-`F1*`
-  - `5` per-class AUC values
-  - `5` per-class `F1*` values
+- the three pairwise macro-AUC contrasts in Group A (none vs. demo;
+  demo vs. demo+anthro; none vs. demo+anthro)
+
+BH-FDR control at q = 0.05 is applied over this 3-test family only.
+
+A secondary post-hoc sub-family of 5 per-class AUC tests (DA-NONE)
+is applied with BH-FDR correction for descriptive purposes only;
+it was not pre-specified.
+
+All other metrics (macro-F1, per-class F1) and all exploratory group
+results (Groups B–F) are reported without FDR correction.
 
 ## Paired inference
 
@@ -39,7 +44,7 @@ The manuscript-wide confirmatory family contains `36` tests:
   - Cohen's `d_z`
   - Hedges-corrected `g_z`
 - Multiplicity control:
-  - Benjamini-Hochberg FDR at `q = 0.05`
+  - Benjamini-Hochberg FDR at `q = 0.05` over the 3-test confirmatory family
 
 ## Selection dependencies
 

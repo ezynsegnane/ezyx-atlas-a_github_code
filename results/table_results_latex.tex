@@ -1,14 +1,17 @@
 \begin{table}[htbp]
 \centering
-\caption{Performances sur le jeu de test (fold 10) avec validation multi-graines. Les résultats sont présentés sous forme moyenne $\pm$ écart-type sur 10 graines aléatoires. $^*p < 0.05$; $^{**}p < 0.01$ after BH-FDR correction (paired Wilcoxon signed-rank vs ECG seul).}
+\caption{Test-set performance (fold 10) under the 20-seed multi-seed protocol.
+Results are mean $\pm$ SD across 20 seeds.
+$^{*}p < 0.05$; $^{**}p < 0.01$; $^{***}p < 0.001$ after BH-FDR correction
+over the 3-test pre-specified family (paired Wilcoxon signed-rank vs.\ ECG only).}
 \label{tab:results_multiseed}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Méthode} & \textbf{Macro AUC} & \textbf{Macro F1} & \textbf{n} \\
+\textbf{Method} & \textbf{Macro-AUC} & \textbf{Macro-F1} & \textbf{$n$} \\
 \midrule
-ECG seul & $0.9274 \pm 0.0008$ & $0.7420 \pm 0.0052$ & 10 \\
-ECG + demo & $0.9277 \pm 0.0008$ & $0.7449 \pm 0.0033$ & 10 \\
-ECG + complet & $0.9289 \pm 0.0009$$^{*}$ & $0.7459 \pm 0.0039$ & 10 \\
+ECG only (none) & $0.9271 \pm 0.0011$ & $0.7441 \pm 0.0030$ & 20 \\
+ECG + demo & $0.9277 \pm 0.0010$^{**} & $0.7458 \pm 0.0028$ & 20 \\
+ECG + demo+anthro (full) & $0.9289 \pm 0.0013$^{***} & $0.7462 \pm 0.0034$ & 20 \\
 \bottomrule
 \end{tabular}
 \end{table}

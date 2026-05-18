@@ -1,6 +1,24 @@
 import torch
 import torch.nn as nn
 
+# ---------------------------------------------------------------------------
+# Architecture ablation modes used in Group E experiments.
+# "standard" is the default mode used in all confirmatory Group A runs.
+# W_addon is instantiated in every mode so the parameter budget is always
+# 3,951,951; it is active only in arch_mode="additive" (E3) and remains at
+# its zero initialisation in all other modes.
+# ---------------------------------------------------------------------------
+VALID_ARCH_MODES = frozenset({
+    "standard",    # full model (default)
+    "meta_only",   # E1: ECG backbone zeroed before fusion (metadata-only path)
+    "concat",      # E2: gated fusion replaced by plain concatenation
+    "additive",    # E3: gated fusion replaced by additive injection via W_addon
+    "no_glu",      # E4: sigmoid gate replaced by ReLU gate
+    "no_residual", # E5: ts_meta_residual injection removed
+    "no_q_meta",   # E6: meta_quality forced to 1.0 (quality-gating disabled)
+    "no_dropout",  # E7: sample meta-dropout disabled at training time
+})
+
 
 class TemporalStatPool(nn.Module):
     """Advanced statistical pooling for temporal features."""
@@ -130,6 +148,13 @@ class EZNX_ATLAS_A_v5(nn.Module):
     This version stays close to the strongest ECG baseline and uses metadata
     through the original gated fusion path. A small auxiliary metadata head is
     kept only to encourage the metadata branch to remain informative.
+
+    Parameters
+    ----------
+    arch_mode : str
+        Architecture ablation mode.  Must be one of ``VALID_ARCH_MODES``.
+        Default is ``"standard"`` (full model used in all Group A runs).
+        Group E ablations pass a non-default value.
     """
 
     def __init__(
@@ -141,8 +166,16 @@ class EZNX_ATLAS_A_v5(nn.Module):
         meta_hid=128,
         meta_out=128,
         meta_dropout_p=0.1,
+        arch_mode: str = "standard",
     ):
         super().__init__()
+
+        if arch_mode not in VALID_ARCH_MODES:
+            raise ValueError(
+                f"arch_mode={arch_mode!r} is not valid; "
+                f"choose from {sorted(VALID_ARCH_MODES)}."
+            )
+        self.arch_mode = arch_mode
 
         if meta_dim % 2 != 0 or meta_dim < 4:
             raise ValueError("meta_dim must be an even integer for values + masks.")
@@ -185,10 +218,19 @@ class EZNX_ATLAS_A_v5(nn.Module):
         self.head_ecg = nn.Linear(self.ts.out_dim, n_classes)
         self.head_meta = nn.Linear(meta_out, n_classes)
         self.head_fused = nn.Linear(fuse_dim, n_classes)
-        self.ts_meta_residual = nn.Linear(meta_out, self.ts.out_dim)
 
+        # W_res: primary zero-initialised residual projection (always active in standard mode).
+        self.ts_meta_residual = nn.Linear(meta_out, self.ts.out_dim)
         nn.init.zeros_(self.ts_meta_residual.weight)
         nn.init.zeros_(self.ts_meta_residual.bias)
+
+        # W_addon: second zero-initialised residual projection (ℝ^{out_dim × meta_out}).
+        # Instantiated in every arch_mode so the parameter count is always 3,951,951.
+        # Active only when arch_mode="additive" (Group E, E3); receives zero gradient
+        # and remains at zero throughout training in all other modes.
+        self.W_addon = nn.Linear(meta_out, self.ts.out_dim)
+        nn.init.zeros_(self.W_addon.weight)
+        nn.init.zeros_(self.W_addon.bias)
 
     def forward(self, x_ts, x_meta, meta_present_mask=None):
         h_ts = self.ts(x_ts)
@@ -226,7 +268,14 @@ class EZNX_ATLAS_A_v5(nn.Module):
                 torch.cat([h_demo, h_anthro, demo_quality, anthro_quality], dim=1)
             )
 
-            if self.training and self.meta_dropout_p > 0:
+            # E6: disable quality-gating by forcing meta_quality to 1.
+            # Applied after meta_fuse so the quality scalars are still visible
+            # as contextual inputs to the metadata MLP.
+            if self.arch_mode == "no_q_meta":
+                meta_quality = torch.ones_like(meta_quality)
+
+            # E7: skip sample meta-dropout.
+            if self.training and self.meta_dropout_p > 0 and self.arch_mode != "no_dropout":
                 keep_mask = (
                     torch.rand(h_m.size(0), 1, device=h_m.device, dtype=h_m.dtype)
                     >= self.meta_dropout_p
@@ -240,9 +289,39 @@ class EZNX_ATLAS_A_v5(nn.Module):
             meta_quality = h_ts.new_zeros((h_ts.size(0), 1))
 
         logits_meta = self.head_meta(h_m)
-        h_ts = h_ts + 0.10 * self.ts_meta_residual(h_m) * meta_quality
-        h = torch.cat([h_ts, h_m], dim=1)
-        z = h * self.gate(h)
+
+        # E5: skip residual injection.
+        if self.arch_mode != "no_residual":
+            h_ts = h_ts + 0.10 * self.ts_meta_residual(h_m) * meta_quality
+
+        # E1: zero the ECG representation before fusion so only metadata drives
+        # the fused head (ECG auxiliary head still uses the full h_ts above).
+        h_ts_fuse = torch.zeros_like(h_ts) if self.arch_mode == "meta_only" else h_ts
+
+        # Gated fusion — behaviour depends on arch_mode.
+        if self.arch_mode == "additive":
+            # E3: additive injection via W_addon replaces the GLU gate.
+            h_ts_fuse = h_ts_fuse + self.W_addon(h_m) * meta_quality
+            h = torch.cat([h_ts_fuse, h_m], dim=1)
+            z = h  # no gate multiplication in additive mode
+
+        elif self.arch_mode == "concat":
+            # E2: plain concatenation — no gate.
+            h = torch.cat([h_ts_fuse, h_m], dim=1)
+            z = h
+
+        elif self.arch_mode == "no_glu":
+            # E4: replace sigmoid gate with ReLU gate.
+            h = torch.cat([h_ts_fuse, h_m], dim=1)
+            g = torch.relu(self.gate[2](torch.relu(self.gate[0](h))))
+            z = h * g
+
+        else:
+            # standard / meta_only / no_residual / no_q_meta / no_dropout:
+            # standard GLU-style gated fusion.
+            h = torch.cat([h_ts_fuse, h_m], dim=1)
+            z = h * self.gate(h)
+
         logits_fused = self.head_fused(z) + 0.05 * meta_quality * logits_meta
 
         return {
