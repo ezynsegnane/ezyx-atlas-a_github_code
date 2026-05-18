@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.7.16)  18 MAY 2026 01:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.7.16)  18 MAY 2026 22:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1787,11 +1787,11 @@ Package rerunfilecheck Info: File `main_en.out' has not changed.
 (rerunfilecheck)             Checksum: 72FE25CA461FF9AD391F2F6F0B006B35;11883.
  ) 
 Here is how much of TeX's memory you used:
- 35187 strings out of 468221
- 652767 string characters out of 5434343
- 1147583 words of memory out of 5000000
+ 35190 strings out of 468221
+ 652794 string characters out of 5434343
+ 1146584 words of memory out of 5000000
  62137 multiletter control sequences out of 15000+600000
- 729863 words of font info for 689 fonts, out of 8000000 for 9000
+ 730012 words of font info for 691 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  123i,14n,121p,2417b,824s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmb
@@ -1811,7 +1811,7 @@ ppData/Local/Programs/MiKTeX/fonts/type1/public/cm-super/sftt0900.pfb><C:/Users
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplb8a.pfb><C:/
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplr8a.pfb><C:/
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_en.pdf (27 pages, 1731313 bytes).
+Output written on main_en.pdf (27 pages, 1731400 bytes).
 PDF statistics:
  1237 PDF objects out of 1440 (max. 8388607)
  171 named destinations out of 1000 (max. 500000)
