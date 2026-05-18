@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.7.16)  17 MAY 2026 23:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.7.16)  18 MAY 2026 01:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1564,6 +1564,14 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 81.
 
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 81.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 81.
+
 Package marginnote Info: Margin note 1.1 is on absolute page 1 on input line 81
 .
 Package marginnote Info: right page because not two side mode on input line 81.
@@ -1686,6 +1694,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 286--287
 
 
 [10]
+Overfull \hbox (133.06189pt too wide) in paragraph at lines 299--318
+ [][] 
+ []
+
+
 
 [11]
 
@@ -1702,60 +1715,68 @@ Underfull \hbox (badness 10000) in paragraph at lines 286--287
 [17]
 
 [18]
+Overfull \hbox (1.37556pt too wide) in paragraph at lines 496--497
+[]\T1/ppl/m/n/10 (-20) The \T1/ppl/b/n/10 (-20) availability-aware path-way\T1/
+ppl/m/n/10 (-20) ---combining miss-ing-ness in-di-ca-tors, zero-initialised
+ []
+
+
 
 [19]
-LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 601.
-
 
 [20]
-<figures/fig2_training_curves.pdf, id=589, 498.28033pt x 267.02762pt>
-File: figures/fig2_training_curves.pdf Graphic file (type pdf)
-<use figures/fig2_training_curves.pdf>
-Package pdftex.def Info: figures/fig2_training_curves.pdf  used on input line 6
-67.
-(pdftex.def)             Requested size: 394.35522pt x 211.34473pt.
+LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 627.
 
 
 [21]
-<figures/fig3_per_class_delta_auc.pdf, id=596, 498.28471pt x 262.17761pt>
+<figures/fig2_training_curves.pdf, id=598, 498.28033pt x 267.02762pt>
+File: figures/fig2_training_curves.pdf Graphic file (type pdf)
+<use figures/fig2_training_curves.pdf>
+Package pdftex.def Info: figures/fig2_training_curves.pdf  used on input line 6
+93.
+(pdftex.def)             Requested size: 394.35522pt x 211.34473pt.
+
+
+[22]
+<figures/fig3_per_class_delta_auc.pdf, id=605, 498.28471pt x 262.17761pt>
 File: figures/fig3_per_class_delta_auc.pdf Graphic file (type pdf)
 <use figures/fig3_per_class_delta_auc.pdf>
 Package pdftex.def Info: figures/fig3_per_class_delta_auc.pdf  used on input li
-ne 674.
+ne 700.
 (pdftex.def)             Requested size: 394.35522pt x 207.49408pt.
-<figures/fig4_missingness_robustness.pdf, id=597, 859.6046pt x 295.9356pt>
+<figures/fig4_missingness_robustness.pdf, id=606, 859.6046pt x 295.9356pt>
 File: figures/fig4_missingness_robustness.pdf Graphic file (type pdf)
 <use figures/fig4_missingness_robustness.pdf>
 Package pdftex.def Info: figures/fig4_missingness_robustness.pdf  used on input
- line 681.
+ line 707.
 (pdftex.def)             Requested size: 394.35522pt x 135.76173pt.
 
 
-[22 <./figures/fig2_training_curves.pdf> <./figures/fig3_per_class_delta_auc.pd
+[23 <./figures/fig2_training_curves.pdf> <./figures/fig3_per_class_delta_auc.pd
 f>]
-<figures/fig5_per_class_heatmap.pdf, id=769, 859.37051pt x 255.65288pt>
+<figures/fig5_per_class_heatmap.pdf, id=778, 859.37051pt x 255.65288pt>
 File: figures/fig5_per_class_heatmap.pdf Graphic file (type pdf)
 <use figures/fig5_per_class_heatmap.pdf>
 Package pdftex.def Info: figures/fig5_per_class_heatmap.pdf  used on input line
- 688.
+ 714.
 (pdftex.def)             Requested size: 394.35522pt x 117.31697pt.
-<figures/fig6_seed_distribution.pdf, id=770, 859.63469pt x 339.77513pt>
+<figures/fig6_seed_distribution.pdf, id=779, 859.63469pt x 339.77513pt>
 File: figures/fig6_seed_distribution.pdf Graphic file (type pdf)
 <use figures/fig6_seed_distribution.pdf>
 Package pdftex.def Info: figures/fig6_seed_distribution.pdf  used on input line
- 695.
+ 721.
 (pdftex.def)             Requested size: 394.35522pt x 155.86813pt.
 
 
-[23 <./figures/fig4_missingness_robustness.pdf> <./figures/fig5_per_class_heatm
+[24 <./figures/fig4_missingness_robustness.pdf> <./figures/fig5_per_class_heatm
 ap.pdf>] (main_en.bbl
 
-[24 <./figures/fig6_seed_distribution.pdf>]
+[25 <./figures/fig6_seed_distribution.pdf>]
 
-[25])
+[26])
 
-[26] 
+[27] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (main_en.aux)
  ***********
@@ -1766,13 +1787,13 @@ Package rerunfilecheck Info: File `main_en.out' has not changed.
 (rerunfilecheck)             Checksum: 72FE25CA461FF9AD391F2F6F0B006B35;11883.
  ) 
 Here is how much of TeX's memory you used:
- 35158 strings out of 468221
- 652459 string characters out of 5434343
- 1146579 words of memory out of 5000000
- 62132 multiletter control sequences out of 15000+600000
- 729213 words of font info for 675 fonts, out of 8000000 for 9000
+ 35187 strings out of 468221
+ 652767 string characters out of 5434343
+ 1147583 words of memory out of 5000000
+ 62137 multiletter control sequences out of 15000+600000
+ 729863 words of font info for 689 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 123i,14n,121p,2412b,824s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 123i,14n,121p,2417b,824s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmb
 sy10.pfb><C:/Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
 /cm/cmex10.pfb><C:/Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
@@ -1790,9 +1811,9 @@ ppData/Local/Programs/MiKTeX/fonts/type1/public/cm-super/sftt0900.pfb><C:/Users
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplb8a.pfb><C:/
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplr8a.pfb><C:/
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_en.pdf (26 pages, 1723973 bytes).
+Output written on main_en.pdf (27 pages, 1731313 bytes).
 PDF statistics:
- 1226 PDF objects out of 1440 (max. 8388607)
- 168 named destinations out of 1000 (max. 500000)
+ 1237 PDF objects out of 1440 (max. 8388607)
+ 171 named destinations out of 1000 (max. 500000)
  115181 words of extra memory for PDF output out of 128383 (max. 10000000)
 

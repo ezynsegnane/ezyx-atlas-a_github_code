@@ -322,4 +322,13 @@ Hollander, M.; Wolfe, D.A.; Chicken, E.
 \newblock {\em Nonparametric Statistical Methods}, 3rd ed.; John Wiley \& Sons:
   Hoboken, NJ,  2014.
 
+\bibitem[Wagner et~al.(2022)Wagner, Strodthoff, Bousseljot, Kreiseler, Lunze,
+  Samek, and Schaeffter]{PTBXLv103}
+Wagner, P.; Strodthoff, N.; Bousseljot, R.D.; Kreiseler, D.; Lunze, F.I.;
+  Samek, W.; Schaeffter, T.
+\newblock {PTB-XL, a large publicly available electrocardiography dataset}
+  (version 1.0.3).
+\newblock PhysioNet,  2022.
+\newblock Accessed: 2024, {\url{https://doi.org/10.13026/kfzx-aw45}}.
+
 \end{thebibliography}

@@ -1,11 +1,19 @@
 """
-Generate Figures 2-6 for MDPI_template_ACS_v2 from groupA_cpu new results.
-Reads directly from JSON files in ezyx_local_runs/groupA_cpu.
+Generate Figures 2-6 for MDPI_template_ACS_v2 from Group A seed JSON files.
 
-Fig 4 requires results_missingness/missingness_report.json produced by
-evaluate_missingness_v2.py; if that file is absent fig4 is skipped.
+By default paths are resolved relative to the repository root (inferred from
+this script's location at source_snapshot/scripts/).  Override with CLI args:
+
+  python render_figures_v2.py \\
+      --runs_dir /path/to/results/seed_json \\
+      --out_dir  /path/to/figures \\
+      --miss_json /path/to/missingness_report.json
+
+Fig 4 requires a missingness_report.json produced by evaluate_missingness_v2.py;
+if that file is absent fig4 is skipped.
 """
 from __future__ import annotations
+import argparse
 import json
 import numpy as np
 from pathlib import Path
@@ -14,12 +22,31 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# ── Path defaults (relative to repository root) ────────────────────────────────
+# Script location: <repo>/mdpi_mathematics_submission_package/
+#                  MDPI_template_ACS_v2/source_snapshot/scripts/render_figures_v2.py
+_SCRIPT_DIR = Path(__file__).resolve().parent          # .../source_snapshot/scripts
+_REPO_ROOT  = _SCRIPT_DIR.parents[3]                  # .../ezyx-atlas-a_gihub
 
-RUNS_DIR  = Path(r"C:\Users\hp\Documents\Playground\ezyx_local_runs\groupA_cpu")
-OUT_DIR   = Path(r"C:\Users\hp\Documents\Playground\ezyx-atlas-a_gihub\mdpi_mathematics_submission_package\MDPI_template_ACS_v2\figures")
-MISS_JSON = Path(r"C:\Users\hp\Documents\Playground\ezyx_local_runs\results_missingness\missingness_report.json")
-OUT_DIR.mkdir(exist_ok=True)
+_DEFAULT_RUNS_DIR  = _REPO_ROOT / "results" / "seed_json"
+_DEFAULT_OUT_DIR   = _SCRIPT_DIR.parents[1] / "figures"   # MDPI_template_ACS_v2/figures
+_DEFAULT_MISS_JSON = _REPO_ROOT / "results" / "missingness" / "missingness_report.json"
+
+def _parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description="Render EZNX-ATLAS-A manuscript figures.")
+    p.add_argument("--runs_dir",  type=Path, default=_DEFAULT_RUNS_DIR,
+                   help="Directory containing Group A seed JSON files.")
+    p.add_argument("--out_dir",   type=Path, default=_DEFAULT_OUT_DIR,
+                   help="Output directory for generated figures.")
+    p.add_argument("--miss_json", type=Path, default=_DEFAULT_MISS_JSON,
+                   help="Path to missingness_report.json (fig4; skipped if absent).")
+    return p.parse_args()
+
+_args     = _parse_args()
+RUNS_DIR  = _args.runs_dir
+OUT_DIR   = _args.out_dir
+MISS_JSON = _args.miss_json
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MAIN_SEEDS = list(range(2024, 2044))
 CLASSES    = ["NORM", "MI", "STTC", "CD", "HYP"]
