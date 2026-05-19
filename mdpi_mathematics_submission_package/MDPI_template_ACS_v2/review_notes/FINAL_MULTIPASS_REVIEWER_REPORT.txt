@@ -517,7 +517,7 @@ CORRECTIONS MAJEURES (tres fortement recommandees):
 [X] MP008 -- FAIT (2026-05-19): Note asymetrie BCE vs BCE+LAUC dans Section 6.5 (texte) ET caption Fig 6B.
 [X] MP009 -- FAIT (2026-05-19): "available upon request" -> "available in the public repository (GitHub URL)".
 [X] MP010 -- FAIT (2026-05-19): Note "protocol deviation: Group F pre-declared confirmatory -> downgraded to descriptive" dans Limitation 7.
-[--] MP011 -- REPORTE: DOI chapitre Holloway2026 necessiterait acces internet Springer pour verification. A faire avant soumission finale.
+[X] MP011 -- FAIT (2026-05-19): DOI verifie sur Springer: 10.1007/978-3-032-11442-6_36; annee bibliographique 2026 (First online 24 November 2025); bib corrigee en consequence.
 [--] MP012 -- REPORTE: Table S1 supplementary PDF = tache editoriale au moment de la soumission MDPI.
 [X] MP013 -- FAIT (2026-05-19): Footnote PTB-XL release notes URL ajoute dans Section 3.1.
 
@@ -528,7 +528,7 @@ CORRECTIONS MODEREES (fortement recommandees):
 [X] MP017 -- FAIT (2026-05-19): "zero-padded at the end... truncated from the start... no PTB-XL 100Hz recording required padding" dans Section 3.5.
 [X] MP018 -- FAIT (2026-05-19): Note "metadata encoder parameters receive no gradient in none variant" dans Group A.
 [X] MP019 -- FAIT (2026-05-19): Discussion Q3 mis a jour: robustesse -> sample meta-dropout + median imputation; missingness indicators contribution nuancee.
-[--] MP020 -- REPORTE: Verification statut publication Nguyen2025 necessiterait acces internet arXiv. A verifier avant soumission.
+[X] MP020 -- FAIT (2026-05-19): Nguyen2025 = ACM MM '25, doi:10.1145/3746027.3755287, pp. 8097-8105; bib mise a jour @inproceedings avec publisher ACM; texte mis a jour "ACM MM 2025 TolerantECG model".
 [X] MP021 -- FAIT (2026-05-19): "GLU-style" -> "GLU-inspired" partout; note clarification dans le texte de la sous-section gate.
 [X] MP022 -- FAIT (2026-05-19): "ddof=0 (population std; minimal difference for n_train=17,418)" ajoute dans Section 3.3.
 [X] MP023 -- FAIT (2026-05-19): Note "outlier run AUC within inter-seed SD, confirmed by seed-level JSON" dans Group A.
@@ -539,7 +539,7 @@ CORRECTIONS MINEURES (recommandees):
 [X] MP026 -- FAIT (2026-05-19): "not a systematic PRISMA review; papers selected as most directly comparable" dans Introduction.
 [X] MP027 -- FAIT (2026-05-19): MSC code 68T45 -> 68T10 (Pattern recognition).
 [X] MP028 -- FAIT (2026-05-19): "multiplicative gating" -> "Wilcoxon signed-rank test" dans Keywords.
-[--] MP029 -- REPORTE: Verification police Table 3 >= 8pt necessiterait compilation PDF. A verifier lors de la soumission.
+[X] MP029 -- FAIT (2026-05-19): Table 3 utilise \small (non \resizebox); log LaTeX confirme T1/ppl/.../9 (~9pt) autour de la ligne 403. Police >= 8pt confirmee; pas de scission necessaire.
 [X] MP030 -- FAIT (2026-05-19): \path{scp_statements.csv} et \path{scp_codes} -> \texttt{}.
 [--] MP031 -- PARTIELLEMENT FAIT: Terminologie "metadata" principalement coherente; unification globale n'est pas necessaire (les termes "patient metadata" et "clinical metadata" sont synonymes en contexte).
 [X] MP032 -- FAIT (2026-05-19): "SSL" et "Superclass" supprimes des Abbreviations.

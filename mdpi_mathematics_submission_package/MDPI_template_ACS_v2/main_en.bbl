@@ -78,6 +78,14 @@ Coppola, E.E.; Savardi, M.; Massussi, M.; Adamo, M.; Metra, M.; Signoroni, A.
 \newblock medRxiv preprint (not peer-reviewed),
   {\url{https://doi.org/10.1101/2024.11.14.24317328}}.
 
+\bibitem[Nguyen et~al.(2025)Nguyen, Pham, Le, and Nguyen]{Nguyen2025}
+Nguyen, H.D.; Pham, T.T.; Le, N.; Nguyen, V.
+\newblock {TolerantECG}: A Foundation Model for Imperfect Electrocardiogram.
+\newblock In Proceedings of the 33rd ACM International Conference on Multimedia
+  (MM '25), New York, NY, USA,  2025; pp. 8097--8105.
+\newblock Also available as arXiv:2507.09887,
+  {\url{https://doi.org/10.1145/3746027.3755287}}.
+
 \bibitem[Qiu et~al.(2024)Qiu, Guo, Wang, Yang, Peng, Xiayao, Chen, Yang, Liu,
   Li, Li, Chen, and Chen]{Qiu2024}
 Qiu, Y.; Guo, H.; Wang, S.; Yang, S.; Peng, X.; Xiayao, D.; Chen, R.; Yang, J.;
@@ -109,19 +117,17 @@ Atwa, A.E.M.; Atlam, E.S.; Ahmed, A.; Atwa, M.A.; Abdelrahim, E.M.; Siam, A.I.
 Holloway, C.; Saheer, L.B.; Dar, M.M.
 \newblock Evaluation of Raw Signal and Feature-Based Deep Learning Models for
   Multi-Label {ECG} Diagnosis on {PTB-XL}.
-\newblock In Proceedings of the Artificial Intelligence XLII: Proceedings of
-  the 44th SGAI International Conference on Artificial Intelligence. Springer,
-  Cham,  2026, Vol. 16302, {\em Lecture Notes in Computer Science}, pp.
-  458--464.
-\newblock Proceedings published 2026; volume DOI given; chapter DOI available
-  via Springer, {\url{https://doi.org/10.1007/978-3-031-87568-3}}.
+\newblock In Proceedings of the Artificial Intelligence XLII. Springer, Cham,
+  2026, Vol. 16302, {\em Lecture Notes in Computer Science}, pp. 458--464.
+\newblock First online 24 November 2025,
+  {\url{https://doi.org/10.1007/978-3-032-11442-6_36}}.
 
 \bibitem[Nonaka and Seita(2021)]{Nonaka2021}
 Nonaka, N.; Seita, J.
 \newblock In-depth Benchmarking of Deep Neural Network Architectures for {ECG}
   Diagnosis.
-\newblock In Proceedings of the Proceedings of the 6th Machine Learning for
-  Healthcare Conference,  2021, Vol. 149, {\em PMLR}, pp. 414--439.
+\newblock In Proceedings of the 6th Machine Learning for Healthcare Conference,
+   2021, Vol. 149, {\em PMLR}, pp. 414--439.
 
 \bibitem[{\'S}migiel et~al.(2021){\'S}migiel, Pa{\l}czy{\'n}ski, and
   Ledzi{\'n}ski]{Smigiel2021}
@@ -155,8 +161,8 @@ Attia, Z.I.; Friedman, P.A.; Noseworthy, P.A.; Lopez-Jimenez, F.; Ladewig,
 Kiyasseh, D.; Zhu, T.; Clifton, D.A.
 \newblock {CLOCS}: Contrastive Learning of Cardiac Signals Across Space, Time,
   and Patients.
-\newblock In Proceedings of the Proceedings of the 38th International
-  Conference on Machine Learning,  2021, Vol. 139, {\em PMLR}, pp. 5606--5615.
+\newblock In Proceedings of the 38th International Conference on Machine
+  Learning,  2021, Vol. 139, {\em PMLR}, pp. 5606--5615.
 
 \bibitem[Na et~al.(2024)Na, Park, Tae, and Joo]{Na2024}
 Na, Y.; Park, M.; Tae, Y.; Joo, S.
@@ -164,13 +170,6 @@ Na, Y.; Park, M.; Tae, Y.; Joo, S.
   Relationship of Electrocardiogram.
 \newblock In Proceedings of the International Conference on Learning
   Representations (ICLR),  2024.
-
-\bibitem[Nguyen et~al.(2025)Nguyen, Pham, Le, and Nguyen]{Nguyen2025}
-Nguyen, H.D.; Pham, T.T.; Le, N.; Nguyen, V.
-\newblock {TolerantECG}: A Foundation Model for Imperfect Electrocardiogram,
-  2025.
-\newblock arXiv preprint arXiv:2507.09887,
-  {\url{https://doi.org/10.48550/arXiv.2507.09887}}.
 
 \bibitem[Strodthoff et~al.(2023)Strodthoff, Mehari, Nagel, Aston, Sundar,
   Graff, Kanters, Haverkamp, D{\"o}ssel, Loewe, B{\"a}r, and
@@ -184,8 +183,8 @@ Strodthoff, N.; Mehari, T.; Nagel, C.; Aston, P.J.; Sundar, A.; Graff, C.;
 \bibitem[Dauphin et~al.(2017)Dauphin, Fan, Auli, and Grangier]{Dauphin2017}
 Dauphin, Y.N.; Fan, A.; Auli, M.; Grangier, D.
 \newblock Language Modeling with Gated Convolutional Networks.
-\newblock In Proceedings of the Proceedings of the 34th International
-  Conference on Machine Learning,  2017, Vol.~70, {\em PMLR}, pp. 933--941.
+\newblock In Proceedings of the 34th International Conference on Machine
+  Learning,  2017, Vol.~70, {\em PMLR}, pp. 933--941.
 
 \bibitem[Arevalo et~al.(2020)Arevalo, Solorio, Montes-y G{\'o}mez, and
   Gonz{\'a}lez]{Arevalo2020}
@@ -229,8 +228,8 @@ Havaei, M.; Guizard, N.; Chapados, N.; Bengio, Y.
 \bibitem[Ma et~al.(2021)Ma, Ren, Zhao, Tulyakov, Wu, and Peng]{Ma2021}
 Ma, M.; Ren, J.; Zhao, L.; Tulyakov, S.; Wu, C.; Peng, X.
 \newblock {SMIL}: Multimodal Learning with Severely Missing Modality.
-\newblock In Proceedings of the Proceedings of the AAAI Conference on
-  Artificial Intelligence,  2021, Vol.~35, pp. 2302--2310.
+\newblock In Proceedings of the AAAI Conference on Artificial Intelligence,
+  2021, Vol.~35, pp. 2302--2310.
 \newblock {\url{https://doi.org/10.1609/aaai.v35i3.16330}}.
 
 \bibitem[Zhang et~al.(2022)Zhang, He, Yang, Li, Wei, Huang, Zhang, He, and
@@ -308,16 +307,16 @@ Goldberger, A.L.; Amaral, L.A.N.; Glass, L.; Hausdorff, J.M.; Ivanov, P.C.;
 Bouthillier, X.; Delaunay, P.; Bronzi, M.; Trofimov, A.; Nichyporuk, B.; Szeto,
   J.; Mohammadi~Sepahvand, N.; Raff, E.; Madan, K.; Voleti, V.;  et~al.
 \newblock Accounting for Variance in Machine Learning Benchmarks.
-\newblock In Proceedings of the Proceedings of Machine Learning and Systems,
-  2021, Vol.~3, pp. 747--769.
+\newblock In Proceedings of the Machine Learning and Systems,  2021, Vol.~3,
+  pp. 747--769.
 
 \bibitem[Dodge et~al.(2019)Dodge, Gururangan, Card, Schwartz, and
   Smith]{Dodge2019}
 Dodge, J.; Gururangan, S.; Card, D.; Schwartz, R.; Smith, N.A.
 \newblock Show Your Work: Improved Reporting of Experimental Results.
-\newblock In Proceedings of the Proceedings of the 2019 Conference on Empirical
-  Methods in Natural Language Processing. Association for Computational
-  Linguistics,  2019, pp. 2185--2194.
+\newblock In Proceedings of the 2019 Conference on Empirical Methods in Natural
+  Language Processing. Association for Computational Linguistics,  2019, pp.
+  2185--2194.
 \newblock {\url{https://doi.org/10.18653/v1/D19-1224}}.
 
 \bibitem[Hollander et~al.(2014)Hollander, Wolfe, and Chicken]{Hollander2014}
@@ -332,6 +331,6 @@ Wagner, P.; Strodthoff, N.; Bousseljot, R.D.; Kreiseler, D.; Lunze, F.I.;
 \newblock {PTB-XL, a large publicly available electrocardiography dataset}
   (version 1.0.3).
 \newblock PhysioNet,  2022.
-\newblock Accessed: 2024, {\url{https://doi.org/10.13026/kfzx-aw45}}.
+\newblock Accessed: 19 May 2026, {\url{https://doi.org/10.13026/kfzx-aw45}}.
 
 \end{thebibliography}
