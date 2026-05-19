@@ -34,6 +34,12 @@ It provides:
 All 250 runs were executed on **CPU only** (Intel Core i5, 8 GB RAM, PyTorch 2.3.1+cpu, no GPU, no CUDA).  
 Group A compute: **48.2 h** (60 runs, median 43.8 min/run). Total campaign: **≈185 h**.
 
+Note on `analysis_plan.md`: this file is intentionally frozen because its
+SHA-256 is archived in the run JSON metadata and cited in the manuscript. Any
+legacy wording in that frozen plan (for example "GPU runs") should be read as
+historical planning text; the executed campaign and all current reports are
+CPU-only.
+
 ---
 
 ## The scientific question
@@ -48,7 +54,7 @@ We run a **seed-matched three-variant ablation** across **20 random seeds** (Gro
 | `demo` | ECG + age + sex |
 | `demo+anthro` | ECG + age + sex + height + weight + BMI |
 
-Beyond Group A, five exploratory and confirmatory supplementary groups (B–F) test hyperparameter sensitivity, augmentation effect, architectural ablations, and multi-split generalisability across a **250-run campaign**.
+Beyond Group A, five supplementary groups (B–F) test hyperparameter sensitivity, augmentation effect, architectural ablations, and descriptive multi-split absolute-performance variation across a **250-run campaign**.
 
 ---
 
@@ -88,7 +94,7 @@ All three pairwise contrasts are statistically significant after BH-FDR correcti
 - The class-wise signal concentrates in **MI** (+0.0058), **STTC** (+0.0018), and **NORM** (+0.0016) — morphology-rich classes where body-size calibration of waveform amplitudes is physiologically plausible.
 - Demographics alone (age, sex) are already detectable by the ECG (Attia et al. 2019: age MAE 6.9 y, sex AUC 0.97), yet a **residual +0.0007 increment** not fully captured by the ECG-only model is detected with 20 seeds.
 - **HYP shows no significant effect** (p_BH = 0.648), despite classical LVH criteria depending on body habitus — consistent with superclass heterogeneity at 12% prevalence.
-- **Fold 10 is conservatively difficult**: Group F (4 alternative folds, 5 seeds each) shows inter-fold range [0.9400, 0.9445], substantially above fold 10 (0.9289); Group A results likely understate typical performance.
+- **Split-level absolute performance varies**: Group F (4 alternative folds, 5 seeds each) shows an inter-fold range [0.9400, 0.9445], above fold 10 (0.9289), but evaluates only `demo+anthro` and is descriptive because the metadata normalization index was built from the primary folds 1--8.
 - Under full anthropometric masking at inference, macro-AUC drops by only **≈ 0.0014** — the quality-gated fusion degrades gracefully, converging to the demographics-only baseline.
 
 ---
@@ -316,7 +322,7 @@ python analyze_multiseed_results.py \
 
 The primary confirmatory analysis applies **exact two-sided paired Wilcoxon signed-rank tests** with **Benjamini–Hochberg FDR control at q = 0.05** over the **pre-specified 3-test family** (the three pairwise macro-AUC contrasts of Group A). This family was declared before any confirmatory inference and is documented in the supplementary Table S1 bundled with the MDPI submission.
 
-All other groups (B, C, D, E) are **exploratory**: raw p-values are reported descriptively without FDR correction. Group F is a **pre-declared confirmatory generalisation check** analysed at the fold level (4 units), with no statistical test across the 20 runs as if independent.
+All other groups (B, C, D, E) are **exploratory**: raw p-values are reported descriptively without FDR correction. Group F is a **pre-declared multi-split absolute-performance check** analysed descriptively at the fold level (4 units), with no statistical test across the 20 runs as if independent; because only `demo+anthro` was re-run and the metadata normalization index was built from the primary folds 1--8, Group F should not be interpreted as a within-fold metadata-gain test.
 
 Per-class tests (DA−NONE sub-family, 5 tests) form a **secondary, post-hoc BH-FDR family** and are not pre-specified.
 

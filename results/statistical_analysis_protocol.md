@@ -48,9 +48,11 @@ results (Groups B–F) are reported without FDR correction.
 
 ## Selection dependencies
 
-- Blend weights are selected on validation fold 9.
+- Test predictions use the fused head only (`w_fused = 1.0` fixed a priori);
+  no validation blend-weight search is used.
 - Class-specific `F1` thresholds are selected on validation fold 9.
-- Near-tied checkpoints are broken toward larger validation `Delta_meta`.
+- Checkpoints are selected by validation macro-AUC only; no `Delta_meta`
+  tie-breaker or other metadata-gain criterion is used.
 
 All inferential statements in the manuscript should therefore be read
-conditionally on this validation-based model-selection protocol.
+conditionally on this pre-declared model-selection protocol.

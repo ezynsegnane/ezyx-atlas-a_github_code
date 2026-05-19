@@ -1,9 +1,13 @@
-# MDPI LaTeX Manuscript Package
+# Historical MDPI LaTeX Manuscript Package
 
-This folder is the submission-ready MDPI package for the EZNX-ATLAS-A
-manuscript. It is designed to be self-contained: the manuscript sources, final
-PDF figures, package-local statistical artifacts, and the code/environment
-snapshot used to verify those artifacts are bundled here.
+**Deprecated historical package. Do not use this folder for submission.**
+
+The authoritative submission package is
+`mdpi_mathematics_submission_package/MDPI_template_ACS_v2/`.
+
+This folder is retained only to preserve the earlier package history. Some
+files here reflect older 10-seed pilot artifacts and earlier reference metadata;
+they are not the current manuscript, source package, or statistical report.
 
 ## Package identity
 
