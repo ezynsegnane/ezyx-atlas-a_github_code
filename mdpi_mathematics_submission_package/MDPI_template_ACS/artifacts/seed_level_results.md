@@ -1,5 +1,11 @@
 # Seed-Level Test Results
 
+> **DEPRECATED — n=10 VERSION (superseded 2026-05-19)**
+> This file was generated during an earlier 10-seed campaign (seeds 2024–2033 only).
+> The current manuscript reports n=20 seeds (2024–2043). The authoritative
+> seed-level CSV is `MDPI_template_ACS_v2/results/seed_level_results.csv`
+> (60 rows: 20 seeds × 3 variants). **Do NOT cite values from this file.**
+
 | Variant | Seed | Macro AUC | Macro F1* | ECG-only AUC | Fused-only AUC | Delta meta AUC | w_fused |
 |---------|------|-----------|-----------|--------------|----------------|----------------|---------|
 | none | 2024 | 0.9280 | 0.7509 | 0.9282 | 0.9280 | +0.0000 | 1.00 |

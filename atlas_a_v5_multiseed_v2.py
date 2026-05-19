@@ -537,7 +537,7 @@ def make_run_name(cfg: Config) -> str:
 
 def main() -> Dict[str, Any]:
     parser = argparse.ArgumentParser(
-        description="EZNX-ATLAS-A v5 — Scientific Reports training script"
+        description="EZNX-ATLAS-A v5 — MDPI Mathematics training script"
     )
     parser.add_argument("--variant",         type=str,   default="demo+anthro",
                         choices=["none", "demo", "demo+anthro"])
@@ -601,7 +601,7 @@ def main() -> Dict[str, Any]:
     set_seed(cfg.seed)
 
     print("=" * 80)
-    print("EZNX-ATLAS-A v5 — Scientific Reports Training")
+    print("EZNX-ATLAS-A v5 — MDPI Mathematics Training")
     print("=" * 80)
     print(f"  variant:        {cfg.variant}")
     print(f"  seed:           {cfg.seed}")

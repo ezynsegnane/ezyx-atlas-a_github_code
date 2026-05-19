@@ -1,7 +1,12 @@
-# Artifact Bundle
+# Artifact Bundle — DEPRECATED (2026-05-19)
 
-This directory contains the package-local numerical sources used to verify the
-tables, figures, and statements reported in the manuscript.
+> **WARNING: This directory belongs to the superseded MDPI_template_ACS submission
+> (n=10 seeds, older protocol). It is retained for historical reference only.**
+> Current artefacts (n=20 seeds, BH-FDR 3-test family, w*=1.0 fixed) are in:
+> `../MDPI_template_ACS_v2/results/`
+
+This directory contains package-local numerical sources for the old 10-seed campaign.
+**Do NOT cite statistics from this directory in the submitted manuscript.**
 
 ## File map
 

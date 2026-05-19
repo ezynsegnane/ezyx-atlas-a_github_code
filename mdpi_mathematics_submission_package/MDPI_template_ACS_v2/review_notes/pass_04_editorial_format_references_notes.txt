@@ -1,0 +1,120 @@
+REVUE PASS 04 - EDITORIAL, FORMAT MDPI, REFERENCES, LISIBILITE
+Manuscrit: main_en.tex / main_en.pdf
+Date de revue: 2026-05-19
+
+E401 - Abstract length
+Severite: MAJEURE.
+Observation: l'abstract semble autour de 300 mots. Pour MDPI, c'est probablement trop long.
+Action: viser environ 180-220 mots, supprimer details secondaires Group B-F, conserver objectif, design, resultats confirmatoires, conclusion limitee.
+
+E402 - Abstract readability
+Severite: MAJEURE.
+Observation: trop de nombres dans l'abstract nuit a la comprehension.
+Action: garder les trois chiffres essentiels: n=250 runs, +0.0007/+0.0019 macro-AUC, p_BH confirmatoire.
+
+E403 - Title fit
+Severite: MODEREE.
+Observation: titre bon, mais pour Mathematics ajouter peut-etre "a pre-specified paired evaluation" dans subtitle/abstract si permis.
+
+E404 - MDPI Mathematics scope
+Severite: MAJEURE.
+Observation: le papier est applique biomedical ML. Le lien a Mathematics doit etre rendu explicite par le design statistique.
+Action: ajouter un paragraphe de positionnement methodologique.
+
+E405 - LaTeX hyperref warnings
+Severite: MINEURE.
+Observation: le log contient de nombreux warnings PDF-string/hyperref probablement dus aux maths dans metadata/abstract.
+Action: utiliser texorpdfstring ou simplifier metadata PDF.
+
+E406 - Overfull/underfull boxes
+Severite: MINEURE.
+Observation: le PDF compile, mais il reste au moins un overfull hbox et plusieurs underfull hboxes.
+Action: inspecter les lignes indiquees dans le log, surtout les declarations/data availability.
+
+E407 - Placement figures/tables
+Severite: MINEURE.
+Observation: les figures/tables sont placees apres les declarations. Verifier la convention MDPI finale.
+Action: si le template exige placement proche de l'appel, ajuster.
+
+E408 - Figure readability
+Severite: MODEREE.
+Observation: certains textes de figures peuvent etre petits dans un PDF journal.
+Action: verifier a 100% et en impression; agrandir labels si necessaire.
+
+E409 - Table density
+Severite: MODEREE.
+Observation: les tables statistiques sont denses.
+Action: separer confirmatoire main text et exploratoire supplement.
+
+E410 - Terminologie "sex" vs "gender"
+Severite: MINEURE.
+Observation: manuscript utilise sex01/sex, certaines references/comparaisons parlent gender.
+Action: harmoniser: utiliser "sex" pour PTB-XL si la variable source est sex.
+
+E411 - "Clinical metadata"
+Severite: MINEURE.
+Observation: metadata inclut age, sex, height, weight, BMI. Le terme "clinical metadata" est acceptable mais large.
+Action: definir clairement a la premiere occurrence.
+
+E412 - "Anthropometrics"
+Severite: MINEURE.
+Observation: BMI derive de height/weight; reviewer peut demander si cela injecte une redondance calculee.
+Action: mentionner que BMI is derived and included as a feature with missingness mask.
+
+E413 - References, Holloway
+Severite: MAJEURE.
+Observation: le DOI bibliographique semble correspondre a un volume, pas necessairement au chapitre cite.
+Action: verifier et corriger DOI/chapitre.
+
+E414 - References, Atwa
+Severite: MINEURE.
+Observation: la reference MDPI Diagnostics 2025 semble plausible mais doit etre verifiee avec DOI final.
+Action: garder l'URL/DOI exact.
+
+E415 - References, TolerantECG
+Severite: MODEREE.
+Observation: verifier statut final, venue et DOI si publie apres le preprint.
+Action: mettre a jour avant soumission.
+
+E416 - References, Weimann / Coppola
+Severite: MODEREE.
+Observation: references recentes ou preprints doivent etre a jour.
+Action: verifier DOI/version, ajouter accessed date si URL/preprint.
+
+E417 - PhysioNet access date
+Severite: MINEURE.
+Observation: "Accessed: 2024" peut paraitre ancien.
+Action: utiliser la date reelle de verification ou la date de dernier acces.
+
+E418 - GenAI declaration
+Severite: MINEURE.
+Observation: declaration presente.
+Action: verifier le wording MDPI exact et conserver transparence.
+
+E419 - Data availability phrasing
+Severite: MAJEURE.
+Observation: dire que certaines arrays ne sont pas archivees attire l'attention.
+Action: idealement les archiver; sinon expliquer pourquoi et fournir alternative.
+
+E420 - Repository name consistency
+Severite: MINEURE.
+Observation: verifier "ezyx-atlas-a_github_code" vs dossier local "ezyx-atlas-a_gihub".
+Action: eviter toute faute de nom dans le manuscrit.
+
+E421 - Typos / mojibake in source comments
+Severite: MINEURE.
+Observation: quelques commentaires de fichiers montrent des caracteres mal encodes.
+Action: nettoyer les commentaires publics.
+
+E422 - Tone
+Severite: MODEREE.
+Observation: le manuscrit est globalement prudent, mais certains passages restent trop assertifs pour les analyses exploratoires.
+Action: standardiser les modalisateurs: "supports", "is consistent with", "nominally".
+
+E423 - "No code writing was delegated"
+Severite: MINEURE.
+Observation: la declaration GenAI doit correspondre strictement aux usages reels.
+Action: si l'IA a aide a rediger, corriger selon politique MDPI.
+
+Conclusion de la passe 04:
+Le manuscrit est proche d'une forme soumettable editorialement, mais l'abstract, les references recentes, les artefacts publics et le framing Mathematics doivent etre polis avant depot.

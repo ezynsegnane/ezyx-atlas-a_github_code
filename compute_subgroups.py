@@ -1,5 +1,5 @@
 """
-compute_subgroups.py — Cross-seed subgroup AUC aggregation for Scientific Reports.
+compute_subgroups.py — Cross-seed subgroup AUC aggregation for EZNX-ATLAS-A (MDPI Mathematics).
 
 Reads NPZ files for all 60 primary runs and produces:
   • Per-subgroup macro-AUC  (mean ± SD over 20 seeds)

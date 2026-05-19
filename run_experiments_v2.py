@@ -1,7 +1,8 @@
 """
-run_experiments_v2.py — Orchestrator for the EZNX-ATLAS-A v5 Scientific Reports campaign.
+run_experiments_v2.py — Orchestrator for the EZNX-ATLAS-A v5 MDPI Mathematics campaign.
+(Note: originally drafted for an earlier submission venue; current target is MDPI Mathematics.)
 
-Experiment taxonomy (270 descriptors / 250 unique GPU runs)
+Experiment taxonomy (270 descriptors / 250 unique CPU runs)
 ────────────────────────────────────────────────────────────
   [A] Primary confirmatory         60 desc /  60 unique  3 variants × 20 seeds
   [B] Fusion capacity sensitivity  40 desc /  30 unique  meta_hid {32,64,128,256} × 10 seeds

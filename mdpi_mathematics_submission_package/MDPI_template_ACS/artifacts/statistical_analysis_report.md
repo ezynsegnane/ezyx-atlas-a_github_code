@@ -1,12 +1,24 @@
 # Analyse Statistique Multi-Graines - EZNX_ATLAS_A
 
+> **DEPRECATED — n=10 VERSION (superseded 2026-05-19)**
+> This report was generated during an earlier 10-seed campaign and is retained
+> for historical reference only. It is inconsistent with the current manuscript,
+> which reports n=20 seeds (2024–2043), three pre-specified pairwise contrasts
+> with BH-FDR correction, and w*=1.0 fixed a priori (no blend-weight search).
+> The current authoritative artefacts are in
+> `MDPI_template_ACS_v2/results/seed_level_results.csv` and
+> `MDPI_template_ACS_v2/results/statistical_analysis_full.json`.
+> **Do NOT cite numbers from this file.**
+
 *Généré le 2026-04-23 14:24:06*
 
 ## Analysis notes
 
 - Bootstrap confidence intervals are computed on seed-level values, not by patient-level resampling.
 - Pairwise inferential tests are two-sided paired Wilcoxon signed-rank tests on seed-matched variant differences.
-- Because blend weights and decision thresholds are selected on fold 9 and then fixed on fold 10, p-values should be interpreted conditionally on this validation-based model-selection protocol.
+- **[DEPRECATED NOTE]** The phrase "blend weights and decision thresholds are selected on fold 9" in this old report is incorrect for the current campaign: w*=1.0 is fixed a priori per the pre-declared analysis plan; no blend-weight search is performed. P-values remain conditional on the validation-based checkpoint selection (highest val macro-AUC) and threshold tuning.
+- Cohen's d_z is reported as a descriptive paired effect size; Hedges-corrected g_z is exported alongside it for small-sample sensitivity.
+- Consecutive integer seeds are used as transparent run identifiers only; each run re-seeds Python, NumPy, and PyTorch independently.
 - Cohen's d_z is reported as a descriptive paired effect size; Hedges-corrected g_z is exported alongside it for small-sample sensitivity.
 - Consecutive integer seeds are used as transparent run identifiers only; each run re-seeds Python, NumPy, and PyTorch independently.
 

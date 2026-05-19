@@ -145,7 +145,11 @@ class EZNXDataset(Dataset):
             sig = sig[:self.T, :]
             
         sig = sig.transpose()  # (12, T)
-        sig = sig / 5.0        # normalise from physical mV to approx. unit range
+        # NOTE: The /5.0 voltage normalisation is applied in the training collate
+        # functions (collate_fn_augmented and collate_fn_val in atlas_a_v5_multiseed.py
+        # and atlas_a_v5_extended.py), NOT here.  This loader returns raw wfdb values
+        # (in mV).  Do NOT apply /5.0 here to avoid double-scaling when used with
+        # the full training pipeline.  See source_snapshot/README.md for details.
 
         return {
             "x_ts": torch.tensor(sig, dtype=torch.float32),
