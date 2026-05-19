@@ -145,7 +145,8 @@ class EZNXDataset(Dataset):
             sig = sig[:self.T, :]
             
         sig = sig.transpose()  # (12, T)
-        
+        sig = sig / 5.0        # normalise from physical mV to approx. unit range
+
         return {
             "x_ts": torch.tensor(sig, dtype=torch.float32),
             "x_meta": torch.tensor(self.meta[i], dtype=torch.float32),

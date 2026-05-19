@@ -1,0 +1,213 @@
+Rapport final consolide - Toutes les remarques de reviewer
+Manuscrit: main_en.tex / main_en.pdf
+Workspace: MDPI_template_ACS_v2
+Date locale: 2026-05-19
+
+Positionnement global du reviewer:
+Le papier a une idee solide: transformer une revendication multimodale vague en mesure seed-matched, avec effets petits mais quantifies. La posture est plus forte quand le manuscrit se presente comme une etude de mesure/reproductibilite que comme une nouvelle architecture. Cependant plusieurs points restent attaquables par un reviewer qualifie, surtout des incoherences factuelles et des formulations trop fortes.
+
+Decision reviewer probable si soumis tel quel:
+Major revision.
+
+Raisons principales:
+- Les incoherences missingness n=10/n=20 et preprocessing/code sont factuelles.
+- Les claims "confirmatory", "confirm", "conservatively difficult split" sont parfois plus forts que le design.
+- Le package local ne soutient pas completement les affirmations de reproductibilite.
+- Un DOI de reference semble incorrect.
+- Le PDF/log a des problemes de metadonnees et warnings hyperref.
+
+Remarques critiques a corriger avant soumission
+
+1. Incoherence missingness n=10 vs n=20
+- L351 dit que la courbe empirique de masking est evaluee sur demo+anthro avec 10 seeds (2024-2033).
+- L513 confirme que le public missingness report couvre demo+anthro seulement, 10 seeds.
+- L704, caption Figure 4, dit "across 20 seeds".
+- `source_snapshot/scripts/render_figures_v2.py` ligne 315 ecrit aussi "n = 20 seeds" pour Fig 4.
+- C'est une attaque directe et facile. Corriger la caption, l'axe, le texte et le rapport public. Si les none/demo traces viennent de 20 seeds mais demo+anthro masking de 10, le dire explicitement.
+
+2. Code snapshot incoherent avec preprocessing annonce
+- L169 dit que les signaux ECG sont divises par 5.0 avant le modele.
+- `source_snapshot/eznx_loader_v2.py` lit WFDB, pad/truncate, transpose, et retourne le tensor sans division par 5.0.
+- Si la division est faite ailleurs, le script manque. Sinon le manuscrit est faux.
+- Le manuscrit decrit aussi filtering physiologique, median imputation, standardisation; le loader lit des colonnes deja precomputees. Fournir le script de creation de l'index ou corriger la description.
+
+3. Supplementary/release snapshot non soutenu localement
+- L503 affirme que le release snapshot bundle contient Table S1, all 250 seed-level JSON outputs, CSV/Markdown statistical tables, dataset-integrity notes, environment files, scripts.
+- Dans le dossier local, `artifacts` est vide et les JSON/stat tables ne sont pas presents.
+- L513 dit que le depot GitHub public contient tout; cela peut etre vrai, mais le package local ne le demontre pas.
+- Corriger la formulation ou ajouter les artefacts promis.
+
+4. DOI Holloway2026 probablement incorrect
+- bibliography.bib donne `10.1007/978-3-031-87568-3`.
+- Spot-check externe trouve pour le chapitre "Evaluation of Raw Signal and Feature-Based Deep Learning Models for Multi-Label ECG Diagnosis on PTB-XL" le DOI `10.1007/978-3-032-11442-6_36`, pages 458-464.
+- Corriger reference avant soumission.
+
+5. Hyperref/PDF metadata
+- main_en.log contient de nombreux hyperref warnings a la ligne 81.
+- `pdfinfo` montre un Subject PDF enorme avec math mal converti et un Author avec mojibake pour Peluffo-Ordonez.
+- Les metadonnees PDF doivent etre nettoyees avec des strings simples sans math/LaTeX et un encodage correct.
+
+Remarques majeures de methodologie/statistiques
+
+6. "Pre-specified" et "confirmatory" doivent etre prouves
+- Le manuscrit repete "pre-declared/pre-specified 3-test family".
+- Sans plan date, commit, preregistration, supplement S1 inclus, ou notebook verrouille, un reviewer peut dire que cette famille a ete definie apres coup.
+- Ajouter Table S1 et une note de provenance: date, hash, chemin, ou archive.
+
+7. Les p-values exploratoires sont trop valorisees
+- Abstract L75: "Exploratory groups confirm..." est trop fort.
+- Discussion/conclusion: Groups B/C/E "confirm architectural robustness" alors qu'ils sont n=10, uncorrected, exploratory.
+- Group D p=0.002 est interessant mais non corrige dans l'ensemble exploratory. Dire "motivates confirmatory testing" plutot que conclusion ferme.
+
+8. Group F ne prouve pas la generalisation du gain metadata
+- Group F teste seulement demo+anthro sur quatre folds alternatifs, 5 seeds chacun.
+- Il ne teste pas none/demo sur ces folds, donc ne montre pas que +0.0007 ou +0.0019 generalisent.
+- Reformuler: "fold 10 had lower absolute demo+anthro AUC than the four tested alternative folds." Eviter "confirmatory generalisation" et "conservatively difficult split" sans nuance.
+
+9. Unite d'inference = seed, pas patient
+- Le papier est clair sur seed-level inference, mais les effets sont tres petits.
+- Ajouter pres des resultats: CIs quantify run-to-run variability, not patient-level uncertainty.
+- Patient-level probability arrays non archivees: cela limite verification independante, DeLong, calibration, threshold analysis, subgroup analysis.
+
+10. Exact Wilcoxon implementation
+- Preciser zero_method/ties/exact method/software version.
+- Donner exact raw p et BH p plutot que `approx` ou `<` dans les tables supplementaires.
+- La phrase sur p minimum `2/2^20` est correcte seulement sous conditions sans ties; garder prudence.
+
+11. Label protocol vs canonical benchmark
+- Le loader declare un superclass positive si tout code SCP associe existe, sans threshold de likelihood.
+- PTB-XL `scp_codes` contient des likelihoods; un reviewer comparera cela au protocole Strodthoff.
+- Ajouter une justification et/ou une verification que les labels reproduisent exactement le benchmark super-diagnostic canonique.
+
+12. q_meta et "quality-gated" claims
+- Le manuscrit reconnait que `q_meta` sature a 1 lorsque age/sex sont presents.
+- Donc la degradation sous anthropometric masking est surtout due aux missingness indicators + meta-dropout, pas a une quality score interpolation.
+- Attenuer "quality-gated fusion" dans abstract/title/captions ou expliquer que q_meta sert surtout de hard gate none vs metadata.
+
+13. "ECG-only" terminology
+- `none` est une architecture multimodale metadata-disabled avec fused head/gate recevant zeros, pas un pur ECG-only backbone standard.
+- Utiliser "metadata-disabled reference" quand la precision compte.
+- Le fused vs ECG auxiliary head gap ne doit pas etre presente comme comparaison a un modele ECG independant.
+
+14. E8 interpretation
+- E8 trainmask est un train/inference distribution shift extreme.
+- Il montre que ce modele ne peut pas recevoir metadata a inference si entraine zero-meta, mais ne prouve pas une regle generale sur toutes architectures.
+- Garder le terme "negative control".
+
+15. Clinical utility non demontree
+- Les gains AUC sont petits et aucune calibration, decision curve, net benefit, external cohort, subgroup fairness ou reclassification n'est montree.
+- Le manuscrit le dit deja, mais la conclusion doit rester strictement measurement/protocol-specific.
+
+Remarques majeures de reproductibilite
+
+16. Source snapshot incomplet
+- Manquent: training loop complet, augmentation implementation, loss implementation, threshold tuning code, stats code, missingness evaluator, index builder, seed JSONs.
+- `source_snapshot/requirements.txt` dit "All 30 training runs", contradiction directe avec les 250 runs.
+- Les commentaires dans les scripts sont mojibake; nettoyer l'encodage.
+
+17. Determinism CPU surjoue
+- L479: CPU-only elimine CUDA nondeterminism, mais CPU BLAS/threading/architecture peuvent varier.
+- Dire "reduces one source of nondeterminism" plutot que "stronger reproducibility guarantee".
+- Donner exact CPU model, OS, Python, thread env vars si possible.
+
+18. Total compute et run accounting
+- Le ledger est bon, mais 270 descriptors peut sembler gonfle. Mettre 250 unique runs comme nombre principal.
+- Expliquer clairement les references shared avec Group A.
+
+Remarques sur resultats et discussion
+
+19. Abstract trop dense
+- L75 est trop long et contient trop de nombres. Reduire aux objectifs, design, resultats principaux Group A, prudence, et une phrase missingness.
+
+20. Introduction donne trop de resultats
+- L102 est tres dense. Peut etre raccourci pour garder la progression narrative.
+
+21. Per-class analysis post-hoc
+- NORM/MI/STTC resultats utiles, mais rappeler "secondary post-hoc" a chaque interpretation forte.
+
+22. MI/STTC mechanisms speculatifs
+- L442 parle de body-size-conditioned calibration, Q-wave, thoracic properties. Bien, mais doit rester "plausible hypothesis".
+
+23. HYP paradox bon mais non teste
+- Les quatre hypotheses sont plausibles mais non testees. Ajouter subclass LVH as future work.
+
+24. CD age-confounder non teste
+- "Age-as-confounder hypothesis" est plausible mais non teste; garder prudent.
+
+25. Augmentation claim trop fort
+- "Practitioners should not treat augmentation as optional" est trop fort pour Group D exploratory. Dire que augmentation doit etre controlee/reportee.
+
+26. Hyperparameter sensitivity
+- B/C hyperparams sont entangles. Le manuscrit le reconnait. Ne pas dire "insensitive" trop largement; dire "no detectable sensitivity over tested entangled settings".
+
+Remarques de presentation/format
+
+27. Ordre des tables
+- Dataset = Table 5, hparams = Table 6, main results = Table 7, per-class = Table 8. C'est peu naturel.
+- Si MDPI le permet, placer les tables pres de leur premiere citation ou renommer/structurer pour eviter un resultat principal en Table 7.
+
+28. Captions trop longues
+- Figures 1, 4, 5, 6 et tables principales ont des captions tres longues. Les captions doivent etre comprehensibles mais pas remplacer le texte.
+
+29. Table 6 caption ambigu
+- "All values are held constant across ... exploratory/confirmatory groups" est faux/ambigu car Groups B/C/D/E varient des valeurs. Dire "unless explicitly varied".
+
+30. Table 9 direct comparators
+- Table 9 s'appelle "Direct numerical comparators" mais inclut Atwa/Holloway qui sont ensuite dits non directement comparables. Separer strictement direct comparator vs adjacent context.
+
+31. p-values dans tables
+- Eviter melange `<0.001`, `<0.0001`, `approx`. Fournir exact values en supplement.
+
+32. Ethics/consent wording
+- "Patient consent was waived" peut etre remplace par "not required for this secondary analysis of public de-identified data; original collection followed PTB protocol".
+
+33. Generative AI disclosure
+- "revisions in response to reviewer feedback" est bizarre si le manuscrit n'a pas encore eu de review. Verifier l'historique exact.
+
+34. Source comments / encoding
+- Source files contiennent mojibake dans commentaires francais et symboles. Nettoyer avant code release.
+
+Remarques mineures utiles
+
+35. H1/title
+- Titre long mais clair. Si l'article est measurement-first, un titre encore plus sobre pourrait aider.
+
+36. Keywords
+- "myocardial infarction" est acceptable vu MI effect, mais le papier n'est pas un papier MI specifique.
+
+37. "not a failure"
+- L469 "not a failure" est un peu defensif. Reformuler en style scientifique.
+
+38. ORCID comments
+- Commentaires "ORCID confirmed" inutiles dans source soumis; garder si besoin mais nettoyer encodage.
+
+39. Date source
+- Commentaire source 2026-05-12 vs PDF 2026-05-18: harmoniser versioning.
+
+40. Figure labels
+- Verifier que les figures PDF/PNG correspondent exactement aux captions apres correction n=10/n=20.
+
+Actions prioritaires recommandees
+
+P0 - Corriger avant toute soumission:
+1. Fixer Fig 4 n=10/n=20 dans texte, caption, script, image.
+2. Corriger DOI Holloway.
+3. Aligner preprocessing code et manuscrit (`/5.0`, imputation, filtering).
+4. Ajouter ou retirer les claims de supplementary bundled artifacts.
+5. Nettoyer hyperref/PDF metadata.
+
+P1 - Rendre le papier beaucoup plus defensable:
+6. Ajouter Table S1/plan pre-declare avec provenance datee.
+7. Donner scripts/stat outputs exacts, seed JSONs, missingness report.
+8. Clarifier label construction vs Strodthoff.
+9. Reformuler exploratory/confirmatory language.
+10. Reformuler Group F.
+
+P2 - Polir:
+11. Reduire abstract/captions.
+12. Ameliorer ordre des tables.
+13. Nettoyer source encoding et requirements comment.
+14. Nuancer clinical claims et CPU determinism.
+
+Verdict final:
+Le manuscrit peut devenir fort, car le coeur scientifique est coherent: les effets metadata sont petits, seed-stables, et correctement situes comme mesures. Mais dans son etat actuel, un reviewer peut l'attaquer sans meme contester la science, simplement avec les incoherences n=10/n=20, code/preprocessing, artifacts absents, DOI incorrect, et langage trop confirmatoire. Corriger ces points changerait fortement le risque de review.

@@ -312,7 +312,7 @@ def fig4_missingness_robustness():
                            ec=COLORS["demo+anthro"], lw=0.7))
 
     ax1.set_xlabel("Anthropometric fields withheld at inference (%)")
-    ax1.set_ylabel("Test macro-AUC (mean ± SD, n = 20 seeds)")
+    ax1.set_ylabel("Test macro-AUC (mean ± SD; demo+anthro n = 10 seeds, others structural)")
     ax1.set_title("(A) Absolute macro-AUC under missingness")
     ax1.set_xticks(x)
     ax1.set_xticklabels([f"{r}%" for r in miss_pct])

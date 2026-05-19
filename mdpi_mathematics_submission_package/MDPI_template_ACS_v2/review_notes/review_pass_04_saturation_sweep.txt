@@ -1,0 +1,27 @@
+Reviewer pass 04 - Saturation finale
+Date locale: 2026-05-19
+
+Objectif:
+Relire les notes des passes 01-03 puis refaire un balayage de A a Z pour voir si de nouvelles categories de remarques apparaissent.
+
+Resultat de saturation:
+- Aucune nouvelle categorie majeure n'a ete detectee apres les passes 01-03.
+- Les remarques se regroupent de facon stable en 8 familles:
+  1. Reproductibilite/provenance du package.
+  2. Incoherence missingness n=10 vs n=20.
+  3. Claims statistiques trop forts hors Group A.
+  4. Group F trop faible pour parler de generalisation confirmatoire.
+  5. Code/preprocessing snapshot incomplet ou incoherent.
+  6. Label-definition / benchmark comparability.
+  7. Reference Holloway DOI incorrecte et petites incoherences bibliographiques.
+  8. Presentation PDF/LaTeX: hyperref, metadata, table order, captions longues.
+
+Priorite de correction recommandee avant soumission:
+1. Corriger toutes les incoherences factuelles visibles: Fig 4 n, DOI Holloway, requirements "30 runs", preprocessing `/5.0`, supplementary/package claims.
+2. Attenuer le langage: remplacer "confirm" par "suggest/no detectable", limiter "confirmatory" a Group A si pas de plan date, reformuler Group F.
+3. Ajouter les artefacts ou changer les declarations: Table S1, JSON, scripts stats, missingness report, index builder, training script.
+4. Clarifier label protocol vs Strodthoff et exact Wilcoxon implementation.
+5. Nettoyer PDF/log/captions/table order.
+
+Conclusion de cette passe:
+Le manuscrit est defendable, mais pas encore "reviewer-proof". Les attaques les plus dangereuses sont factuelles et faciles a verifier; elles doivent etre corrigees avant de compter sur les arguments scientifiques plus subtils.

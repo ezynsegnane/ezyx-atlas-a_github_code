@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.7.16)  18 MAY 2026 23:06
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.7.16)  19 MAY 2026 09:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1506,30 +1506,6 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\lambda' on input line 81.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 81.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 81.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 81.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 81.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 81.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 81.
 
 
@@ -1632,10 +1608,6 @@ LaTeX Font Info:    Font shape `U/msb/m/n' will be
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 5.21004pt on input line 81.
 Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `cmtt' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmss' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
@@ -1647,6 +1619,11 @@ Package microtype Info: Loading generic protrusion settings for font family
 ata/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}{C:/Users/hp/AppData/Loca
 l/Programs/MiKTeX/fonts/enc/dvips/cm-super/cm-super-t1.enc} <./Definitions/logo
 -mdpi-eps-converted-to.pdf> <./Definitions/logo-orcid.pdf>]
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `cmtt' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+
 
 [2]
 
@@ -1655,7 +1632,7 @@ l/Programs/MiKTeX/fonts/enc/dvips/cm-super/cm-super-t1.enc} <./Definitions/logo
 [4]
 
 [5]
-<figures/fig1_architecture.pdf, id=384, 594.07266pt x 738.61266pt>
+<figures/fig1_architecture.pdf, id=385, 594.07266pt x 738.61266pt>
 File: figures/fig1_architecture.pdf Graphic file (type pdf)
 <use figures/fig1_architecture.pdf>
 Package pdftex.def Info: figures/fig1_architecture.pdf  used on input line 179.
@@ -1727,12 +1704,14 @@ ppl/m/n/10 (-20) ---combining miss-ing-ness in-di-ca-tors, zero-initialised
 [19]
 
 [20]
+
+[21]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
 (Font)              Font shape `T1/cmtt/m/n' tried instead on input line 623.
 
 
-[21]
-<figures/fig2_training_curves.pdf, id=596, 498.28033pt x 267.02762pt>
+[22]
+<figures/fig2_training_curves.pdf, id=607, 498.28033pt x 267.02762pt>
 File: figures/fig2_training_curves.pdf Graphic file (type pdf)
 <use figures/fig2_training_curves.pdf>
 Package pdftex.def Info: figures/fig2_training_curves.pdf  used on input line 6
@@ -1740,14 +1719,14 @@ Package pdftex.def Info: figures/fig2_training_curves.pdf  used on input line 6
 (pdftex.def)             Requested size: 394.35522pt x 211.34473pt.
 
 
-[22]
-<figures/fig3_per_class_delta_auc.pdf, id=603, 498.28471pt x 262.17761pt>
+[23]
+<figures/fig3_per_class_delta_auc.pdf, id=614, 498.28471pt x 262.17761pt>
 File: figures/fig3_per_class_delta_auc.pdf Graphic file (type pdf)
 <use figures/fig3_per_class_delta_auc.pdf>
 Package pdftex.def Info: figures/fig3_per_class_delta_auc.pdf  used on input li
 ne 696.
 (pdftex.def)             Requested size: 394.35522pt x 207.49408pt.
-<figures/fig4_missingness_robustness.pdf, id=604, 859.6046pt x 295.9356pt>
+<figures/fig4_missingness_robustness.pdf, id=615, 859.6046pt x 295.9356pt>
 File: figures/fig4_missingness_robustness.pdf Graphic file (type pdf)
 <use figures/fig4_missingness_robustness.pdf>
 Package pdftex.def Info: figures/fig4_missingness_robustness.pdf  used on input
@@ -1755,15 +1734,15 @@ Package pdftex.def Info: figures/fig4_missingness_robustness.pdf  used on input
 (pdftex.def)             Requested size: 394.35522pt x 135.76173pt.
 
 
-[23 <./figures/fig2_training_curves.pdf> <./figures/fig3_per_class_delta_auc.pd
+[24 <./figures/fig2_training_curves.pdf> <./figures/fig3_per_class_delta_auc.pd
 f>]
-<figures/fig5_per_class_heatmap.pdf, id=776, 859.37051pt x 255.65288pt>
+<figures/fig5_per_class_heatmap.pdf, id=787, 859.37051pt x 255.65288pt>
 File: figures/fig5_per_class_heatmap.pdf Graphic file (type pdf)
 <use figures/fig5_per_class_heatmap.pdf>
 Package pdftex.def Info: figures/fig5_per_class_heatmap.pdf  used on input line
  710.
 (pdftex.def)             Requested size: 394.35522pt x 117.31697pt.
-<figures/fig6_seed_distribution.pdf, id=777, 859.63469pt x 339.77513pt>
+<figures/fig6_seed_distribution.pdf, id=788, 859.63469pt x 339.77513pt>
 File: figures/fig6_seed_distribution.pdf Graphic file (type pdf)
 <use figures/fig6_seed_distribution.pdf>
 Package pdftex.def Info: figures/fig6_seed_distribution.pdf  used on input line
@@ -1771,14 +1750,14 @@ Package pdftex.def Info: figures/fig6_seed_distribution.pdf  used on input line
 (pdftex.def)             Requested size: 394.35522pt x 155.86813pt.
 
 
-[24 <./figures/fig4_missingness_robustness.pdf> <./figures/fig5_per_class_heatm
+[25 <./figures/fig4_missingness_robustness.pdf> <./figures/fig5_per_class_heatm
 ap.pdf>] (main_en.bbl
 
-[25 <./figures/fig6_seed_distribution.pdf>]
+[26 <./figures/fig6_seed_distribution.pdf>]
 
-[26])
+[27])
 
-[27] 
+[28] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (main_en.aux)
  ***********
@@ -1786,16 +1765,16 @@ LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-06-09>
  ***********
 Package rerunfilecheck Info: File `main_en.out' has not changed.
-(rerunfilecheck)             Checksum: 4005EE3A9A88F06AD192EFEF6E602135;11939.
+(rerunfilecheck)             Checksum: 21EFFF2E8E31AE8F6D8C0C2F71CC5D65;12061.
  ) 
 Here is how much of TeX's memory you used:
- 35175 strings out of 468221
- 652674 string characters out of 5434343
- 1147584 words of memory out of 5000000
+ 35191 strings out of 468221
+ 652804 string characters out of 5434343
+ 1147670 words of memory out of 5000000
  62137 multiletter control sequences out of 15000+600000
- 729409 words of font info for 681 fonts, out of 8000000 for 9000
+ 730164 words of font info for 691 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 123i,14n,121p,2417b,824s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 123i,14n,121p,2484b,822s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmb
 sy10.pfb><C:/Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
 /cm/cmex10.pfb><C:/Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
@@ -1813,9 +1792,9 @@ ppData/Local/Programs/MiKTeX/fonts/type1/public/cm-super/sftt0900.pfb><C:/Users
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplb8a.pfb><C:/
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplr8a.pfb><C:/
 Users/hp/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_en.pdf (27 pages, 1732116 bytes).
+Output written on main_en.pdf (28 pages, 1735787 bytes).
 PDF statistics:
- 1236 PDF objects out of 1440 (max. 8388607)
- 171 named destinations out of 1000 (max. 500000)
+ 1247 PDF objects out of 1440 (max. 8388607)
+ 172 named destinations out of 1000 (max. 500000)
  115181 words of extra memory for PDF output out of 128383 (max. 10000000)
 

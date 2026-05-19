@@ -1,6 +1,6 @@
-# All 30 training runs were executed on a CPU-only machine (Intel Core i5, 8 GB RAM)
-# using PyTorch 2.3.1+cpu (no CUDA/GPU). To reproduce without a GPU, install the
-# CPU-only wheel explicitly:
+# All 250 training runs (60 Group A confirmatory + 190 across exploratory Groups B-F)
+# were executed on a CPU-only machine (Intel Core i5, 8 GB RAM) using PyTorch
+# 2.3.1+cpu (no CUDA/GPU). To reproduce without a GPU, install the CPU-only wheel:
 #   pip install torch==2.3.1+cpu --index-url https://download.pytorch.org/whl/cpu
 # Installing torch==2.3.1 without the index-url may pull the GPU wheel, which will
 # also work but may introduce minor CUDA non-determinism not present in the original runs.
