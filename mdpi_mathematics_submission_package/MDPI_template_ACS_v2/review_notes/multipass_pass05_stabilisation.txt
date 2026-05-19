@@ -1,0 +1,583 @@
+================================================================================
+EZNX-ATLAS-A -- PASSE 05 : STABILISATION (relecture finale)
+Reviewer hostile (consolidation -- toutes perspectives)
+Date : 2026-05-19
+Objectif : relire le manuscrit complet en ayant en tete toutes les notes
+           des passes 01-04. Identifier toute remarque non encore capturee.
+           Verifier si des corrections apportees creent de nouvelles incoherences.
+================================================================================
+
+Cette passe est une relecture systematique de main_en.tex (lignes 1-738) avec
+les quatre fichiers de notes de passes 01-04 en memoire active. Elle signale
+uniquement les problemes NOUVEAUX non encore documentes dans les passes precedentes
+(codes: PASS_05), plus un audit de coherence interne (codes: COH_05).
+
+================================================================================
+SECTION A -- NOUVELLES REMARQUES (non capturees dans les passes 01-04)
+================================================================================
+
+---------------------------------------------------------------------------
+A.1 TITRE ET AUTEURS
+---------------------------------------------------------------------------
+
+PASS_05 -- [Titre / ligne 51] -- MINEURE
+Observation: Le titre annonce "12-Lead ECG Superclass Classification on PTB-XL."
+  L'expression "Superclass Classification" peut etre confondue avec le multi-label
+  PTB-XL superdiag task (qui est multi-label, pas mono-label). Le terme
+  "superclass" est correct selon la terminologie PTB-XL officielle (5 superclasses),
+  mais un lecteur de Mathematics non-specialise ECG peut interpreter "superclass"
+  au sens OOP (programmation orientee objet) ou au sens de la taxonomie de classes.
+Risque reviewer: Confusion terminologique mineure; risque faible.
+Action recommandee: RAS -- le terme "superclass" est etabli dans la litterature
+  PTB-XL (Wagner 2020) et son usage ici est correct. Mentionner "multi-label"
+  dans le titre serait plus precis mais au detriment de la concision. Acceptable.
+---
+
+PASS_05 -- [ORCID / lignes 54-63] -- MINEURE
+Observation: Les ORCID de 7 auteurs sont donnes. L'auteur G (Beddi Mohamed
+  Abdallahi) a un ORCID confirmed (0000-0001-6276-3861). Mais dans la commande
+  \Author (ligne 65), l'auteur G est reference comme "B.M.A." alors que dans
+  la liste \authorcontributions (ligne 516) il est appele "B.M.A." (cohérent).
+  MAIS dans \AuthorCitation (ligne 69), l'auteur G est ecrit "Beddi, M.A." --
+  ce qui est incoherent avec les references "B.M.A." dans le corps du texte
+  (B = Beddi, M.A. = Mohamed Abdallahi). La notation "B.M.A." signifie
+  Beddi Mohamed Abdallahi (initiales B, M, A) ce qui est correct.
+  CEPENDANT le prénom de famille au format MDPI Citation (Beddi, M.A.) est
+  ambigu: M.A. = Mohamed Abdallahi OU M. Abdallahi? Pour MDPI le format standard
+  est Nom, Prenom(s). Ici "Beddi, M.A." est correct si M.A. sont les initiales
+  des prenoms Mohamed Abdallahi. RAS.
+Action recommandee: RAS -- coherent.
+---
+
+PASS_05 -- [Affiliations / lignes 72-76] -- MINEURE
+Observation: L'affiliation $^5$ de l'auteur G (Beddi) est "Geometry, Analysis,
+  Algebra and Applications (G3A), Faculty of Sciences and Technology, University
+  of Nouakchott." L'email donne est "mohamed_obeddi@yahoo.fr". Cet email Yahoo
+  personnel (non institutionnel) peut sembler inhabituel pour un article MDPI.
+  MDPI prefere les emails institutionnels mais n'interdit pas les personnels.
+Risque reviewer: Commentaire editorial mineur possible.
+Action recommandee: Si une adresse institutionnelle est disponible, preferer son
+  usage pour la credibilite. Pas un blocage pour la publication.
+---
+
+---------------------------------------------------------------------------
+A.2 METHODOLOGICAL BLIND SPOTS -- NOUVELLES FAMILLES
+---------------------------------------------------------------------------
+
+PASS_05 -- [Sec 5.4 / ligne 299] -- MAJEURE (NOUVELLE)
+Observation: La description du protocole dit que le paired Wilcoxon utilise
+  "seed-matched differences." Pour que ces differences soient valides comme
+  appariement, il faut que les memes seeds soient utilises pour toutes les
+  variantes dans le meme ordre. Le CSV confirme 20 seeds (2024-2043). MAIS
+  le manuscrit ne confirme nulle part que les seeds sont initialises DE FACON
+  IDENTIQUE pour le training de chaque variante avant CHAQUE epoque (et non
+  seulement au debut du run). En particulier, le data loader utilise une
+  randomisation interne lors du shuffling du DataLoader: si le DataLoader
+  n'est pas re-seede apres set_seed() au debut du run, l'ordre des batches peut
+  differer entre variantes pour le meme seed si les loaders sont crees a
+  des moments differents dans le code.
+  VERIFICATION CODE: atlas_a_v5_multiseed_v2.py fixe le seed AVANT la creation
+  du DataLoader. Donc l'ordre des batches devrait etre identique pour le meme
+  seed entre variantes (car le DataLoader est cree juste apres set_seed()).
+  MAIS si le code cree le DataLoader APRES avoir fait d'autres operations
+  aleatoires (par exemple la split des folds), l'etat du PRNG peut differer.
+Risque reviewer: "Comment garantissez-vous que les 20 seed-matched differences
+  sont reellement matched -- i.e., que les batches, augmentations, et dropouts
+  sont identiques pour le meme seed entre variantes?"
+Action recommandee: Confirmer dans la section Seeds (Sec 5.4) que l'appel a
+  set_seed(s) est effectue APRES tout calcul de splits/index et AVANT la
+  construction du DataLoader, garantissant un etat identique du PRNG pour les
+  trois variantes du meme seed. Ajouter une phrase: "The random state is
+  re-initialised immediately before DataLoader construction, so that within-seed
+  batch ordering and augmentation trajectories are identical across the three
+  variants for the same seed."
+---
+
+PASS_05 -- [Sec 3.5 / ligne 176] -- MODÉRÉE (NOUVELLE)
+Observation: Le manuscrit dit "Signals are loaded with wfdb at 100 Hz, padded
+  or truncated to 1000 time samples." Le padding est effectue comment? Si le
+  signal est < 1000 samples (ce qui est peu probable pour des ECG 10s a 100Hz
+  mais possible pour des enregistrements tronques), quel padding est utilise
+  (zero-padding, repetition du dernier sample, mirroring)? Le manuscrit ne le
+  dit pas. Si le signal est > 1000 samples (possible si certains enregistrements
+  ont ete stockes avec des artefacts de header), quelle troncature est appliquee
+  (debut, fin, centree)?
+Risque reviewer: "Comment les signaux qui ne font pas exactement 1000 samples
+  sont-ils traites? Zero-padding peut introduire des artefacts dans les etapes
+  finales du signal."
+Action recommandee: Ajouter dans Sec 3.5: "Signals shorter than 1000 samples
+  (rare in PTB-XL 100 Hz recordings) are zero-padded at the end; signals longer
+  are truncated at 1000 samples from the beginning. No PTB-XL 100 Hz recording
+  in the used index required padding."
+---
+
+PASS_05 -- [Sec 4.4 / lignes 218-225] -- MODÉRÉE (NOUVELLE)
+Observation: La concatenation dans Eq. (6) montre:
+  u_m = [h_demo || tilde_h_anthro || q_d || q_a] in R^130
+  h_demo in R^64, tilde_h_anthro in R^64, q_d in R^1, q_a in R^1 => 64+64+1+1=130. CORRECT.
+  MAIS dans le mode "none", h_demo = output de MLP_demo(x_demo=0, mask_demo=0).
+  Avec x_demo=0 et mask_demo=0, l'input est [0,0,0,0] pour le demo encoder.
+  L'output de MLP_demo([0,0,0,0]) n'est PAS necessairement 0 (les biais et les
+  BatchNorm peuvent produire des valeurs non-nulles). Cependant, meta_quality=0
+  pour le mode "none" (q_meta=0), donc h_m = q_meta * MLP_m(u_m) = 0 pour le
+  mode "none". Le code zero-initialise aussi x_meta entierement dans le loader
+  pour le mode "none". Donc h_m=0 et logits_meta=h_m*W_meta=0.
+  MAIS: est-ce que les gradients vers MLP_demo sont bien nuls pour le mode
+  "none"? Si h_m=0 (via q_meta=0), alors la loss meta = 0.10 * q_meta * BCE = 0.
+  Et le terme residuel h_ts += 0.10 * q_meta * W_res * h_m = 0. Donc les
+  gradients de la loss totale vers h_m sont nuls, et par consequent vers
+  MLP_demo et MLP_anthro. Les parametres des encodeurs meta ne sont donc pas
+  mis a jour dans les runs "none". Un reviewer peut questionner si cela peut
+  causer un probleme de gradient vanishing pour les encodeurs meta dans le mode
+  "none" (reponse: non, car dans le mode "none" les encodeurs ne contribuent
+  a aucune loss, donc ils restent a leur initialisation aleatoire -- ce qui est
+  correct comportementalement mais merite clarification).
+Risque reviewer: "Dans le mode 'none', les parametres des encodeurs metadata
+  ne recoivent aucun gradient. Comment sont-ils initialises et que font-ils?"
+Action recommandee: Ajouter dans la description du mode "none" (Sec 5.4 ligne 281):
+  "In the none variant, q_meta=0 nulls all metadata contributions; the metadata
+  encoder parameters receive no gradient and remain at their random initialisation,
+  as they contribute nothing to the loss or predictions in this mode."
+---
+
+PASS_05 -- [Sec 5.5 / Inference blending / ligne 273-276] -- MINEURE (NOUVELLE)
+Observation: Le manuscrit dit "w* = 1.0 is fixed a priori according to the
+  pre-declared analysis plan." Mais dans la Passe 01 nous avons verifie que
+  l'analysis_plan mentionne bien w*=1.0. Cependant le manuscrit mentionne dans
+  la section 6.5 (Fig 6B) que "for none 8/20 positive (median -0.0001)". Si
+  w*=1.0, le score final EST le score fused, pas un blend. Donc "AUC_fused -
+  AUC_ecg" dans Fig 6B compare la tete fused avec la tete auxiliaire ECG-only
+  au sein du meme modele -- ce qui est correct. Mais la phrase "with w*=1.0
+  fixed a priori: when metadata help, the fused branch captures the gain" (ligne
+  361) est une interpretation causale qui peut etre questionnee: le gap fused-ecg
+  n'est pas necessairement du a la metadata, il peut refleter l'architecture
+  du training (les gradients des heads fused et ecg sont differents).
+  Ce point a ete capture dans PASS_01/M11 (fused vs ECG-aux interpretation).
+  RAS -- doublon confirme.
+---
+
+PASS_05 -- [Sec 5.1 / Loss Eq. / ligne 260-266] -- MAJEURE (NOUVELLE, PARTIELLE)
+Observation: L'Eq. (5) de la loss montre 4 termes. Mais le manuscrit ne mentionne
+  pas que la loss LAUC (AUC surrogate) est calculee sur les logits fused
+  uniquement (pas sur les logits ECG ou meta). Ceci est important car un reviewer
+  peut se demander si optimiser l'AUC surrogate sur les logits fused seulement
+  (et pas sur les logits ECG) peut biaiser le checkpoint selection (qui est
+  base sur val macro-AUC du head fused). En pratique, l'ECG head est optimise
+  par BCE seulement (pas par AUC surrogate), ce qui peut expliquer pourquoi
+  les gains sont concentres sur le head fused (w*=1.0). Le manuscript dit
+  "L_AUC(sigma(l_fused), y)" -- ceci est explicite que c'est l_fused.
+  MAIS dans la description des 3 heads (Section 4.7), seul le head fused beneficie
+  de la loss AUC surrogate. Cette asymetrie de training des heads n'est pas
+  discutee dans la Discussion. Elle pourrait expliquer partiellement pourquoi
+  le head fused est superieur au head ECG-aux (Fig 6B) -- pas seulement a cause
+  de la metadata, mais aussi a cause de l'asymetrie de training.
+Risque reviewer: "Le head ECG auxiliaire est entraine avec BCE uniquement (pas
+  avec l'AUC surrogate). Le head fused beneficie des deux. La comparaison fused
+  vs ECG-aux dans Fig 6B est donc confounded par cette asymetrie de training."
+Action recommandee: Mentionner dans la discussion de Fig 6B (ou dans la note
+  sur la comparaison fused vs ECG-aux) que l'asymetrie de training (ECG head:
+  BCE only; fused head: BCE + AUC surrogate) peut contribuer au gap observe,
+  en plus de la contribution de la metadata.
+---
+
+---------------------------------------------------------------------------
+A.3 NUMÉROS ET COHÉRENCE INTERNE (NOUVEAUX)
+---------------------------------------------------------------------------
+
+PASS_05 -- [Sec 5.4 / ligne 299] -- MINEURE (NOUVELLE)
+Observation: Le texte dit "provides a minimum attainable exact p-value of
+  approximately 0.000002 (= 2/2^20)." La valeur 2/2^20 = 2/1048576 =
+  1.9073e-6 approx 1.9e-6. Le texte dit "approximately 0.000002 = 2e-6". La
+  valeur correcte est 1.9e-6. La discordance est dans la 2e chiffre significatif
+  (2e-6 vs 1.9e-6). Un reviewer statisticien calculant 2/2^20 directement
+  obtiendrait 1.9073e-6, pas 2e-6. L'approximation utilisee dans le texte
+  (0.000002) arrondit au premier digit significatif.
+Risque reviewer: Aucun critique; c'est une approximation explicite.
+Action recommandee: Soit garder "approximately 2e-6" (approximation juste),
+  soit corriger en "approximately 1.9e-6 (= 2/2^20)". La valeur dans la
+  Section 5.6 est plus precise: "1.9 times 10^{-6}". Verifier que les deux
+  endroits ou cette valeur apparait (lignes 299 et 326) sont coherents.
+  Ligne 326 dit "approximately 0.000002 (= 2/2^20 approx 1.9x10^-6)" -- ce
+  qui est explicitement coherent. Ligne 299 dit "approximately 0.000002
+  (= 2/2^20)" -- acceptablement coherent.
+---
+
+PASS_05 -- [Sec 6.1 / Table 3 / ligne 347] -- MAJEURE (PARTIELLEMENT NOUVELLE)
+Observation: Pass 03 a identifie que le SEM pour da-none est 0.0002 (calcule)
+  vs 0.0003 (manuscrit). La relecture du Table 3 (Tab. tab:main, lignes 629-631)
+  confirme que le texte reportait:
+  demo-none: "+0.0007 +/- 0.0002" (SEM calcule: 0.0010/sqrt(20)=0.0002 CORRECT)
+  da-demo:   "+0.0012 +/- 0.0003" (SEM calcule: 0.0012/sqrt(20)=0.0003 CORRECT)
+  da-none:   "+0.0019 +/- 0.0003" (SEM calcule: 0.0011/sqrt(20)=0.0002 DISCORDANT)
+  CONFIRMATION: la discordance sur da-none (+/-0.0003 vs SEM=0.0002) est
+  confirmee dans la relecture directe du LaTeX (ligne 631). L'arrondi suggere
+  que le manuscrit utilise SD_diff=0.0011 -> 0.0011/sqrt(20)=0.000246 -> arrondi
+  a 0.0002 OU que le calcul utilise une formule differente. En realite 0.0003
+  correspond a 0.0011/sqrt(20) si le SD est 0.0014 (0.0014/sqrt(20)=0.000313
+  arrondi a 0.0003). Mais le SD des diff da-none calcule independamment est
+  0.0011. DISCORDANCE confirmee.
+Risque reviewer: "Le +/-0.0003 pour da-none est-il un SEM ou un SD? S'il est
+  un SEM, il devrait etre 0.0002 (= 0.0011/sqrt(20))."
+Action recommandee: Verifier le calcul SEM exact pour da-none depuis le code
+  de l'analyse statistique et corriger la table. La valeur correcte est +/-0.0002.
+---
+
+PASS_05 -- [Sec 6.3 / training curves / ligne 355] -- MODÉRÉE (NOUVELLE)
+Observation: "The cross-seed SD narrows from 0.008--0.010 at epoch 1 to
+  approximately 0.001 at epoch 10." Le texte dit "narrows from 0.008-0.010"
+  ce qui est la plage pour les 3 variantes a l'epoque 1. A l'epoque 10, "SD
+  approx 0.001". Les final-epoch SDs sont: none 0.0012, demo 0.0008, da 0.0012.
+  La valeur 0.001 est une approximation de 0.0012/0.0008/0.0012, ce qui est
+  juste comme approximation ronde. CORRECT mais le range complet serait
+  0.0008-0.0012 a l'epoque 10, pas "approx 0.001". Ceci est une over-simplification
+  non critique mais potentiellement questioned.
+Risque reviewer: Mineur. "La SD a l'epoque 10 varie de 0.0008 a 0.0012 selon
+  la variante, pas uniformement approx 0.001."
+Action recommandee: Changer "approximately 0.001" en "0.0008--0.0012 at epoch 10"
+  pour plus de precision.
+---
+
+PASS_05 -- [Sec 7.2 / Discussion Q2 / ligne 450] -- MAJEURE (NOUVELLE)
+Observation: La Discussion Q2 mentionne "MI shows the strongest effect (+0.0058,
+  p_BH < 0.0001, dz=2.26)." Nous avons identifie en Passe 01 et 03 que
+  dz=2.26 est incorrect (calcule 2.32). Ce meme chiffre dz=2.26 apparait AUSSI
+  dans la caption de Fig 5 (ligne 722): "MI shows the largest absolute shift
+  (+0.0058, dz=2.26, p_BH<0.0001)." DOUBLE OCCURRENCE de la valeur incorrecte.
+  La correction doit etre appliquee a deux endroits:
+  1) Section 6.2 ligne 350: "dz=2.26" -> "dz=2.32"
+  2) Caption Fig 5 (ligne 722): "dz=2.26" -> "dz=2.32"
+Risque reviewer: Meme risque que PASS_01/M06 mais avec une occurrence supplementaire
+  non encore identifiee dans les passes precedentes.
+Action recommandee: Corriger TOUTES les occurrences de "dz=2.26" dans le manuscrit.
+  Verification: PASS_01/M06 couvrait la section 6.2. La caption de Fig 5 n'etait
+  pas explicitement mentionnee. C'est une occurrence supplementaire confirmee.
+---
+
+PASS_05 -- [Caption Fig 6 / ligne 722-729] -- MINEURE (NOUVELLE)
+Observation: La caption de Fig 6 (fig:blend) dit "All three BH-FDR confirmatory
+  brackets are shown: demo-none (p_BH approx 0.009, **), demo+anthro-demo
+  (p_BH approx 0.001, ***), demo+anthro-none (p_BH < 0.001, ***)."
+  La legende des significances donne: "** p_BH < 0.01; *** p_BH < 0.001."
+  Donc "demo-none" recu ** (p_BH approx 0.009 < 0.01 -> **) CORRECT.
+  "demo+anthro-demo" recu *** (p_BH approx 0.001 < 0.001 -> *** ou non?).
+  Si p_BH = 0.000879 (calcule) < 0.001, alors *** est correct.
+  Si la legende dit "*** p_BH < 0.001" et que p_BH_da-demo = 0.000879 < 0.001,
+  alors *** est justifie. CORRECT.
+  MAIS: dans le caption de Fig 6, la valeur "p_BH approx 0.001" pour da-demo
+  est donnee comme approximation. La vraie valeur 0.000879 est bien < 0.001.
+  L'attribution *** est donc correcte mais la valeur "approx 0.001" dans la
+  caption understate la significativite (0.000879 est pres de 0.001, ok).
+Risque reviewer: Aucun critique.
+Action recommandee: RAS -- approximations correctes et coherentes.
+---
+
+---------------------------------------------------------------------------
+A.4 AUDIT D'INCOHERENCE -- CORRECTIONS INDUISANT DE NOUVEAUX PROBLEMES
+---------------------------------------------------------------------------
+
+PASS_05 -- [COH_05 / dz correction cascade] -- MAJEURE
+Observation: Si les dz sont corriges (comme recommande dans PASS_01/M05, M06 et
+  PASS_03) de dz_demo-none=0.64->0.65, dz_da-none=1.65->1.69, dz_da-demo=0.95->0.97,
+  alors les gz correspondants DOIVENT aussi etre corriges:
+  Coefficient Hedges: 1 - 3/(4*20-5) = 1 - 3/75 = 0.960
+  gz_demo-none: 0.65 * 0.960 = 0.624 -> 0.62
+  gz_da-none:   1.69 * 0.960 = 1.622 -> 1.62
+  gz_da-demo:   0.97 * 0.960 = 0.931 -> 0.93
+  IMPACT SUR LE TEXTE NARRATIF: la phrase de ligne 299 cite "dz=0.64 pour
+  demo-none" comme justification du design de 20 seeds. Si on corrige dz=0.65,
+  la phrase reste vraie (un effet de taille 0.65 est detecte avec 20 seeds) --
+  pas de contradiction logique.
+  IMPACT SUR LE RUNNING TEXT: toutes les occurrences de dz=0.64, 1.65, 0.95
+  et gz=0.61, 1.58, 0.91 dans le texte principal (Section 6.1), la table (tab:main),
+  la section Seeds (Sec 5.4), et les conclusions (Sec 8, ligne 510) doivent etre
+  mises a jour simultanement. Une correction partielle creerail des incoherences.
+Action recommandee: Effectuer une correction globale simultanee de toutes les
+  valeurs dz et gz (texte, table, captions, conclusions). S'assurer que la phrase
+  de justification du design des 20 seeds (Sec 5.4 ligne 299) est mise a jour
+  avec dz=0.65 (et non 0.64). La conclusion Q1 reste inchangee dans son sens.
+---
+
+PASS_05 -- [COH_05 / mask bits correction cascade] -- CRITIQUE
+Observation: La correction recommandee dans PASS_02/R2C03 est de remplacer
+  "their mask bits are always 1" (Section 3.3 ligne 166) par "their mask bits
+  mirror the availability of the corresponding anthropometric value
+  (mask__miss_height = mask__height)."
+  SI cette correction est appliquee, elle CONTREDIT potentiellement la phrase
+  suivante dans le meme paragraphe: "because m_h, m_w, m_bmi are derived binary
+  constants, their mask bits are always 1."
+  En effet, la phrase dit que les missingness indicators sont des "derived binary
+  constants" -- ce qui justifierait que leurs mask bits soient toujours 1.
+  MAIS le code montre que mask__miss_height = mask__height (qui peut etre 0 quand
+  height est absent). La logique est:
+  - Quand height est ABSENT: mask__height=0, miss__height=1, mask__miss_height=0.
+    Signification: "le flag de manque 'miss__height=1' est lui-meme indisponible
+    (mask=0) quand height manque." C'est contre-intuitif mais correspond au code.
+  - Quand height est PRESENT: mask__height=1, miss__height=0, mask__miss_height=1.
+    Signification: "le flag de manque 'miss__height=0' est disponible quand
+    height est present." Correct.
+  En pratique, pour PTB-XL avec 68% de manquants pour height:
+  68% des records ont mask__miss_height=0 (flag de manque indisponible quand height manque).
+  32% des records ont mask__miss_height=1 (flag de manque disponible quand height present).
+  La description "always 1" est donc FAUSSE pour 68% des records.
+  La correction "mirror the availability" est correcte par rapport au code.
+  MAIS: si mask__miss_height=0 quand height est absent, alors le modele "voit"
+  l'indicateur de manque miss__height=1 mais son masque=0, ce qui signifie que
+  l'encodeur meta considere cet indicateur comme "indisponible". En mode anthro,
+  le modele est donc AVEUGLE aux flags de manque quand les valeurs manquent.
+  Cela semble contre-intuitif: si le model ne "voit" pas le flag de manque quand
+  la valeur manque, comment peut-il savoir que la valeur manque?
+  ANALYSE: Dans la concatenation du demo encoder input: [demo_values, demo_mask].
+  Pour l'anthro encoder input: [anthro_values, anthro_mask].
+  La "anthro_values" inclut [height_z, weight_z, bmi_z, miss__h, miss__w, miss__bmi].
+  La "anthro_mask" inclut [mask__height, mask__weight, mask__bmi, mask__miss_h,
+  mask__miss_w, mask__miss_bmi].
+  Quand height est absent:
+  - height_z = imputed value (median), mask__height=0
+  - miss__height=1, mask__miss_height=0 (=mask__height)
+  L'encodeur anthro voit: [..., imputed_height_z, ..., 1, ..., ..., 0, ..., ...]
+  Avec un masque: [..., 0, ..., ..., 0, ..., ...]
+  Donc TOUS les elements de anthro_values correspondant a height (height_z ET
+  miss__height) ont leurs masques a 0. Le modele peut theoriquement apprendre
+  que: mask=0 pour height_z ET mask=0 pour miss__height -> height est absent.
+  Mais dans l'encodeur, les masques servent a "disabler" l'attention portee
+  a ces features. Si les masques sont 0 pour a la fois la valeur ET le flag,
+  le modele est partiellement aveugle a l'information de manque.
+  IMPLICATION: La robustesse de la fusion sous masquage (Fig 4) est partiellement
+  due aux missingness indicators (miss__height etc.) dans la anthro_values,
+  mais ces indicators sont eux-memes partiellement "masques" (mask=0) quand
+  height manque. La vraie source de robustesse sous masquage en dehors de PTB-XL
+  devrait donc etre principalement le meta-dropout (qui simule l'absence
+  d'anthropometrics) et les valeurs imputed (=median) plutot que les flags de manque.
+Risque reviewer: "Si mask__miss_height = mask__height = 0 quand height manque,
+  l'encodeur ne peut pas 'voir' les flags de manque avec un haut poids. Comment
+  la fusion est-elle robuste sous masquage? Quel mecanisme permet la degradation
+  gracieuse si les indicateurs de manque sont eux-memes masques?"
+Action recommandee: (1) Corriger la description dans Section 3.3 pour reflechir
+  la logique du code (mask__miss_height = mask__height). (2) Ajouter une explication
+  dans Section 4.3 / 4.4 que la robustesse sous masquage est principalement due
+  au meta-dropout et aux valeurs imputees (median), et que les missingness
+  indicators contribuent seulement quand les anthropometriques sont presentes.
+  (3) Reconnaitre ce point dans les Limitations comme une subtilite architecturale.
+---
+
+PASS_05 -- [COH_05 / Group F confirmatory vs descriptive] -- CRITIQUE
+Observation: La correction recommandee dans PASS_01 pour la discordance
+  "confirmatory" (plan) vs "descriptive" (manuscrit) pour Group F.
+  Relecture du texte actuel:
+  - Section 5.4 ligne 296: "Group F (multi-split absolute-performance check, 20 runs)"
+    --> qualifie comme "Gen. check" dans Table tab:run_ledger (ligne 315)
+  - Section 5.6 ligne 332: "No statistical test across the 20 Group F runs as if
+    independent." --> traitement descriptif
+  - La legende de Tab 7 (ligne 425): "Group F, descriptive only"
+  - La section Discussion Q6 (ligne 470): "Group F shows..." --> traitement descriptif
+  - Les Conclusions item (h) (ligne 507): "Group F (multi-split check, 20 runs,
+    descriptive only)"
+  Le manuscrit est CONSISTANT dans son traitement de Group F comme "descriptive only".
+  L'analysis_plan dit "CONFIRMATORY (generalization check)".
+  MAIS: la Limitation 7 (ligne 488) explique la dependance de normalisation qui
+  rend Group F non-confirmatoire. Si cette limitation est mentionnee, la deviation
+  du plan est justifiee. La Limitation 7 ne cite PAS explicitement la deviation
+  du statut "confirmatory" vers "descriptive" -- elle justifie seulement pourquoi
+  les valeurs ne sont pas independantes.
+Risque reviewer: "Votre plan dit Group F est 'CONFIRMATORY'. Votre manuscrit dit
+  'descriptive only'. La Limitation 7 ne reconnait pas explicitement ce changement
+  de statut."
+Action recommandee: Dans les Limitations (Sec 7.8), ajouter une phrase dans la
+  Limitation 7: "Note that Group F was designated 'confirmatory (generalisation
+  check)' in the pre-declared analysis plan; however, given the normalisation
+  dependency described above, we treat its absolute values as descriptive only.
+  This constitutes a protocol-defined deviation from the pre-declared plan."
+---
+
+---------------------------------------------------------------------------
+A.5 REMARQUES EDITORIALES NON CAPTUREES
+---------------------------------------------------------------------------
+
+PASS_05 -- [Sec 8 / Conclusions / ligne 510] -- MINEURE (NOUVELLE)
+Observation: La derniere phrase des conclusions (ligne 510): "highlighting the
+  importance of adequate seed budgets in multimodal deep learning evaluation."
+  Cette phrase est suivie de "\vspace{6pt}" et la section supplementaire. Il
+  n'y a pas de phrase de cloture au sens large (appel a la communaute, perspective
+  future, ou recommandation generale). Pour MDPI Mathematics, la conclusion devrait
+  se terminer par un statement general sur l'apport au domaine. La conclusion
+  actuelle se termine sur le design de 20 seeds, qui est un detail methodologique
+  plutot qu'une conclusion de portee.
+Risque reviewer: "La conclusion se termine abruptement sur un detail technique.
+  Ajoutez une phrase de cloture sur les perspectives ou recommandations."
+Action recommandee: Ajouter une phrase finale de portee plus large, par exemple:
+  "Beyond ECG diagnostics, the seed-matched measurement framework presented here
+  offers a transferable and computationally accessible approach for any domain
+  where incremental contributions of additional input modalities must be
+  quantified with calibrated statistical uncertainty."
+---
+
+PASS_05 -- [Abreviations / lignes 533-558] -- MINEURE (NOUVELLE)
+Observation: La liste des abreviations contient "SSL -- Self-supervised learning".
+  Mais SSL n'est pas utilise dans le texte principal de main_en.tex (verifie
+  par recherche). Si SSL n'apparait pas dans le corps du texte, l'inclure dans
+  la liste des abreviations est inutile et peut induire un reviewer a chercher
+  ou elle est utilisee.
+  VERIFICATION: "SSL" apparait-il dans main_en.tex? Une recherche dans le texte
+  entre lignes 88-738 ne trouve aucune occurrence de "\texttt{SSL}" ou de "SSL"
+  dans le corps du texte (les sections self-supervised decrivent ces modeles mais
+  n'abregent pas en "SSL").
+Risque reviewer: "SSL est dans la liste des abreviations mais n'est pas utilise
+  dans le texte. Supprimez ou utilisez l'abreviation."
+Action recommandee: Soit supprimer "SSL" de la liste, soit l'utiliser dans le
+  texte (par exemple dans la section Related Work 2.3 en substituant
+  "Self-supervised approaches" par "SSL approaches").
+---
+
+PASS_05 -- [Abreviations / "Superclass"] -- MINEURE (NOUVELLE)
+Observation: La liste des abreviations contient l'entree "Superclass -- One of
+  the five PTB-XL top-level diagnostic categories (NORM, MI, STTC, CD, HYP)."
+  "Superclass" n'est pas une abreviation -- c'est un terme complet. Une liste
+  des abreviations MDPI devrait contenir uniquement des acronymes/abreviations.
+  "Superclass" occupe une ligne dans \abbreviations mais n'est pas une abbreviation
+  au sens strict.
+Risque reviewer: "La liste des abreviations contient des termes non-abreges
+  (Superclass)."
+Action recommandee: Retirer "Superclass" de la liste des abreviations et le
+  definir dans le texte lors de sa premiere occurrence dans l'abstract ou
+  la section 2.1 (ce qui est deja fait: "5 superclasses" est explique dans
+  la section Related Work 2.1 et dans le Dataset 3.1).
+---
+
+PASS_05 -- [Data Availability / ligne 524] -- MODÉRÉE (NOUVELLE)
+Observation: La Data Availability Statement mentionne que "The public missingness
+  report covers the demo+anthro variant only (10 seeds, 2024-2033); none and
+  demo masking curves are structural reference baselines immune to anthropometric
+  masking by construction."
+  INCOHÉRENCE: Si la missingness curve n'evalue que 10 seeds (seeds 2024-2033),
+  mais que les "none et demo traces are shown at their 20-seed mean" (caption
+  Fig 4 ligne 715), alors il y a une asymetrie dans la base des moyennes:
+  - demo+anthro masking curve: 10 seeds (2024-2033)
+  - none et demo traces: 20 seeds (2024-2043)
+  Cette asymetrie est logiquement justifiable (none et demo sont invariants
+  sous masquage anthro, donc leur tracer a 10 ou 20 seeds donne le meme resultat
+  au bruit pres). MAIS la Data Availability Statement dit que "10 seeds, 2024-2033"
+  comme si c'etait la seule evaluation de robustesse, sans mentionner que les
+  traces de reference none et demo proviennent de 20 seeds.
+  Un reproducteur peut etre confus.
+Risque reviewer: "Les traces none et demo dans Fig 4 sont-elles basees sur 10
+  ou 20 seeds?"
+Action recommandee: Dans la Data Availability Statement, specifier: "The
+  missingness report covers the demo+anthro masking curve (10 seeds, 2024-2033);
+  the none and demo reference traces shown in Fig 4 are the 20-seed means from
+  Group A (immune to anthropometric masking by construction)."
+---
+
+PASS_05 -- [Sec 5.4 / ligne 286-297 / Group E seeds] -- MODÉRÉE (NOUVELLE)
+Observation: Le texte dit "Group E (exploratory, 80 runs). Eight architectural
+  ablations (E1-E8) x 10 seeds." Mais plus haut (ligne 291), Group A utilise
+  "seeds S = {2024, ..., 2043}" (S_20). Et pour Groups B, C, E, les seeds
+  utilisees sont S_10 = {2024, ..., 2033}. La Table tab:run_ledger confirme:
+  - E : "S_10 ea." et "80 unique runs" et "10 seeds".
+  MAIS: la ligne 295 dit pour Group E: "E1 meta-only fusion (E1), ... (E8)".
+  Le standard reference pour Group E est "shared from Group A" (tab:run_ledger
+  note "std ref from A"). Cela signifie que la ligne E (Standard reference) dans
+  Table tab:group_e (ligne 408: "Standard (reference, Group A): 0.9289 +/- 0.0012")
+  provient des 10 premiers seeds de Group A (S_10, pas S_20).
+  La valeur 0.9289 +/- 0.0012 dans Table tab:group_e est donc basee sur S_10
+  (10 seeds), PAS sur les 20 seeds de Group A complet. MAIS la Table tab:main
+  (Table 3) montre 0.9289 +/- 0.0013 pour demo+anthro sur 20 seeds.
+  La valeur 0.9289 +/- 0.0012 (10 seeds) vs 0.9289 +/- 0.0013 (20 seeds):
+  les moyennes sont identiques mais les SDs different legerement (0.0012 vs 0.0013).
+  Cette difference n'est pas expliquee dans le texte -- un reviewer attentif
+  peut noter que le "Standard reference" de Tab tab:group_e a une SD differente
+  de Tab tab:main pour la meme variante.
+Risque reviewer: "La SD pour demo+anthro est 0.0012 dans Table tab:group_e mais
+  0.0013 dans Table tab:main. Pourquoi?"
+Action recommandee: Ajouter une note dans la caption de Table tab:group_e: "The
+  Standard reference row shows the mean +/- SD over the 10 seeds shared with Group A
+  (S_10={2024,...,2033}); Table 3 reports the full 20-seed statistics."
+---
+
+================================================================================
+SECTION B -- AUDIT DE COHERENCE INTERNE APRES CORRECTIONS RECOMMANDEES
+================================================================================
+
+Cette section evalue si les corrections recommandees dans les passes 01-04
+  creent de nouvelles incoherences.
+
+COH_05.1 -- Correction dz/gz (7 valeurs) + SD da-none + SDs per-class
+  Impact: Modifier Table 3 (tab:main), Table 4 (tab:perclass), Fig 5 caption,
+  Section 6.1, Section 6.2, Section 7.1, Section 7.2, Conclusions (b) et (d).
+  Nouvelles incoherences: La Section 5.4 ligne 299 cite "dz=0.64 for demo-none"
+  comme exemple -- doit passer a dz=0.65. La Conclusion (b) n'utilise pas de
+  dz mais cite les valeurs de gain (+0.0007, +0.0019) qui restent inchangees.
+  La legende de Fig 5 (ligne 722) cite dz=2.26 -> 2.32.
+  VERDICT: Les corrections dz/gz sont internes et cohérentes. Aucune nouvelle
+  incoherence majeure si toutes les occurrences sont mises a jour simultanement.
+
+COH_05.2 -- Correction abstract (reduction a 200 mots)
+  Impact: Supprimer des chiffres et details de l'abstract. Aucune incoherence
+  nouvelle si le texte principal reste inchange.
+
+COH_05.3 -- Correction mask bits (Section 3.3)
+  Impact: Modifier la description de mask__miss_* dans Section 3.3 et ajouter
+  des clarifications dans Sections 4.3/4.4. Risque: la Discussion Q3 (Section 7.4,
+  ligne 459) dit "the primary graceful-degradation mechanism ... is therefore the
+  missingness indicator encoding and sample meta-dropout rather than q_meta
+  interpolation." Cette affirmation peut etre affaiblie si l'on reconnait que
+  les missingness indicators sont eux-memes masques quand les valeurs manquent.
+  VERDICT: La correction doit aller de pair avec une nuance dans la Discussion
+  Q3 pour eviter une contradiction entre la correction de Section 3.3 et
+  l'interpretation de Section 7.4.
+
+COH_05.4 -- Ajout de la deviation Group F dans les Limitations
+  Impact: Limites deja longues (9 points). Ajouter une phrase dans Limitation 7
+  est faisable sans incoherence nouvelle.
+
+COH_05.5 -- Correction +/-0.0003 -> +/-0.0002 pour da-none SEM
+  Impact: Si le SEM da-none est corrige de 0.0003 a 0.0002 dans Table 3,
+  la phrase de Section 6.1 qui dit "+0.0019 +/- 0.0003" doit aussi etre corrigee.
+  La Conclusion (b) ne cite pas de SEM. L'abstract ne cite pas le SEM.
+  VERDICT: Correction localisee, aucune incoherence globale.
+
+================================================================================
+SECTION C -- RESUME PASSE 05
+================================================================================
+
+NOUVELLES REMARQUES CRITURES (non dans passes 01-04):
+  P05C01 -- mask bits correction cascade: impact sur Discussion Q3 (robustesse)
+  P05C02 -- Group F statut "confirmatory" -> "descriptive": deviation non explicite
+             dans les Limitations (renforcement de la remarque PASS_01/M03)
+
+NOUVELLES REMARQUES MAJEURES:
+  P05M01 -- Seed-matching garantie: confirmer que set_seed() precede la creation
+             du DataLoader dans le code (appariement batch/dropout entre variantes)
+  P05M02 -- AUC surrogate asymetry: ECG head BCE only vs fused head BCE + LAUC;
+             cette asymetrie n'est pas discutee comme confounder dans Fig 6B
+  P05M03 -- dz=2.26 dans caption Fig 5 (nouvelle occurrence non couverte par PASS_01/M06)
+  P05M04 -- dz/gz correction cascade: modification globale coherente requise
+  P05M05 -- SEM da-none +/-0.0003 vs 0.0002: confirmation et correction necessaire
+
+NOUVELLES REMARQUES MODEREES:
+  P05Mo01 -- Zero-padding/truncation protocol non specifie dans Sec 3.5
+  P05Mo02 -- Mode "none": parametres encodeurs meta non mis a jour (clarification)
+  P05Mo03 -- SD da at epoch 10: "~0.001" devrait etre "0.0008-0.0012"
+  P05Mo04 -- Data Availability: asymetrie 10 vs 20 seeds dans Fig 4 non expliquee
+  P05Mo05 -- Group E reference: SD 0.0012 (10 seeds) vs 0.0013 (20 seeds) non expliquee
+
+NOUVELLES REMARQUES MINEURES:
+  P05Mi01 -- Titre "Superclass" ambigu pour public Mathematics (risque faible)
+  P05Mi02 -- Email Yahoo de l'auteur G (non-bloquant)
+  P05Mi03 -- Valeur exacte 2/2^20 = 1.9e-6 vs "2e-6" dans ligne 299
+  P05Mi04 -- Conclusion sans phrase finale de portee generale
+  P05Mi05 -- "SSL" dans abreviations mais absent du texte
+  P05Mi06 -- "Superclass" dans abreviations (pas une abreviation)
+
+REMARQUES CONFIRMANT DES CORRECTIONS REQUISES:
+  Toutes les corrections de PASS_01 a PASS_04 restent valables.
+  Les corrections les plus urgentes a effectuer simultanement:
+  (A) dz/gz: 7 valeurs a corriger (+ occurrence dans Fig 5 caption)
+  (B) mask bits Section 3.3: "always 1" -> "mirror availability"
+  (C) Group F: ajouter mention de la deviation dans Limitations
+  (D) SEM da-none: +/-0.0003 -> +/-0.0002
+  (E) Abstract: reduction a 200 mots
+  (F) Table S1: inclure dans les supplementary formels MDPI
+
+================================================================================
+FIN PASSE 05 -- STABILISATION
+================================================================================

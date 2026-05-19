@@ -1,0 +1,618 @@
+================================================================================
+EZNX-ATLAS-A — PASSE 01 : SCIENTIFIQUE & MÉTHODOLOGIQUE
+Reviewer hostile (statisticien + ML biomédical)
+Date : 2026-05-19
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ABSTRACT (lignes 82-83)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [ABSTRACT / ligne 82] — MAJEURE
+Observation: L'abstract cite "p_BH approx 0.009" pour demo-none. La valeur
+  réelle BH-ajustée calculée depuis le CSV est exactement 0.009436, ce qui
+  arrondi à 3 décimales donne 0.009. Cependant, l'abstract utilise le signe
+  "approx" (≈) alors que la valeur exacte BH n'est pas une p-valeur ajustée
+  classique mais la même que la p brute (car c'est la plus grande des 3 p-brutes,
+  donc BH = p_brute dans ce cas). Un reviewer statisticien remarquera que
+  p_BH = p_raw pour demo-none (BH step 3 sur 3), ce qui est une coïncidence
+  notable qui mérite une explication (ou au moins une note dans le texte principal).
+Risque reviewer: "Pourquoi p_BH ≈ p_raw ? Montrez le tableau de correction BH."
+Action recommandée: Dans le texte principal (section Statistical Analysis et
+  Table S1), ajouter le tableau BH explicite avec les 3 p-brutes, leurs rangs,
+  et les valeurs ajustées. Clarifier que pour la p la plus grande (demo-none),
+  BH = p_raw.
+---
+
+PASS_01 — [ABSTRACT / ligne 82] — MINEURE
+Observation: L'abstract annonce "p_BH < 0.001" pour da-none. La valeur réelle
+  BH-ajustée est 0.000029 (2.86e-5). Cette valeur est très inférieure à 0.001,
+  donc le claim est exact mais très conservateur. Un reviewer attentif notera
+  que la vraie valeur est 3 ordres de grandeur plus petite.
+Risque reviewer: Aucun risque critique; mais un reviewer scrupuleux pourrait
+  demander la valeur exacte dans le résumé (ou dans la table principale).
+Action recommandée: Garder "p_BH < 0.001" dans l'abstract (correct), mais
+  reporter la valeur exacte dans Table 3 (tab:main).
+---
+
+PASS_01 — [ABSTRACT / ligne 82] — MODÉRÉE
+Observation: L'abstract dit que le modèle a 3.95M paramètres mais ne mentionne
+  pas qu'il s'agit d'un modèle CPU-only. Un reviewer pourrait questionner la
+  pertinence de cette limitation pour l'applicabilité.
+Risque reviewer: "Le paper présente un modèle de 2026 entraîné sur CPU i5.
+  Pourquoi pas sur GPU ? Les résultats sont-ils reproductibles sur GPU ?"
+Action recommandée: Mentionner dans l'abstract ou l'introduction que le choix
+  CPU est délibéré pour garantir le déterminisme et la tractabilité des 250 runs.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 — INTRODUCTION (lignes 91-111)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [Sec 1 / ligne 94] — POINT FORT
+Observation: La citation de la littérature de référence (Hannun 2019, Ribeiro
+  2020, Attia 2019, Strodthoff 2021) est rigoureuse et bien ciblée. La
+  distinction entre modèles waveform-only et l'apport additionnel des métadonnées
+  est clairement articulée.
+---
+
+PASS_01 — [Sec 1 / ligne 95] — MAJEURE
+Observation: La phrase "our paper-by-paper audit (Tables~\ref{tab:prior_a}--
+  \ref{tab:prior_b}) found that these studies differ in task, dataset, and
+  metadata definition" est un claim méthodologique fort. Un reviewer hostile
+  demandera si l'audit est systématique (critères d'inclusion/exclusion,
+  protocole de recherche) ou opportuniste (studies "commodes").
+Risque reviewer: "L'audit est-il exhaustif ? Avez-vous effectué une recherche
+  bibliographique systématique ou sélectionné des études connues a priori ?"
+Action recommandée: Clarifier dans le texte que l'audit couvre les travaux
+  identifiés par les auteurs comme les plus proches du design étudié (PTB-XL +
+  métadonnées démographiques/anthropométriques), sans prétention d'exhaustivité
+  PRISMA. Ajouter une note de scope.
+---
+
+PASS_01 — [Sec 1 / ligne 109] — MODÉRÉE
+Observation: "macro-AUC loss ≈ 0.0014 under full anthropometric masking at
+  inference, converging to the demographics-only baseline" — ce résultat est
+  présenté dans l'Introduction, avant les méthodes. Un reviewer peut noter que
+  les résultats numériques dans l'Introduction sont inhabituels et font écho à
+  une section de résultats qui n'a pas encore été présentée.
+Risque reviewer: Confusion entre style d'introduction narrative et résumé
+  prématuré. Pas critique en soi.
+Action recommandée: Acceptable pour le style MDPI; mais vérifier que tous les
+  chiffres de l'Introduction correspondent exactement à ceux des sections
+  Résultats (cross-check OK d'après notre vérification).
+---
+
+PASS_01 — [Sec 1 / ligne 109] — MAJEURE
+Observation: L'introduction annonce que Group F montre que "fold 10 yields lower
+  absolute demo+anthro macro-AUC than four alternative folds". C'est vrai, mais
+  SEUL la variante demo+anthro est évaluée sur les folds alternatifs (aucune des
+  variantes none/demo ne l'est). Ce point crucial est clarifié dans la Limitation
+  7, mais dans l'Introduction, la nuance est absente. Un lecteur pourrait
+  interpréter cela comme "le fold 10 est plus difficile en général" alors que ce
+  n'est prouvé que pour demo+anthro.
+Risque reviewer: "Vous affirmez une fold-level difficulty sans avoir évalué toutes
+  les variantes sur les folds alternatifs. C'est une confounding issue."
+Action recommandée: Dans l'Introduction ligne 109, ajouter "(demo+anthro variant
+  only; none/demo not re-run on alternative folds)" après la mention de Group F.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — RELATED WORK (lignes 113-136)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [Sec 2.4 / ligne 127] — MAJEURE
+Observation: Le paper cite Holloway 2026 comme conférence SGAI avec Lecture Notes
+  in Computer Science volume 16302, doi 10.1007/978-3-031-87568-3. Ceci est le
+  DOI du volume complet, pas du chapitre individuel. La note dans la bibliographie
+  indique "chapter DOI available via Springer". Un reviewer demandera le DOI
+  du chapitre précis.
+Risque reviewer: "Le DOI donné pointe vers le volume entier. Quelle est la page
+  exacte et le DOI du chapitre ?"
+Action recommandée: Chercher et inclure le DOI du chapitre individuel (10.1007/
+  978-3-031-87568-3_36 ou similaire) ou confirmer l'URL Springer directe du
+  chapitre.
+---
+
+PASS_01 — [Sec 2.3 / ligne 124] — MINEURE
+Observation: TolerantECG (Nguyen2025) est cité comme "preprint arXiv:2507.09887".
+  L'arxiv ID 2507.xxxx indique un dépôt en juillet 2025. Si la soumission MDPI
+  se fait en mai 2026, ce preprint a potentiellement évolué ou été publié entre
+  temps. Un reviewer peut questionner la citation d'un preprint identifié en
+  2025 mais cité en 2025 dans un papier soumis en 2026.
+Risque reviewer: "Ce preprint est-il maintenant publié dans une revue ?"
+Action recommandée: Vérifier si Nguyen2025 a été publié et mettre à jour la
+  référence en conséquence, ou maintenir la mention "preprint" explicitement.
+---
+
+PASS_01 — [Sec 2.5 / ligne 130] — MODÉRÉE
+Observation: La description du GLU "h ⊙ σ(·)" est attribuée à Dauphin 2017
+  (NLP). Cependant, l'architecture dans ce papier n'est pas un GLU standard
+  (qui appliquerait un gate sur la moitié des features) mais une variante où
+  z = h ⊙ σ(Linear2(ReLU(Linear1(h)))). Le terme "GLU-style" est utilisé,
+  ce qui est acceptable, mais un reviewer spécialiste peut noter que ce n'est
+  pas un GLU au sens strict (pas de split des features).
+Risque reviewer: "Votre 'GLU-style gate' n'est pas un GLU standard (Dauphin
+  2017). Clarifiez la différence architecturale."
+Action recommandée: Ajouter "GLU-inspired" ou "GLU-like (gating applied to the
+  full concatenated embedding rather than splitting features)" dans la description
+  de l'architecture.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 — DATASET & PREPROCESSING (lignes 138-176)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [Sec 3.1 / ligne 143] — CRITIQUE
+Observation: Le manuscrit affirme "17,418 / 2,183 / 2,198 records, respectively
+  (Table 1). These fold counts sum to 21,799 records." La somme 17418+2183+2198
+  = 21799. Cependant, PTB-XL v1.0.3 contient officiellement 21799 entrées APRÈS
+  les suppressions de doublons documentées dans ses release notes. Le texte dit
+  "matching the current PhysioNet v1.0.3 release after the duplicate removals
+  documented in its release notes." Un reviewer peut vouloir voir les détails
+  exacts de ces suppressions (combien de doublons ont été retirés, dans quels
+  folds). Cette information n'est pas fournie dans le papier et peut être
+  impossible à tracer sans les notes de release originales.
+Risque reviewer: "Quelle est la source exacte de ces 21,799 records ? Les
+  release notes PTB-XL v1.0.3 documentent combien de suppressions ?"
+Action recommandée: Ajouter en note de bas de page ou dans le texte le lien vers
+  les release notes PTB-XL v1.0.3 sur PhysioNet et indiquer que ce sont les
+  mêmes folds officiels non modifiés.
+---
+
+PASS_01 — [Sec 3.3 / ligne 166] — MAJEURE
+Observation: La description de x_meta inclut 8 dimensions :
+  [age_z, sex01, height_z, weight_z, bmi_z, m_h, m_w, m_bmi]. Les trois
+  dernières (m_h, m_w, m_bmi) sont décrites comme "derived missingness flags set
+  to 1 if the corresponding anthropometric field is absent". Mais le manuscrit
+  note aussi "their mask bits are always 1" (pour les missingness indicators dans
+  le masque de disponibilité). Ceci crée une ambiguïté potentielle : les bits
+  de masque mask__miss_height etc. valent 1 systématiquement, ce qui signifie
+  que ces features "missingness indicator" sont toujours considérées disponibles.
+  Un reviewer statisticien peut questionner pourquoi des indicateurs de manque
+  ont des masques d'availability toujours à 1 (ils sont par définition "observés"
+  puisque ce sont des variables dérivées, non collectées).
+Risque reviewer: "Le masque d'availability pour les missingness indicators est
+  toujours 1, ce qui signifie que le modèle reçoit toujours de l'information sur
+  la disponibilité des anthropométriques. N'est-ce pas un data leakage partiel ?"
+Action recommandée: Clarifier explicitement que les missingness indicators
+  (m_h, m_w, m_bmi) sont des variables calculées (et non cliniquement observées),
+  donc leur masque d'availability = 1 est correct et ne constitue pas un leakage
+  car ils sont calculables à toute heure de déploiement.
+---
+
+PASS_01 — [Sec 3.4 / ligne 173] — MODÉRÉE
+Observation: Les pos_weights sont rapportés comme "[1.29, 2.98, 3.16, 3.46,
+  7.22], verified from the logged training outputs, computed dynamically." Ceci
+  est cohérent avec l'Eq. 2 et les prévalences de la Table 1 (NORM 43.6% →
+  (1-0.436)/0.436 ≈ 1.29, HYP 12.2% → (1-0.122)/0.122 ≈ 7.20 ≈ 7.22). La
+  cohérence est confirmée mais la valeur exacte de HYP est 7.20 vs 7.22 reporté.
+  La différence est dans la 2e décimale et peut refléter un arrondi des prévalences.
+Risque reviewer: "La pos_weight HYP serait 7.20 avec 12.2% prevalence, pas 7.22."
+Action recommandée: Vérifier la prévalence exacte de HYP (non arrondie à 12.2%)
+  depuis l'index réel, ou indiquer "approximately" devant les poids.
+---
+
+PASS_01 — [Sec 3.5 / ligne 176] — MINEURE
+Observation: L'augmentation stochastique (prob 0.5 puis chaque op à 0.3)
+  signifie qu'une augmentation se produit avec P=0.5*(1-(1-0.3)^3) ≈ 0.5*0.657
+  ≈ 0.33 pour au moins une transformation. La valeur attendue du nombre de
+  transformations par sample est 0.5*3*0.3 = 0.45. Cette probabilité est
+  relativement faible — un reviewer ML peut demander si l'augmentation est
+  suffisamment "forte" pour contribuer au regularization.
+Risque reviewer: "L'augmentation est très légère (P=0.5 pour l'ensemble du bloc;
+  chaque op à P=0.3 individuelle). Group D montre un effet -0.0014. Est-ce
+  suffisant pour expliquer l'effet observé ?"
+Action recommandée: Accepter tel quel — Group D est décrit comme exploratoire et
+  l'effet est lui-même petit. La description est correcte.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 — MODEL ARCHITECTURE (lignes 178-250)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [Sec 4.1 / ligne 192] — MODÉRÉE
+Observation: L'architecture ECG est décrite comme "three residual stages, each
+  with two residual blocks" avec channel schedule 64→64 (stride 1), 64→128
+  (stride 2), 128→256 (stride 2). La sortie est 256×T' avec T'=63 pour T=1000.
+  Vérifions: Conv1D(k=7, s=2, p=3) → T'=500; MaxPool(k=3, s=2, p=1) → T'=250;
+  layer1 (stride 1) → 250; layer2 (stride 2) → 125; layer3 (stride 2) → 63.
+  La valeur T'=63 est correcte.
+Risque reviewer: Aucun si la vérification est correcte.
+Action recommandée: RAS — valeur vérifiée correcte.
+---
+
+PASS_01 — [Sec 4.2 / ligne 200-204] — MAJEURE
+Observation: La description de l'encodeur de métadonnées dit "a 4-dim demographic
+  input (2 values + 2 availability bits)" et "a 12-dim anthropometric input
+  (6 values + 6 availability bits)". Mais x_meta a 8 dimensions TOTALES, et le
+  mask a 8 dimensions. La split demo = x_meta[:2] (age_z, sex01) avec mask[:2]
+  → input demo = [age_z, sex01, mask__age, mask__sex] = 4-dim. OK.
+  Pour anthro : x_meta[2:] = [height_z, weight_z, bmi_z, miss__height,
+  miss__weight, miss__bmi] = 6 valeurs, avec mask[2:] = 6 bits → input = 12-dim.
+  COHÉRENT avec le code (demo_value_dim=2, anthro_value_dim=3+3=6 dans la vraie
+  architecture via meta_dim=16, meta_value_dim=8, anthro_value_dim=6).
+  ATTENTION: le manuscrit dit meta_dim=8 pour x_meta mais le code utilise
+  meta_dim=16 (8 features + 8 mask bits). La description Eq. 1 montre
+  x_meta ∈ R^8 mais dans le code EZNX_ATLAS_A_v5, meta_dim=16 (default) et
+  x_meta reçoit 8 features, mpm reçoit 8 bits séparément.
+  En réalité le code reçoit x_meta (8 dim) et meta_present_mask (8 dim) séparément,
+  pas concatenés comme une seule entrée de 16 dims. La description dans le papier
+  est correcte : le loader retourne x_meta ∈ R^8 ET mpm ∈ R^8 séparément.
+Risque reviewer: Aucun risque critique.
+Action recommandée: RAS — architecture correctement décrite.
+---
+
+PASS_01 — [Sec 4.3 / ligne 212] — MAJEURE
+Observation: q_meta = min(1, q_d + 0.5*q_a). Le manuscrit dit "q_meta = 1 for
+  virtually all records in the demo and demo+anthro conditions (since q_d=1
+  implies q_d + 0.5*q_a ≥ 1)". C'est exact : si q_d=1 (age et sex tous deux
+  présents), alors q_meta ≥ 1.0 → clamped à 1. Cela signifie que q_meta n'offre
+  PAS de gradient doux entre none et demo+anthro — c'est un gate binaire.
+  Le manuscrit l'admet ("q_meta acts mainly as a hard gate"). Cependant, si le
+  paper prétend une "quality-gated fusion" et que le gate est quasi-binaire,
+  l'apport de q_meta est limité par rapport à ce que suggère sa description.
+Risque reviewer: "La 'quality-gated fusion' est en réalité un gate binaire pour
+  PTB-XL. L'utilité de q_meta comme mécanisme de dégradation progressive est
+  limitée à des scénarios où age ET sex sont absents simultanément — ce qui
+  n'arrive pas dans PTB-XL."
+Action recommandée: Ce point est déjà reconnu dans le texte ("Note that q_meta
+  acts primarily as an all-or-no-metadata gate in PTB-XL"). Le manuscrit est
+  honnête. Vérifier que cette nuance est répétée dans la Discussion (Sec 6.3)
+  — elle l'est. RAS (honnêteté appréciée).
+---
+
+PASS_01 — [Sec 4.7 / ligne 250] — MAJEURE
+Observation: "The total is 3.95M trainable parameters: 0.96M in the ECG backbone,
+  0.06M in the dual metadata encoders and metadata-fusion MLP, 2.66M in the GLU
+  fusion gate, 0.26M in the two metadata-to-ECG residual projections..."
+  Vérification rapide du GLU gate : Linear(1152→1152) + Linear(1152→1152) =
+  2×(1152×1152 + 1152) ≈ 2×(1327104 + 1152) ≈ 2.66M. CORRECT.
+  Residual projections : W_res (1024×128 = 131072) + W_addon (1024×128 = 131072)
+  + biases (128+128=256) ≈ 262400 ≈ 0.26M. CORRECT.
+  Total : 0.96 + 0.06 + 2.66 + 0.26 + 0.0115 ≈ 3.95M. COHÉRENT.
+Risque reviewer: Aucun problème de cohérence détecté.
+Action recommandée: RAS.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 — TRAINING PROTOCOL (lignes 253-337)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [Sec 5.1 / ligne 260-266] — CRITIQUE
+Observation: Les loss weights sont annoncés comme 0.52/0.30/0.10/0.08.
+  MAIS dans le code (atlas_a_v5_multiseed_v2.py, lignes 688-695) :
+    fused_w = max(0.0, 0.60 - lauc_w)  → 0.60 - 0.08 = 0.52
+    ecg_w = 0.30
+    meta_w = 0.10
+    lauc_w = 0.08
+    total_w = 0.52 + 0.30 + 0.10 + 0.08 = 1.00
+    Puis les poids sont NORMALISÉS : fused_w /= total_w, etc.
+  Donc les poids RÉELS dans le code sont : fused=0.52/1.00=0.52, ecg=0.30/1.00=0.30,
+  meta=0.10/1.00=0.10, lauc=0.08/1.00=0.08. Comme total = 1.0, la normalisation
+  est sans effet pour la configuration de référence. MAIS le manuscrit dit
+  "effective total < 1.00 when q_meta < 1" (note dans Table 2 hparams). Ceci est
+  vrai car le terme meta est multiplié par meta_quality dans le training loop.
+  Le texte dans l'Eq. 5 montre "0.10 * q_meta * BCE(logits_meta, y)" ce qui est
+  cohérent avec le code (ligne 741-744 : meta_loss = weighted BCE * meta_quality_w,
+  puis meta_w * meta_loss).
+  DONC : les poids nominaux 0.52/0.30/0.10/0.08 dans le manuscrit sont corrects
+  pour la référence (q_meta≈1 pour la quasi-totalité des samples), mais la
+  normalisation du code (division par total_w) signifie que pour Group C avec
+  lauc_w ≠ 0.08, les poids sont renormalisés. Cette renormalisation n'est pas
+  mentionnée dans le texte principal — elle est implicite dans la note "(effective
+  total < 1.00 when q_meta < 1)".
+Risque reviewer: "Vos loss weights sont renormalisés selon la valeur de lauc_w
+  en Group C. Ceci change implicitement ecg_w et meta_w quand lauc_w varie.
+  Ce n'est pas clairement décrit dans le texte principal."
+Action recommandée: Ajouter dans la description de Group C (Sec 5.3, ligne 293)
+  une note expliquant que la normalisation (division par total_w) est appliquée
+  afin de maintenir un total des poids normalisé, et que pour lauc_w=0.08 de
+  référence, total_w=1.0 donc les poids nominaux sont exacts.
+---
+
+PASS_01 — [Sec 5.3 / ligne 291] — MODÉRÉE
+Observation: "Wall-clock time totalled 48.2h (median 43.8min/run; range
+  [43.1, 303.5]min, the high value reflecting a transient CPU throttle at epoch 5
+  with no effect on convergence)." Le run avec 303.5 min (≈5h) est très atypique
+  (≈7× la médiane). Un reviewer hostile questionnera si ce run extrême peut avoir
+  introduit des artefacts numériques (p.ex. différents états du batch accumulation
+  ou des timeouts de threads).
+Risque reviewer: "Un run 7× plus long que la médiane pourrait indiquer un
+  problème de reproductibilité. Comment confirmez-vous que ce run n'est pas
+  contaminé par une instabilité numérique ?"
+Action recommandée: Indiquer dans le texte que le run anormal a été validé
+  individuellement (sa macro-AUC est dans la plage normale des autres seeds) et
+  que le comportement de l'entraînement a été confirmé convergent. Si possible,
+  citer le seed exact et sa valeur de macro-AUC.
+---
+
+PASS_01 — [Sec 5.4 / ligne 286] — MAJEURE
+Observation: L'analyse plan décrit Group F comme "CONFIRMATORY (generalization
+  check)" mais le manuscrit le décrit comme "Group F (multi-split absolute-
+  performance check, 20 runs)". La qualification "confirmatory" est absente
+  dans le manuscrit pour Group F — il est présenté comme descriptif. Un reviewer
+  peut attaquer cette incohérence entre le plan d'analyse et le manuscrit.
+Risque reviewer: "Votre plan pré-déclaré dit que Group F est 'CONFIRMATORY
+  (generalization check)' mais le manuscrit le qualifie systématiquement de
+  'descriptive only'. C'est une divergence entre plan et rapport."
+Action recommandée: Le manuscrit est en réalité plus prudent que le plan (ce qui
+  est conservateur et défendable). Soit (1) aligner le plan et le manuscript en
+  changeant "confirmatory" dans le plan en "generalization check (descriptive)",
+  soit (2) expliquer dans le manuscrit pourquoi Group F est traité descriptif
+  malgré sa désignation confirmatory dans le plan (principalement à cause du
+  caveat de normalisation/dépendance).
+---
+
+PASS_01 — [Sec 5.4 / ligne 299] — POINT FORT
+Observation: La justification de 20 seeds (section seeds/runs/compute) est
+  rigoureuse : référence à Bouthillier 2021 et Dodge 2019, calcul du minimum
+  p-value atteignable (2/2^20 ≈ 1.9e-6), et justification basée sur les effect
+  sizes observés (dz=0.64 pour demo-none). Cette section est un point fort du
+  papier du point de vue méthodologique.
+---
+
+PASS_01 — [Sec 5.6 / ligne 323-324] — CRITIQUE
+Observation: Le manuscrit dit que le Wilcoxon est implémenté avec scipy
+  "zero_method='wilcox', correction=False, exact p-values for n≤25". Mais l'analyse
+  plan spécifie: "method='approx' with continuity_correction=True if ties or
+  zero differences present". La vérification statistique montre que la diff
+  demo-none a n_pos=16/20 (4 négatifs et 0 zero). La diff da-none a 19/20 positifs
+  (1 négatif, 0 zero). La diff da-demo a 16/20 (4 négatifs, 0 zero).
+  DONC: aucun zero_difference → method='exact' (wilcox) est correct et conforme
+  à l'analyse plan (le plan dit "exact if n≤25 and no zero differences"). RAS.
+Risque reviewer: Aucun si la vérification est faite.
+Action recommandée: Confirmer dans le supplementary que tous les pairwise diffs
+  sont non-zéro (aucun seed n'a exactement la même AUC entre variantes).
+---
+
+PASS_01 — [Sec 5.6 / ligne 330] — MAJEURE
+Observation: "As a secondary, post-hoc analysis, BH-FDR correction is additionally
+  applied within the 5-test sub-family of per-class DA−NONE Wilcoxon tests."
+  Le texte précise bien "not pre-specified" et "serves descriptive purposes only."
+  CEPENDANT, le résultat (STTC p_BH=0.00035) est cité dans l'abstract et les
+  conclusions comme une finding confirmée. Le fait de présenter un résultat
+  post-hoc BH-corrigé dans l'abstract sans mentionner qu'il est post-hoc crée
+  une asymétrie d'information pour les lecteurs superficiels.
+Risque reviewer: "STTC p_BH=0.00035 est présenté dans l'abstract comme un
+  résultat BH-significatif, mais la BH-correction per-class est post-hoc.
+  L'abstract ne qualifie pas ce résultat comme post-hoc."
+Action recommandée: Dans l'abstract, ajouter "(post-hoc, descriptive)" après
+  la mention du résultat STTC, ou limiter l'abstract aux résultats macro-AUC
+  confirmatory et mentionner les per-class findings de manière plus qualitative.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6 — RESULTS (lignes 340-399)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [Sec 6.1 / ligne 347] — MAJEURE
+Observation: "The demo-none difference is +0.0007 ± 0.0002 macro-AUC". La vérif
+  numérique montre que la SD des différences est 0.0010, et le SEM est 0.0002.
+  La notation "± 0.0002" représente le SEM (standard error of the mean) et non
+  la SD. Le header de Table 3 dit "average within-seed difference ± SEM" — donc
+  la table est correctement labelée. Mais dans le texte narratif des sections
+  Résultats et Conclusions, le "± 0.0002" pourrait être confondu avec la SD par
+  un lecteur inattentif. La notation standard pour les différences serait mean ±
+  SD pour les effets aléatoires et mean ± SEM pour les effets fixes.
+Risque reviewer: "Table 3 utilise ±SEM pour les pairwise differences, mais les
+  mains résultats de performance (Tableau 3 première partie) utilisent ±SD.
+  L'hétérogénéité des notations ±SD vs ±SEM dans la même table est source de
+  confusion."
+Action recommandée: Dans le texte narratif (lignes 347-348), expliciter "(SEM)"
+  après "± 0.0002" pour clarifier. Vérifier que Table 3 indique clairement
+  dans son header "±SEM" pour les differences et "±SD" pour les means absolus.
+  Ajouter une note de bas de table si nécessaire.
+---
+
+PASS_01 — [Sec 6.1 / ligne 347] — MAJEURE
+Observation: Les valeurs de Cohen dz reportées dans le manuscrit ne correspondent
+  pas exactement aux valeurs calculées depuis le CSV :
+  - demo-none : manuscrit dz=0.64, calculé dz=0.654 (arrondi à 0.65)
+  - da-none   : manuscrit dz=1.65, calculé dz=1.692 (arrondi à 1.69)
+  - da-demo   : manuscrit dz=0.95, calculé dz=0.973 (arrondi à 0.97)
+  Ces discordances dans la deuxième décimale semblent provenir d'un arrondi
+  différent (probablement à 2 décimales après arrondi de la SD au dernier digit).
+  La différence est faible mais un reviewer statisticien calculant dz à partir
+  des chiffres reportés (mean=0.0007, SD=0.0010) obtient 0.70, pas 0.64.
+  NOTE: le problème est que le manuscrit rapporte SD=0.0002 dans le texte, qui
+  est en réalité le SEM (0.0002 = 0.0010/sqrt(20)). Si un reviewer calcule dz
+  = 0.0007/0.0002 = 3.5 (ce qui est faux), il y a une incohérence apparente.
+  Si au contraire le reader utilise la SD réelle des différences (0.0010), il
+  obtient dz=0.70. Le chiffre 0.64 dans le manuscrit correspond à une SD=0.0011
+  (0.0007/0.0011=0.636≈0.64). Ceci correspond à la SD des différences calculée
+  avec ddof=1 (0.0010 avec ddof=0 vs ~0.0010 avec ddof=1 = identique ici).
+  BILAN: la valeur dz=0.64 semble calculée avec la SD arrondie différemment.
+Risque reviewer: "Votre dz ne se recalcule pas à partir des chiffres reportés."
+Action recommandée: Reporter les valeurs dz calculées exactement depuis les
+  données raw (dz=0.65 pour demo-none, dz=1.69 pour da-none, dz=0.97 pour
+  da-demo), et aligner gz en conséquence (gz=0.63, 1.62, 0.93). Ou bien garder
+  les valeurs actuelles et ajouter dans le supplémentaire le tableau des diffs
+  individuelles permettant de recalculer.
+---
+
+PASS_01 — [Sec 6.2 / ligne 350] — MAJEURE
+Observation: "HYP shows no statistically significant gain (+0.0004, p_BH=0.648)".
+  Le manuscrit indique ensuite que CD et HYP "share the same BH-adjusted p
+  (0.648) because the BH step-down monotonicity rule reduces HYP's initial
+  adjustment (0.745) to match CD's." La valeur 0.745 pour HYP n'est pas montrée
+  dans la table — uniquement 0.648. Un reviewer peut vouloir voir les 5 p-brutes
+  et leurs BH-ajustés dans le supplementary (Table S1).
+Risque reviewer: Aucun critique si Table S1 est dans le supplémentaire.
+Action recommandée: S'assurer que Table S1 dans le supplementary inclut
+  les 5 p-brutes et BH-ajustées per-class.
+---
+
+PASS_01 — [Sec 6.2 / ligne 350] — MODÉRÉE
+Observation: "MI effect has the largest absolute delta (+0.0058) and a strong
+  dz=2.26". Vérifié : delta MI = 0.0058, dz=2.32 calculé vs 2.26 reporté. Même
+  problème d'arrondi que pour les macro-AUC dz.
+Risque reviewer: Discordance dz MI : 2.26 manuscrit vs 2.32 calculé.
+Action recommandée: Corriger dz=2.26 → dz=2.32 (ou ajouter note sur méthode
+  d'arrondi utilisée).
+---
+
+PASS_01 — [Sec 6.4 / ligne 358] — MODÉRÉE
+Observation: "The empirical masking curve is evaluated on the demo+anthro variant
+  across 10 seeds (seeds 2024-2033)". Le choix de seulement 10 seeds (la moitié
+  des 20 seeds de Group A) pour la courbe de robustesse n'est pas justifié dans
+  le papier. Est-ce un sous-ensemble pré-déclaré dans l'analyse plan ?
+Risque reviewer: "Pourquoi 10 seeds pour la courbe de robustesse et non 20 ?"
+Action recommandée: Vérifier dans l'analysis_plan si 10 seeds est pré-déclaré.
+  L'analysis plan section 8 dit "MCAR missingness robustness: macro-AUC at
+  0/25/50/75/100% missingness (20 seeds)" — OR le manuscrit utilise 10 seeds.
+  DISCORDANCE avec l'analysis plan. Justifier ou corriger.
+---
+
+PASS_01 — [Sec 6.5 / ligne 361] — MINEURE
+Observation: "the fused branch consistently outperforms the ECG-only auxiliary
+  head for all 20 of 20 seeds" for demo+anthro. Cette comparaison est entre
+  la tête fused (entraînée multi-task) et la tête ECG-only auxiliaire (entraînée
+  conjointement dans le modèle multimodal). Ce n'est PAS la même chose que
+  comparer avec un modèle ECG-only entraîné indépendamment (la variante "none").
+  Le manuscrit le signale en note ("the ECG auxiliary head is trained jointly
+  inside the multimodal model, not as an independent ECG-only baseline"), mais
+  la présentation dans la Figure 6B peut induire en erreur.
+Risque reviewer: "Le gap fused-ECG pour demo+anthro pourrait refléter le fait
+  que la tête ECG est pénalisée dans l'entraînement multimodal (meta pathway
+  'steals' gradient). Ce n'est pas une mesure propre de l'apport de la fusion."
+Action recommandée: Ajouter dans la légende de Fig 6B et dans le texte que la
+  comparaison fused vs ECG-auxiliary est interne au modèle multimodal et ne doit
+  pas être interprétée comme la baseline independante (qui est la variante "none").
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 7 — DISCUSSION (lignes 443-491)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [Sec 7 / ligne 447] — POINT FORT
+Observation: La section Discussion répond rigoureusement aux 6 questions posées
+  dans l'Introduction (Q1-Q6) avec des renvois explicites et des qualificatifs
+  appropriés (exploratory, confirmatory, descriptive). La distinction entre
+  effets causaux et associations est maintenue tout au long.
+---
+
+PASS_01 — [Sec 7.1 / ligne 447] — MODÉRÉE
+Observation: "a residual increment not fully captured by the ECG-only model
+  remains detectable with 20 paired seeds. The incremental anthropometric gain
+  beyond demographics is larger and more significant." L'argument de Attia 2019
+  (sex AUC 0.97, age MAE 6.9y from ECG alone) est utilisé pour expliquer POURQUOI
+  le gain demo est petit (le signal est déjà dans le waveform). Cependant, si le
+  signal demo est quasi-complètement dans le waveform, l'architecture residual
+  injection de ECG vers metadata ne devrait créer qu'un très petit bénéfice.
+  L'interprétation est plausible mais non-causal (correct).
+Risque reviewer: "Si age et sex sont récupérables depuis l'ECG avec une haute
+  précision (Attia 2019), pourquoi ajouter ces features explicitement améliore
+  les performances ?"
+Action recommandée: Ajouter un paragraphe expliquant que même si age/sex sont
+  récupérables depuis l'ECG, les fournir explicitement peut réduire le bruit
+  de récupération (erreur d'estimation) et permettre au modèle de se concentrer
+  sur d'autres patterns. C'est une hypothèse mechanistique, à présenter comme telle.
+---
+
+PASS_01 — [Sec 7.8 / ligne 479-490] — POINT FORT
+Observation: La section Limitations est exceptionnellement honnête (9 limitations),
+  incluant la limitation critique que certaines analyses pré-déclarées ne sont
+  PAS dans le papier principal (Limitation 8 : classical baselines, post-hoc
+  metadata decomposition, per-class AUPRC, calibration metrics, subgroup AUC).
+  Cette transparence est rare et méritoire.
+---
+
+PASS_01 — [Sec 7.8 / Limitation 8 / ligne 489] — MAJEURE
+Observation: La Limitation 8 dit que les analyses pré-déclarées non-reportées
+  "reflect scope decisions made before examining results; results and/or
+  justifications are available upon request." MAIS, un reviewer hostile notera
+  que si les résultats existent (puisque des justifications sont disponibles),
+  les montrer dans un supplementary serait plus transparent que "on demande".
+  MDPI peut exiger que les analyses pré-spécifiées soient reportées, même en
+  supplementary.
+Risque reviewer: "Vous avez pré-spécifié des analyses qui ne sont pas dans le
+  papier. 'Available upon request' n'est pas conforme aux standards de
+  reproductibilité modernes."
+Action recommandée: Inclure dans le GitHub public les résultats des analyses
+  pré-déclarées non reportées (baselines LR/XGBoost, per-class AUPRC, calibration
+  Brier/ECE). Faire référence à ces résultats depuis l'article.
+---
+
+PASS_01 — [Sec 7.8 / Limitation 6 / ligne 487] — MODÉRÉE
+Observation: "The ECG signal division by 5.0 is applied in the training collate
+  functions... rather than in the dataset loader; the source snapshot loader
+  applies this division standalone for self-consistency." Ceci est correctement
+  documenté et potentiellement confus pour les reproducteurs. La mention est
+  appropriée mais devrait inclure un warning explicite sur le risque de double-
+  scaling si quelqu'un utilise le loader avec un collate custom.
+Risque reviewer: Si quelqu'un reproduit sans lire cette note, il peut doubler
+  la normalisation.
+Action recommandée: Ajouter un assert ou un avertissement dans eznx_loader_v2.py
+  (version snapshot) signalant que /5.0 n'est PAS appliqué dans __getitem__ mais
+  doit l'être dans le collate.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 8 — CONCLUSIONS (lignes 493-510)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_01 — [Sec 8 / ligne 503] — MODÉRÉE
+Observation: "Note that q_meta acts primarily as an all-or-no-metadata gate in
+  PTB-XL; the observed robustness is mainly attributable to the missingness
+  indicator encoding and meta-dropout." Cette phrase dans les Conclusions est
+  une admission importante qui potentiellement affaiblit le claim de l'architecture
+  "availability-aware". Si q_meta n'est qu'un gate binaire et que la vraie
+  robustesse vient des missingness indicators et du meta-dropout, la novauté
+  architecturale de q_meta est discutable.
+Risque reviewer: "Votre contribution architecturale 'quality-gated fusion' est
+  mineure car q_meta est binaire en pratique. Les missingness indicators dans
+  x_meta font le vrai travail."
+Action recommandée: Renforcer la distinction dans l'Introduction/Architecture :
+  le mécanisme de robustesse est double (q_meta pour le gate all/none; missingness
+  indicators pour la dégradation progressive intrabranch). Les deux sont
+  nécessaires et complémentaires.
+---
+
+PASS_01 — [Sec 8 / ligne 500-501] — MAJEURE
+Observation: Conclusion (b) dit "provides an additional highly significant gain
+  of +0.0012 over demographics (p_BH ≈ 0.001), for a total full-metadata gain of
+  +0.0019 over ECG alone (p_BH < 0.001, 95% CI [0.0014, 0.0023])". La BH pour
+  da-demo est 0.000878 (calculée), ce qui est << 0.001. Donc p_BH "≈ 0.001" est
+  correct comme approximation.
+Risque reviewer: Aucun (valeur correcte).
+Action recommandée: RAS.
+---
+
+================================================================================
+RÉSUMÉ PASSE 01 — Remarques par catégorie
+================================================================================
+
+CRITIQUES (3):
+  C01 — Loss weights normalisés dans le code vs nominal dans le texte (non mentionné)
+  C02 — Fold count (21,799) cité sans référence précise aux release notes PTB-XL
+  C03 — Discordance analysis_plan (missingness: 20 seeds) vs manuscrit (10 seeds)
+
+MAJEURES (12):
+  M01 — p_BH = p_raw pour demo-none : coïncidence statistique non expliquée
+  M02 — Audit littérature non systématique (non PRISMA)
+  M03 — Group F qualifié "confirmatory" dans plan mais "descriptive" dans manuscrit
+  M04 — Résultats per-class post-hoc présentés sans label "post-hoc" dans l'abstract
+  M05 — Cohen dz discordants (0.64 vs 0.65 calculé; 1.65 vs 1.69; 0.95 vs 0.97)
+  M06 — dz MI : 2.26 manuscrit vs 2.32 calculé
+  M07 — ±0.0002 dans texte = SEM pas SD : hétérogénéité des notations
+  M08 — Group F seule variante da est évaluée : difficile généralisation fold
+  M09 — Limitations 8 (pré-déclarées non reportées) → mettre en supplementary
+  M10 — Holloway 2026 DOI est le volume, pas le chapitre
+  M11 — Interprétation Fig 6B (fused vs ECG-aux) peut induire en erreur
+  M12 — q_meta gate binaire : novauté architecturale limitée (non reconnu dans intro)
+
+MODÉRÉES (7):
+  Mo01 — TolerantECG (2507.09887) potentiellement publiée entre arxiv et soumission
+  Mo02 — GLU description vs GLU strict (split features)
+  Mo03 — Pos_weight HYP 7.22 vs 7.20 calculé (arrondi)
+  Mo04 — Run anormal 303.5 min sans validation individuelle
+  Mo05 — Augmentation légère vs effet Group D
+  Mo06 — Argument mechanistique age/sex récupérable vs gain mesuré
+  Mo07 — /5.0 warning absent dans loader snapshot
+
+MINEURES (3):
+  Mi01 — Abstract p_BH da-none très conservateur ("< 0.001" vs 2.9e-5 réel)
+  Mi02 — Nuance Group F intro absente (demo+anthro seulement)
+  Mi03 — Style résultats numériques dans l'Introduction
+================================================================================

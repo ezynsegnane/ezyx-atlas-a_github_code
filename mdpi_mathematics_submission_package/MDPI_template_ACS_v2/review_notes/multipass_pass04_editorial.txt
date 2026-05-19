@@ -1,0 +1,471 @@
+================================================================================
+EZNX-ATLAS-A — PASSE 04 : EDITORIAL, MDPI, RÉFÉRENCES, LISIBILITÉ
+Reviewer hostile (Éditeur MDPI Mathematics)
+Date : 2026-05-19
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ABSTRACT — DENSITÉ ET LONGUEUR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [ABSTRACT / ligne 82] — MAJEURE
+Observation: L'abstract contient environ 330 mots. MDPI Mathematics accepte
+  des abstracts jusqu'à 200 mots environ (les guidelines MDPI recommandent
+  "concise, factual abstract" de 200 mots maximum). Cet abstract est environ
+  65% trop long.
+  Il contient des chiffres en quantité excessive (10+ valeurs numériques avec
+  intervalles de confiance, p-values, deltas, etc.) qui sont plus appropriés
+  pour le corps du texte que pour un abstract.
+Risque reviewer: "L'abstract est trop long et trop dense. Réduisez à 200 mots."
+Action recommandée: Réduire l'abstract à 200 mots en conservant :
+  (1) L'objectif (mesurer l'apport incrémental des métadonnées sur PTB-XL)
+  (2) La méthodologie clé (20 seeds, 250 runs, Wilcoxon + BH)
+  (3) Deux résultats principaux (demo: +0.0007, da: +0.0019 macro-AUC, BH-sig)
+  (4) La conclusion (baseline reproductible, effets petits mais significatifs)
+  Supprimer les détails des Groups B-F et les p-values individuelles de l'abstract.
+---
+
+PASS_04 — [ABSTRACT / ligne 82] — MINEURE
+Observation: L'abstract mentionne "pre-declared 3-test family" et des détails
+  techniques (GLU-style late fusion, explicit metadata-availability score) qui
+  peuvent perdre un lecteur non-spécialiste. Pour MDPI Mathematics (audience
+  mixte mathématiciens + ingénieurs), l'abstract devrait être plus accessible.
+Risque reviewer: "L'abstract est trop technique pour attirer des lecteurs
+  en dehors de l'ECG/ML spécialisé."
+Action recommandée: Dans la version réduite, utiliser un langage plus accessible :
+  "a statistically rigorous seed-matched framework" plutôt que les détails
+  de l'implémentation Wilcoxon.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INTRODUCTION — FIT AVEC MDPI MATHEMATICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Sec 1 / ligne 110] — MINEURE
+Observation: La justification du fit avec MDPI Mathematics est présentée dans
+  la Section 5.7 (Methodological contribution and fit with Mathematics) plutôt
+  que dans l'Introduction. Un éditeur MDPI peut préférer une mention dans
+  l'Introduction (ou au moins dans l'abstract) de pourquoi ce papier convient
+  à une revue de mathématiques plutôt qu'à une revue biomédicale ou ML.
+Risque reviewer: "Ce travail est plus un papier d'ingénierie ML qu'un papier
+  mathématique. Justifiez le fit avec Mathematics."
+Action recommandée: Ajouter 1-2 phrases dans la fin de l'Introduction rappelant
+  que la contribution principale au public Mathematics est le pipeline statistique
+  (Wilcoxon + BH + bootstrap pour ablations multimodal-ML), pas l'application
+  ECG spécifique.
+---
+
+PASS_04 — [MSC codes / ligne 86] — MINEURE
+Observation: MSC codes : 68T07 (Learning in stochastic systems), 68T45 (Machine
+  vision), 62P10 (Biostatistics), 62G10 (Non-parametric inference), 92C55
+  (Biomedical imaging). Le code 68T45 (Machine vision) est discutable pour un
+  papier sur signaux 1D ECG. 68T07 ou 68T10 (AI/ML in general) serait plus
+  approprié. De plus, 62G10 est le code le plus pertinent pour les méthodes
+  statistiques non-paramétriques.
+Risque reviewer: "MSC 68T45 (Machine vision) n'est pas approprié pour l'ECG."
+Action recommandée: Remplacer 68T45 par 68T10 (Pattern recognition in machine
+  learning) ou 92C50 (Medical applications of mathematics in biology and medicine).
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TITRES DE SECTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Titres / Section 4] — MINEURE
+Observation: "Section 4 : Model Architecture: EZNX-ATLAS-A" — le titre répète
+  le nom du modèle déjà dans le titre du papier. Une reformulation plus
+  informationnelle serait "Quality-Gated Dual-Branch Architecture" ou similaire.
+  En soi pas critique.
+---
+
+PASS_04 — [Titres / Section 7.2] — MINEURE
+Observation: "Q2 — which class benefits from which metadata? The MI/STTC/NORM
+  finding" — ce titre de subsection est très long et informel. Pour MDPI,
+  un format plus compact serait préféré.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TABLES — LISIBILITÉ ET CAPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Table 3 / tab:main] — MAJEURE
+Observation: Table 3 est la table principale des résultats. Elle utilise
+  \resizebox{\textwidth}{!}{...} pour entrer dans la largeur. Cela signifie que
+  les polices des cellules peuvent devenir très petites. Dans la version PDF MDPI,
+  cela peut nuire à la lisibilité en impression.
+  De plus, la table contient à la fois des moyennes/SDs et des statistiques
+  de comparaison dans le même tableau avec un formatage complexe (multi-colonnes).
+  Un reviewer/éditeur peut demander deux tables séparées.
+Risque reviewer: "La Table 3 est difficile à lire. Séparez les résultats
+  descriptifs des statistiques de comparaison en deux tables."
+Action recommandée: Soit garder la table unifiée (plus informative) avec une
+  police minimum ≥8pt garantie, soit scinder en Table 3a (AUC/F1) et Table 3b
+  (comparaisons).
+---
+
+PASS_04 — [Table 3 / caption] — MODÉRÉE
+Observation: La caption de Table 3 est très longue (3 lignes) et contient des
+  explications qui devraient être dans le texte. MDPI préfère des captions
+  concises "standalone" mais pas excessive.
+Action recommandée: Réduire la caption à 2 lignes maximum et reporter les
+  détails dans le texte.
+---
+
+PASS_04 — [Table 7 / tab:group_f] — MODÉRÉE
+Observation: Table 7 (Group F) montre seulement 4 lignes de données + 1 référence.
+  Le caveat de normalisation dans la caption est long (3 phrases). Pour MDPI,
+  soit une footnote courte avec dagger (†), soit un renvoi à la section
+  Limitations serait plus élégant.
+---
+
+PASS_04 — [Tables prior_a/prior_b / lisibilité] — MINEURE
+Observation: Les Tables 5 et 6 (tab:prior_a et tab:prior_b) utilisent scriptsize
+  et setlength\tabcolsep=3pt. En impression, les colonnes "Audited setting" et
+  "Metadata / fusion" seront difficiles à lire. Ces tables sont comparatives
+  et importantes pour l'argumentation du papier.
+Risque reviewer: "Les tables de comparaison sont illisibles à la taille normale."
+Action recommandée: Envisager des tables sur une colonne entière (landscape) ou
+  fusionner en une seule table plus structurée avec des en-têtes claires.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FIGURES — CAPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Fig 1 / fig:arch] — MODÉRÉE
+Observation: La caption de Fig 1 est longue (4 phrases) et technique. Elle
+  contient l'information sur W_addon (ablation E3) qui est marginale pour
+  la compréhension de l'architecture de référence. Un lecteur de l'architecture
+  doit d'abord comprendre le modèle standard, puis les ablations.
+Risque reviewer: "La caption de Fig 1 inclut des détails d'ablation qui
+  obscurcissent l'architecture principale."
+Action recommandée: Simplifier la caption de Fig 1 pour se concentrer sur
+  l'architecture de référence. Mentionner W_addon en note de bas de figure.
+---
+
+PASS_04 — [Fig 3 / fig:delta] — POINT FORT
+Observation: La caption de Fig 3 précise clairement le statut des asterisques
+  (p_BH corrigé vs p_raw exploratoire) avec le code couleur. Ceci est exemplaire.
+---
+
+PASS_04 — [Fig 4 / fig:missing] — MAJEURE
+Observation: La caption de Fig 4 dit "evaluated across 10 seeds (seeds 2024-2033)"
+  mais l'analysis plan pré-déclaré spécifie 20 seeds. La déviation est inscrite
+  dans la caption (honnête) mais le lecteur peut se demander pourquoi.
+Risque reviewer: "Pourquoi 10 seeds dans Fig 4 et non 20 comme pré-déclaré ?"
+Action recommandée: Ajouter dans la caption : "(10 seeds used for computational
+  efficiency; pre-declared plan specified 20 seeds — see Limitation discussion)."
+  Et ajouter cette déviation dans la section Limitations.
+---
+
+PASS_04 — [Fig 5 / fig:heat] — MODÉRÉE
+Observation: La caption de Fig 5 mentionne "colormap is normalised within each
+  class column so that within-class variant differences are perceptually visible."
+  Ceci est important pour l'interprétation mais peut être trompeur : les
+  différences absolu entre classes ne sont pas comparables visuellement si chaque
+  colonne a sa propre normalisation.
+Risque reviewer: "La normalisation par colonne dans Fig 5A peut induire en erreur
+  un lecteur qui compare les AUC absolus entre classes."
+Action recommandée: Ajouter une note dans la caption : "Note: colormap
+  normalisation is per-column (within-class) and does not allow between-class
+  AUC comparisons from colour alone."
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RÉFÉRENCES — PRÉSENCE DANS BIBLIOGRAPHY.BIB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Citations] — POINT FORT
+Observation: Vérification systématique de toutes les \cite{} dans main_en.tex
+  contre bibliography.bib :
+  Wagner2020 ✓, PTBXLv103 ✓, Goldberger2000 ✓, Strodthoff2021 ✓, Hannun2019 ✓,
+  Ribeiro2020 ✓, Attia2019LV ✓, Siontis2021 ✓, Mehari2022 ✓, Weimann2025 ✓,
+  Coppola2024 ✓, Nguyen2025 ✓, Qiu2024 ✓, Srivastava2025 ✓, Atwa2025 ✓,
+  Holloway2026 ✓, Strodthoff2023PTBXLPlus ✓, Nonaka2021 ✓, Smigiel2021 ✓,
+  Palczynski2022 ✓, Kiyasseh2021 ✓, Na2024 ✓, Dauphin2017 ✓, Arevalo2020 ✓,
+  Chen2019MICCAI ✓, Kim2018ACCV ✓, Baltrusaitis2019 ✓, Havaei2016 ✓, Ma2021 ✓,
+  Zhang2022 ✓, Sokolow1949 ✓, Casale1985 ✓, Romhilt1968 ✓, Peguero2017 ✓,
+  Rautaharju2009 ✓, MacFarlane2011 ✓, Hollander2014 ✓, Bouthillier2021 ✓,
+  Dodge2019 ✓.
+  TOUTES les citations sont présentes dans bibliography.bib. RAS.
+---
+
+PASS_04 — [Références / DOIs] — MODÉRÉE
+Observation: Vérification des DOIs dans bibliography.bib :
+  - Holloway2026 : doi=10.1007/978-3-031-87568-3 (DOI du volume, pas du chapitre) — PROBLÈME
+  - Coppola2024 : doi=10.1101/2024.11.14.24317328 (medRxiv) ✓
+  - Nguyen2025 : doi=10.48550/arXiv.2507.09887 ✓
+  - Srivastava2025 : doi=10.48550/arXiv.2502.16255 ✓
+  - Dauphin2017 : pas de DOI dans la bib (proceedings ICML) — manque
+  - Nonaka2021 : pas de DOI dans la bib (proceedings MLHC) — manque
+  - Kiyasseh2021 : URL seulement, pas de DOI — MDPI préfère DOI quand disponible
+  - Na2024 : URL openreview.net, pas de DOI — MDPI préfère DOI ICLR si disponible
+Risque reviewer: "Certaines références manquent de DOIs."
+Action recommandée:
+  (1) Holloway2026: ajouter le DOI du chapitre individuel.
+  (2) Dauphin2017 PMLR 70: url=https://proceedings.mlr.press/v70/dauphin17a.html
+      (pas de DOI pmlr standard pour cet article — accepter URL).
+  (3) Nonaka2021 PMLR 149: ajouter URL si pas de DOI.
+  (4) Kiyasseh2021 PMLR 139: ajouter url du proceedings.
+  (5) Na2024 ICLR: vérifier si un DOI OpenReview est disponible.
+---
+
+PASS_04 — [Références / Bouquin MacFarlane2011] — MINEURE
+Observation: MacFarlane2011 est un livre édité (editor=..., title=Comprehensive
+  Electrocardiology, 2nd ed., Springer). Le format @book avec editor est correct
+  MDPI mais certains systèmes de bibliographie MDPI peuvent l'afficher
+  différemment selon le style. Vérifier le rendu dans le PDF final.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TERMINOLOGIE — COHÉRENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Terminologie / sex vs gender] — MODÉRÉE
+Observation: Le manuscrit utilise "sex" (Section 3.3 : "sex01=1 denotes male,
+  sex01=0 denotes female, following the PTB-XL encoding") de manière cohérente.
+  Il utilise "sex" pas "gender" — ce qui est scientifiquement correct pour une
+  variable biologique. POINT FORT. Mais la référence Atwa2025 dans la table
+  (tab:prior_a) utilise "gender" : "Raw ECG with age/gender branches". Cette
+  inconsistance mineure reflète la terminologie de l'autre papier, pas du présent.
+Action recommandée: RAS pour le présent papier (correct). Dans la table, citer
+  la terminologie de l'auteur original entre guillemets si différente.
+---
+
+PASS_04 — [Terminologie / metadata vs clinical metadata] — MODÉRÉE
+Observation: Le manuscrit utilise indifféremment :
+  - "clinical metadata" (dans l'abstract et discussions)
+  - "patient metadata" (dans plusieurs sections)
+  - "structured patient metadata" (Section 1)
+  - "structured clinical metadata" (Section 7.1 discussion)
+  - "tabular metadata" (dans la Table prior_b description)
+  Ces variations terminologiques sont mineures mais peuvent perturber un éditeur
+  qui préfère la cohérence.
+Risque reviewer: "Standardisez la terminologie metadata."
+Action recommandée: Choisir "structured patient metadata" (ou "tabular clinical
+  metadata") et l'utiliser systématiquement. Éviter "clinical" si les variables
+  (height, weight) ne sont pas strictement des variables cliniques au sens EHR.
+---
+
+PASS_04 — [Terminologie / "demo+anthro" vs "full metadata"] — MINEURE
+Observation: La variante est appelée "demo+anthro" en code et dans les tables,
+  mais aussi "full metadata" et "full-metadata" dans le texte narratif. La
+  consistance est généralement bonne mais quelques occurrences mélangent les
+  deux. Vérifier avec grep.
+Action recommandée: RAS — la double notation est expliquée lors de sa première
+  apparition.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LANGUE — MODALISATEURS ET CLAIMS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Langue / modalisateurs] — POINT FORT
+Observation: Le manuscrit utilise systématiquement des modalisateurs appropriés
+  pour les résultats exploratoires : "exploratory", "nominal p", "descriptive
+  purposes only", "plausible but non-causal hypotheses", "consistent with",
+  "suggest". Ces qualificatifs sont présents tout au long du texte et distinguent
+  clairement les claims confirmatory (Group A) des exploratoires (B-F). Ceci est
+  exemplaire pour MDPI Mathematics.
+---
+
+PASS_04 — [Langue / orthographe et grammaire] — MINEURE
+Observation: "seed-matched paired-Wilcoxon + BH-FDR" (Section 8) — la
+  construction avec "+" est informelle. Préférer "seed-matched paired Wilcoxon
+  with Benjamini-Hochberg FDR control."
+  "Confirmatory evidence" (Section 5.3 ligne 287) vs "confirmatory inference" —
+  légère variation terminologique statistique (acceptable).
+  "Macro-$F_1^{\ast}$" — l'astérisque note un threshold optimal, expliqué dans
+  le texte. Clair.
+---
+
+PASS_04 — [Langue / "270 seed-variant descriptors, of which 20 are shared"] — MODÉRÉE
+Observation: La description du ledger (ligne 287) dit "250 unique runs (270 seed-
+  variant descriptors, of which 20 are shared between groups)." La distinction
+  entre "runs" et "descriptors" est importante mais confuse au premier abord.
+  Un éditeur peut demander une définition claire dès la première mention.
+Risque reviewer: "Que signifie exactement un 'descriptor' vs un 'run' ?"
+Action recommandée: Définir au début de la section Seeds (Section 5.3) :
+  "We distinguish between 'runs' (unique training executions) and 'descriptors'
+  (experiment specifications, including those reusing an existing run from
+  another group)."
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DÉCLARATIONS MDPI — CONFORMITÉ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Data Availability / ligne 524] — POINT FORT
+Observation: La Data Availability Statement est très complète :
+  - PTB-XL : doi et URL PhysioNet avec date d'accès (19 May 2026) ✓
+  - Code et résultats : GitHub public avec commit anchor (ebc1e5e) ✓
+  - Note sur la future création d'un tag/Zenodo DOI à l'acceptation ✓
+  - SHA-256 de l'analysis plan ✓
+  - Note sur les patient-level arrays non archivés (justification donnée) ✓
+  Cette déclaration est exemplaire pour la reproductibilité MDPI.
+---
+
+PASS_04 — [Author Contributions / ligne 516] — MODÉRÉE
+Observation: Les Author Contributions utilisent les rôles CRediT. L'auteur E.S.
+  est crédité pour pratiquement tout (Conceptualization, Software, Validation,
+  Formal analysis, Investigation, Resources, Data curation, Writing-original draft,
+  Visualization). Bien que l'auteur principal ait pu effectuer ces tâches pour
+  un projet relativement solo, MDPI peut trouver cette liste excessivement
+  centrée sur un seul auteur dans une publication à 7 auteurs.
+Risque reviewer: "Si E.S. a fait tout le travail, quel est le rôle substantiel
+  des 6 co-auteurs ?"
+Action recommandée: Vérifier que les contributions des co-auteurs (Supervision,
+  Writing-review-and-editing) sont réelles et substantielles. Si l'article est
+  essentiellement solo, cela devrait être transparent dans la section.
+---
+
+PASS_04 — [GenAI Declaration / ligne 529] — MODÉRÉE
+Observation: La déclaration GenAI mentionne que Claude (Anthropic) a été utilisé
+  pour "audit the reference list, verify manuscript compliance, assist with
+  language revision, self-review of manuscript text, and correct grammar,
+  spelling, and punctuation errors." MDPI requiert une déclaration GenAI si un
+  outil d'IA a été utilisé dans la préparation du manuscrit — la déclaration
+  est présente et conforme.
+  CEPENDANT : "self-review of manuscript text" est une utilisation substantielle
+  qui va au-delà de la simple correction grammaticale. Certains journaux MDPI
+  peuvent exiger une clarification supplémentaire sur quels aspects spécifiques
+  ont été révisés par l'IA.
+Risque reviewer: "Le rôle de l'IA dans la 'self-review' est vague."
+Action recommandée: Préciser "to identify potential inconsistencies in the
+  methodology description and terminology" à la place de "self-review of
+  manuscript text."
+---
+
+PASS_04 — [Institutional Review / ligne 520] — POINT FORT
+Observation: La déclaration IRB est correcte pour une étude secondaire sur des
+  données publiques entièrement anonymisées. La mention de l'IRB original de
+  PTB Berlin est appropriée.
+---
+
+PASS_04 — [Funding / ligne 518] — MODÉRÉE
+Observation: "This research received no external funding." Simple et conforme.
+  MAIS pour une soumission MDPI, l'absence de financement externe peut soulever
+  des questions sur les coûts de l'Article Processing Charge (APC). MDPI
+  Mathematics est un journal payant (APC ~2000 CHF). Pas de problème éditorial
+  mais à anticiper.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LATEX — VÉRIFICATION TECHNIQUE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [LaTeX / commandes non définies] — MODÉRÉE
+Observation: Le fichier utilise :
+  \providecommand{\history}[1]{} — defensive definition pour MDPI class ✓
+  \providecommand{\TitleCitation}[1]{} — idem ✓
+  \providecommand{\AuthorCitation}[1]{} — idem ✓
+  \setlength{\headheight}{20pt} — override MDPI header height ✓
+  \usepackage{bm} — bold math ✓
+  \abbreviations{Abbreviations used in this manuscript:}{...tabularX} — check si
+  \abbreviations est défini dans la classe MDPI.
+Risque reviewer: "La commande \abbreviations avec un contenu tabulaire peut ne
+  pas être compatible avec toutes les versions de la classe MDPI."
+Action recommandée: Vérifier que \abbreviations avec le format tabularX compile
+  correctement avec la version actuelle de la classe MDPI.
+---
+
+PASS_04 — [LaTeX / \path{scp_statements.csv}] — MINEURE
+Observation: La commande \path{} (ligne 143) est utilisée pour afficher le nom
+  de fichier. Elle est disponible via le package url ou verbatim mais non
+  explicitement importée. Si la classe MDPI ne fournit pas \path, cela peut
+  produire une erreur.
+Risque reviewer: "Commande \path non définie."
+Action recommandée: Remplacer \path{scp_statements.csv} par \texttt{scp\_statements.csv}
+  (backslash échappé) pour éviter tout problème.
+---
+
+PASS_04 — [LaTeX / labels] — POINT FORT
+Observation: Vérification de tous les \label et \ref :
+  fig:arch ✓, fig:curves ✓, fig:delta ✓, fig:heat ✓, fig:missing ✓, fig:blend ✓
+  tab:dataset ✓, tab:hparams ✓, tab:main ✓, tab:perclass ✓, tab:sensitivity ✓,
+  tab:group_e ✓, tab:group_f ✓, tab:prior_a ✓, tab:prior_b ✓, tab:run_ledger ✓
+  eq:xmeta ✓, eq:posweights ✓, eq:qmeta ✓, eq:hm ✓, eq:hts ✓, eq:headfused ✓
+  sec:intro ✓, sec:relwork ✓, sec:dataset ✓, sec:model ✓, sec:protocol ✓,
+  sec:results ✓, sec:sensitivity ✓, sec:discussion ✓, sec:limits ✓, sec:conclusion ✓
+  Pas de label orphelin détecté. RAS.
+---
+
+PASS_04 — [LaTeX / externalbibliography] — MODÉRÉE
+Observation: \externalbibliography{yes}\bibliography{bibliography} — ceci est
+  la commande MDPI pour inclure une bibliographie externe. Correct pour MDPI.
+  La compilation nécessite bibtex/biber avant pdflatex, ce qui est standard.
+---
+
+PASS_04 — [LaTeX / AtBeginDocument pdfstringdef] — MINEURE
+Observation: Le bloc \AtBeginDocument{...} (lignes 11-35) désactive les
+  commandes mathématiques dans les bookmarks PDF. Ceci est une bonne pratique
+  pour éviter les avertissements hyperref. Le code semble correct.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KEYWORDS ET MSC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Keywords / ligne 84] — MODÉRÉE
+Observation: Keywords: electrocardiogram; multimodal fusion; multiplicative gating;
+  missing data; PTB-XL; myocardial infarction; reproducibility; nonparametric
+  inference. Huit keywords — MDPI recommande généralement 5-8 keywords.
+  "multiplicative gating" est très technique et peu recherché. Envisager
+  "Wilcoxon test" ou "false discovery rate" ou "statistical inference" qui
+  correspondent mieux à l'audience Mathematics.
+Action recommandée: Remplacer "multiplicative gating" par "Wilcoxon signed-rank test"
+  ou "statistical inference" pour mieux correspondre à l'audience Mathematics.
+---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUPPLEMENTARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASS_04 — [Supplementary / ligne 514] — MAJEURE
+Observation: La note supplementaire (ligne 514) fait référence à "Table S1 —
+  the 3-test BH-FDR pre-specified family" dans les supplementary du GitHub.
+  MDPI Mathematics peut exiger que les supplementary soient soumis via le
+  système MDPI Supplementary Materials, pas simplement référencés sur GitHub.
+Risque reviewer: "Table S1 n'est pas dans les supplementary formels de la
+  soumission."
+Action recommandée: (1) Préparer un fichier PDF supplementary avec au minimum
+  Table S1 (les 3 tests BH) et le soumettre via le portail MDPI. (2) Garder
+  le GitHub comme référence pour les données complètes.
+---
+
+================================================================================
+RÉSUMÉ PASSE 04 — Remarques éditoriales
+================================================================================
+
+CRITIQUES (1):
+  Ed01 — Abstract trop long (~330 mots vs 200 maximum MDPI Mathematics)
+
+MAJEURES (5):
+  Ed02 — Table 3 lisibilité (resizebox peut produire police trop petite)
+  Ed03 — Table S1 non soumise via portail MDPI (seulement référencée GitHub)
+  Ed04 — Fig 4 caption : déviation 10 vs 20 seeds pas justifiée in-caption
+  Ed05 — DOI Holloway2026 : volume-level, pas chapitre-level
+
+MODÉRÉES (8):
+  Ed06 — MSC code 68T45 (Machine vision) inapproprié pour ECG 1D
+  Ed07 — Plusieurs DOIs manquants (Dauphin2017, Nonaka2021, Kiyasseh2021, Na2024)
+  Ed08 — Terminologie "metadata" non unifiée (patient/clinical/structured/tabular)
+  Ed09 — Définition runs vs descriptors absente en début de section
+  Ed10 — Author contributions très centrées sur E.S. (7 auteurs, 1 fait tout)
+  Ed11 — GenAI "self-review" trop vague
+  Ed12 — \path{} peut ne pas être défini dans classe MDPI
+  Ed13 — Keywords : "multiplicative gating" peu pertinent pour audience Mathematics
+
+MINEURES (5):
+  Ed14 — Abstract trop technique pour audience Mathematics générale
+  Ed15 — Fit avec Mathematics justifié en Section 5.7, pas en Introduction
+  Ed16 — Titres subsections de Discussion trop longs/informels
+  Ed17 — Fig 5A normalisation par colonne peut induire en erreur
+  Ed18 — Caption Table 3 trop longue
+
+POINTS FORTS (4):
+  EdPF01 — Toutes les citations présentes dans bibliography.bib (39/39)
+  EdPF02 — Data Availability Statement exemplaire
+  EdPF03 — Déclaration IRB correcte pour données publiques
+  EdPF04 — Modalisateurs (exploratory, descriptive, consistent with) utilisés systématiquement
+================================================================================
