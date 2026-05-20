@@ -39,7 +39,8 @@ training scripts (`atlas_a_v5_multiseed.py` and `new_train_models/atlas_a_v5_ext
 | `eznx_loader_v2.py` | Dataset loader (returns raw mV; /5.0 applied in collate) |
 | `eznx_model_v5.py` | EZNX-ATLAS-A model architecture (3.95M parameters) |
 | `requirements.txt` | Python environment (all 250 training runs) |
-| `scripts/render_figures_v2.py` | Figure regeneration from seed-level JSON artefacts |
+| `scripts/render_architecture_figure.py` | Figure 1 architecture diagram regeneration |
+| `scripts/render_figures_v2.py` | Figures 2--6 regeneration from seed-level JSON artefacts |
 
 For the full training pipeline (orchestration, index construction, statistical analysis),
 see the root of the public repository at the commit identified in each `results_*.json`.
